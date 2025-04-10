@@ -1,0 +1,170 @@
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body{
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 150px;
+}
+
+.containerprofile{
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 115px;
+}
+
+.left{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 500px;
+    width: 490px;
+    border-radius: 10px;
+    background-color: white;
+    gap: 30px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.right{
+    display: flex;
+    flex-direction: column;
+    padding: 30px;
+    height: 490px;
+    width: 620px;
+    border-radius: 10px;
+    background-color: white;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+#profile{
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    margin-top: 20px;
+    border: 2px solid #0083FF;
+}
+
+h1,h2,h3,h4,h5,h6{
+    font-family: 'montserrat', sans-serif;
+}
+
+p{
+    font-family: 'lato', sans-serif;
+}
+
+#update-image-button{
+    width: 170px;
+    height: 48px;
+    background-color: #0083FF;
+    color: white;
+    border: none;
+    font-family: 'lato', sans-serif;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+#update-image-button:hover {
+    transform: scale(1.05);
+}
+
+#remove-image-button{
+    width: 170px;
+    height: 48px;
+    background-color: #FCF7F7;
+    color: black;
+    border: 1px solid #ddd;
+    font-family: 'lato', sans-serif;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+#remove-image-button:hover {
+    transform: scale(1.05);
+}
+
+#edit-profile-button{
+    width: 170px;
+    height: 48px;
+    background-color: #FCF7F7;
+    color: black;
+    border: 1px solid #ddd;
+    font-family: 'lato', sans-serif;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+#edit-profile-button:hover {
+    transform: scale(1.05);
+}
+
+#current-schedule-button{
+    width: 170px;
+    height: 48px;
+    background-color: #0083FF;
+    color: white;
+    border: none;
+    font-family: 'lato', sans-serif;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+#current-schedule-button:hover {
+    transform: scale(1.05);
+}
+
+#delete-profile-button{
+    width: 170px;
+    height: 48px;
+    background-color: #FF0000;
+    color: white;
+    border: none;
+    font-family: 'lato', sans-serif;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+#delete-profile-button:hover {
+    transform: scale(1.05);
+}
+
+.buttons{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 40px;
+}
+
+button{
+    cursor: pointer;
+}
+
+.information{
+    font-size: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+    margin-top: 20px;
+    margin-bottom: 40px;
+}
+
+.name{
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: center;
+}
+
+.name p{
+    color: #222222;
+    font-weight: 100;
+}
