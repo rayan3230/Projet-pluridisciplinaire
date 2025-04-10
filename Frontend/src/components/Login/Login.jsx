@@ -74,15 +74,14 @@ const Login = ({ onUserAdded }) => {
               <img id="bottomright" src={bottomright} alt="" />
         </div>
         <div id="right">
-          <h1>Welcome to Scope</h1>
-          <p id='discription'>SCOPE allows professors to securely swap class slots with mutual approval, ensuring transparency, minimizing conflicts, and providing real-time updates.</p>
+          <h1 id='welcome'>Welcome to Scope</h1>
+          <p id='description'>SCOPE allows professors to securely swap class slots with mutual approval, ensuring transparency, minimizing conflicts, and providing real-time updates.</p>
           
           <button type="submit" id='google'>
             <img src={google} alt="google logo" />
             <span>Continue with google</span>
           </button>
 
-          <hr />
         <form onSubmit={handleSubmit}>
           <input 
           type="email"

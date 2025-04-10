@@ -21,6 +21,9 @@
   }
   
   #left {
+    display: flex;
+    justify-content: center;
+    align-items: center;
     padding: 15px;
   }
   
@@ -31,7 +34,7 @@
     display: flex;
     flex-direction: column;
     justify-content: center;
-    align-items: center;   
+    align-items: center;
   }
   
   #right {
@@ -51,9 +54,16 @@
     margin-bottom: 20px;
 }
 
-#discription{
+#welcome{
+  position: relative;
+  left: -15px;
+}
+
+#description{
+    position: relative;
+    left: -15px;
     text-align: center;
-    width: 449px;
+    width: 450px;
 }
 
 #submit{
@@ -65,6 +75,7 @@
     width:452px ;
     height:51px ;
     border: none;
+    margin-bottom: 15px;
 }
 
 a{
@@ -80,6 +91,7 @@ p{
     display: flex;
     flex-direction: column;
     gap: 10px;
+    margin-bottom: 15px;
 }
 
 
