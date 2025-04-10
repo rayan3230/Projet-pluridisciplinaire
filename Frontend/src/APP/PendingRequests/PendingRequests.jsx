@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import pendingrequest from './pendingrequests.css';
 
 const PendingRequests = () => {
   const [filters, setFilters] = useState({
