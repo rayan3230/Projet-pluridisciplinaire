@@ -265,53 +265,114 @@ const Login = () => {
 
           {/* Force Change Password Mode UI */} 
           {mode === 'forceChangePassword' && (
-              <div className="change-password-container">
-                  <h2>Set Your New Password</h2>
-                  <p>Please choose a new password for your account ({initialUserData?.scope_email || 'your account'}).</p>
+            <div className="bottom">
+              <div className="left">
+                <form className="left" onSubmit={handleChangePasswordSubmit}>
+                  <p style={{ color: 'white', fontFamily: 'lato, sans-serif', fontSize: '1.2em', marginBottom: '15px', textAlign: 'center' }}>
+                    Set a new password for your account
+                  </p>
+                  
+                  {/* New Password Field - styled like regular textfields */}
+                  <div style={{ position: 'relative', width: '100%' }}>
+                    <input
+                      type={showNewPassword ? 'text' : 'password'}
+                      id="newPassword"
+                      placeholder="New Password"
+                      className='textfield'
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      required
+                      disabled={isLoading}
+                    />
+                    <button 
+                      type="button" 
+                      onClick={() => setShowNewPassword(!showNewPassword)}
+                      style={{
+                        position: 'absolute',
+                        right: '10px',
+                        top: '50%',
+                        transform: 'translateY(-50%)',
+                        background: 'transparent',
+                        border: 'none',
+                        color: 'white',
+                        cursor: 'pointer',
+                        fontSize: '0.8em'
+                      }}
+                    >
+                      {showNewPassword ? 'Hide' : 'Show'}
+                    </button>
+                  </div>
+                  
+                  {/* Confirm New Password Field */}
+                  <div style={{ position: 'relative', width: '100%' }}>
+                    <input
+                      type={showConfirmPassword ? 'text' : 'password'}
+                      id="confirmPassword"
+                      placeholder="Confirm New Password"
+                      className='textfield'
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      required
+                      disabled={isLoading}
+                    />
+                    <button 
+                      type="button" 
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      style={{
+                        position: 'absolute',
+                        right: '10px',
+                        top: '50%',
+                        transform: 'translateY(-50%)',
+                        background: 'transparent',
+                        border: 'none',
+                        color: 'white',
+                        cursor: 'pointer',
+                        fontSize: '0.8em'
+                      }}
+                    >
+                      {showConfirmPassword ? 'Hide' : 'Show'}
+                    </button>
+                  </div>
+                  
+                  {/* Password requirements hint */}
+                  <p style={{ color: '#aaa', fontFamily: 'lato, sans-serif', fontSize: '0.8em', margin: '0' }}>
+                    Password must be at least 8 characters long
+                  </p>
 
-                  <form onSubmit={handleChangePasswordSubmit} className="change-password-form">
-                      {/* New Password Field */} 
-                      <div className='password-input-wrapper'>
-                          <label htmlFor="newPassword">New Password:</label>
-                          <input
-                              type={showNewPassword ? 'text' : 'password'}
-                              id="newPassword"
-                              className='textfield' // Use existing style
-                              value={newPassword}
-                              onChange={(e) => setNewPassword(e.target.value)}
-                              required
-                              disabled={isLoading}
-                          />
-                          <button type="button" onClick={() => setShowNewPassword(!showNewPassword)} className="show-hide-btn">
-                              {showNewPassword ? 'Hide' : 'Show'}
-                          </button>
-                      </div>
-
-                      {/* Confirm New Password Field */} 
-                      <div className='password-input-wrapper'>
-                          <label htmlFor="confirmPassword">Confirm New Password:</label>
-                          <input
-                              type={showConfirmPassword ? 'text' : 'password'}
-                              id="confirmPassword"
-                              className='textfield' // Use existing style
-                              value={confirmPassword}
-                              onChange={(e) => setConfirmPassword(e.target.value)}
-                              required
-                              disabled={isLoading}
-                          />
-                          <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="show-hide-btn">
-                              {showConfirmPassword ? 'Hide' : 'Show'}
-                          </button>
-                      </div>
-
-                      {error && <p style={{ color: 'red', textAlign: 'center', marginTop: '10px' }}>{error}</p>}
-                      {message && <p style={{ color: 'green', textAlign: 'center', marginTop: '10px' }}>{message}</p>}
-                      
-                      <button type="submit" id='login' disabled={isLoading}> {/* Reuse login button style */} 
-                          {isLoading ? 'Saving...' : 'Set New Password'}
-                      </button>
-                  </form>
+                  {/* Error and message display */}
+                  {error && <p style={{ color: 'red', textAlign: 'center', marginTop: '10px' }}>{error}</p>}
+                  {message && <p style={{ color: 'green', textAlign: 'center', marginTop: '10px' }}>{message}</p>}
+                  
+                  {/* Submit button - same style as login button */}
+                  <button type="submit" id='login' disabled={isLoading}> 
+                    {isLoading ? 'Saving...' : 'Set New Password'}
+                  </button>
+                </form>
               </div>
+              
+              <h1 id='devider'>/</h1>
+              
+              <div className="right">
+                <div style={{ 
+                  color: 'white', 
+                  fontFamily: 'lato, sans-serif',
+                  padding: '20px',
+                  backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                  borderRadius: '10px',
+                  border: '1px solid rgba(255, 255, 255, 0.2)',
+                  maxWidth: '450px'
+                }}>
+                  <h3 style={{ marginBottom: '15px', color: '#00FFCC' }}>Why Change Your Password?</h3>
+                  <p style={{ fontSize: '0.9em', lineHeight: '1.5' }}>
+                    For security reasons, you need to set a new password on your first login. 
+                    Choose a strong password that you haven't used on other sites.
+                  </p>
+                  <p style={{ fontSize: '0.9em', marginTop: '15px', lineHeight: '1.5' }}>
+                    If you need any assistance, please contact the system administrator.
+                  </p>
+                </div>
+              </div>
+            </div>
           )}
         </div>
         <a href="" id='resetpass'>Reset Password</a>
