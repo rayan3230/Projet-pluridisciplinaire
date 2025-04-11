@@ -1,8 +1,8 @@
 import './Login.css'
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios'
-import logo from '../../assets/Group 1.png';
+import logo from '../../assets/circle.png';
 import topright from '../../assets/topright.png';
 import bottomleft from '../../assets/bottomleft.png';
 import bottomright from '../../assets/bottomright.png';
@@ -61,63 +61,87 @@ const Login = ({ onUserAdded }) => {
       });
     };
 
+
+    useEffect(() => {
+      const script = document.createElement('script');
+      script.src = "https://unpkg.com/typed.js@2.1.0/dist/typed.umd.js";
+      script.async = true;
+      
+      script.onload = () => {
+        const Typed = window.Typed;
+        if (Typed && !window.typedInstance) {
+          // Split your header into static and dynamic parts
+          const staticText = "Welcome to ";
+          document.getElementById('loginheader').innerHTML = 
+            `${staticText}<span id="scope"></span>`;
+          
+          window.typedInstance = new Typed('#scope', {
+            strings: ['Scope', 'The future', 'Ease'],
+            typeSpeed: 100,
+            backSpeed: 50,
+            loop: true,
+            showCursor: true,
+            cursorChar: '|',
+            smartBackspace: true,
+            startDelay: 300,
+            backDelay: 1500
+          });
+        }
+      };
+    
+      document.body.appendChild(script);
+    
+      return () => {
+        if (window.typedInstance) {
+          window.typedInstance.destroy();
+          delete window.typedInstance;
+        }
+        document.body.removeChild(script);
+      };
+    }, []);
+    
+
+
     return <>
-      <div className="container">
-       
-        <div id="left">
-          <div>
-              <img id="logo" src={logo} alt="Logo" />
-          </div>
-          
-              <img id="topright" src={topright} alt="" />
-              <img id="bottomleft" src={bottomleft} alt="" />
-              <img id="bottomright" src={bottomright} alt="" />
-        </div>
-        <div id="right">
-          <h1 id='welcome'>Welcome to Scope</h1>
-          <p id='description'>SCOPE allows professors to securely swap class slots with mutual approval, ensuring transparency, minimizing conflicts, and providing real-time updates.</p>
-          
-          <button type="submit" id='google'>
-            <img src={google} alt="google logo" />
-            <span>Continue with google</span>
-          </button>
+      <div className="containerlogin">
+       <img src={logo} alt="" id="circle1" className='circle' />
+       <img src={logo} alt="" id="circle2" className='circle'/>
+       <span className="logologin">Scope</span>
 
-        <form onSubmit={handleSubmit}>
-          <input 
-          type="email"
-          name='email'
-          placeholder="Enter Email..." 
-          value={formData.email}
-          onChange={handleChange}
-          required
-          />
-            <div id='password'>   
-            <input 
-            type="password" 
-            name='password'
-            placeholder="Enter Password..."
-            value={formData.password}
-            onChange={handleChange}
-            required
-            />
-            <p>
-              <a href="#" className="textbut">Forgot Password?</a>
-            </p>
-            </div>
-            
-            {message && <p className={message.includes('successful') ? 'success-message' : 'error-message'}>{message}</p>}
-            
-            <button type="submit" id='submit' disabled={isLoading}>
-              {isLoading ? 'Logging in...' : 'Login'}
-            </button>
-            <p >
-            Can't sign in? Try <a href="#" className="textbut">resetting your password</a> or <a href="#" className="textbut">contact us</a> for assistance.
-            </p>
-        </form>
+      <div className="content">
+        <h1 id='loginheader'>Welcome to <span id='scope'></span></h1>
+        <p id='logindescription'>SCOPE allows professors to securely swap class slots with mutual approval, ensuring transparency, minimizing conflicts, and providing real-time updates.</p>
+        <div className="bottom">
+        <div className="left">
+          <input type="text" name="email" placeholder="University or personal email" value={formData.email} onChange={handleChange} className='textfield'  />
+          <input type="password" name="password" placeholder="Password" value={formData.password} onChange={handleChange} className='textfield' />
+          <a href="" id='forgot'>Forgot Password ?</a>
+          <button onClick={handleSubmit} disabled={isLoading} id='login'>
+        {isLoading ? 'Logging in...' : 'Login'}
+        </button>       
+         </div>
+
+        <h1 id='devider'>/</h1>
+
+        <div className="right">
+          <button id='google'>Continue with Google</button>
+          <button id='contact'>Contact Us</button>
+          <button id='website'>Visit our website</button>
+        </div>
+
+        
 
 
         </div>
+        <a href="" id='resetpass'>Reset Password</a>
       </div>
+
+      <span className="rights">© 2025 Scope. All Rights Reserved.</span>
+      </div>
+
+
+
+
       </>
 }
 
