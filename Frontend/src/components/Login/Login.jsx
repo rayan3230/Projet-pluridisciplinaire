@@ -268,7 +268,7 @@ const Login = () => {
             <div className="bottom">
               <div className="left">
                 <form className="left" onSubmit={handleChangePasswordSubmit}>
-                  <p style={{ color: 'white', fontFamily: 'lato, sans-serif', fontSize: '1.2em', marginBottom: '15px', textAlign: 'center' }}>
+                  <p id="resetheader" >
                     Set a new password for your account
                   </p>
                   
@@ -341,7 +341,7 @@ const Login = () => {
 
                   {/* Error and message display */}
                   {error && <p style={{ color: 'red', textAlign: 'center', marginTop: '10px' }}>{error}</p>}
-                  {message && <p style={{ color: 'green', textAlign: 'center', marginTop: '10px' }}>{message}</p>}
+                  {message && <p id="message">{message}</p>}
                   
                   {/* Submit button - same style as login button */}
                   <button type="submit" id='login' disabled={isLoading}> 
@@ -352,16 +352,8 @@ const Login = () => {
               
               <h1 id='devider'>/</h1>
               
-              <div className="right">
-                <div style={{ 
-                  color: 'white', 
-                  fontFamily: 'lato, sans-serif',
-                  padding: '20px',
-                  backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                  borderRadius: '10px',
-                  border: '1px solid rgba(255, 255, 255, 0.2)',
-                  maxWidth: '450px'
-                }}>
+              <div className="rightreset">
+                <div>
                   <h3 style={{ marginBottom: '15px', color: '#00FFCC' }}>Why Change Your Password?</h3>
                   <p style={{ fontSize: '0.9em', lineHeight: '1.5' }}>
                     For security reasons, you need to set a new password on your first login. 

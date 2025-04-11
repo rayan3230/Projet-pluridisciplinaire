@@ -15,6 +15,7 @@ pip install cryptography
 pip install supabase // for Supabase connection
 pip install python-dotenv // for environment variables
 pip install python-dotenv psycopg2
+pip install django-extentions
 //-----------------------------------------------------frontend----------------------------------------------------//
 // use npm start   or  npm run dev // to start server frontend
 npx create-react-app Frontend // to install react

@@ -54,7 +54,6 @@ INSTALLED_APPS = [
     'rest_framework',
     'users',
     'Acadimic',
-    'django_extensions',
 ]
 
 MIDDLEWARE = [
