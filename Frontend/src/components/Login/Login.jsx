@@ -229,8 +229,8 @@ const Login = () => {
       <div className="containerlogin">
        <img src={logo} alt="" id="circle1" className='circle' />
        <img src={logo} alt="" id="circle2" className='circle'/>
-       <span className="logologin">Scope</span>
-
+       <span className="logologin" onClick={() => { setMode('login'); setMessage(""); }}>Scope</span>
+       
       <div className="content">
         <h1 id='loginheader'>Welcome to <span id='scope'></span></h1>
         <p id='logindescription'>SCOPE allows professors to securely swap class slots with mutual approval, ensuring transparency, minimizing conflicts, and providing real-time updates.</p>
