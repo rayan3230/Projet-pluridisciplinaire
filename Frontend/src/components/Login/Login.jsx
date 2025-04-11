@@ -1,9 +1,8 @@
 import './Login.css'
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom';
-import apiClient from '../../config/axiosConfig';
-import { useAuth } from '../../context/AuthContext';
-import logo from '../../assets/Group 1.png';
+import axios from 'axios'
+import logo from '../../assets/circle.png';
 import topright from '../../assets/topright.png';
 import bottomleft from '../../assets/bottomleft.png';
 import bottomright from '../../assets/bottomright.png';
@@ -175,187 +174,87 @@ const Login = () => {
       });
     };
 
+
+    useEffect(() => {
+      const script = document.createElement('script');
+      script.src = "https://unpkg.com/typed.js@2.1.0/dist/typed.umd.js";
+      script.async = true;
+      
+      script.onload = () => {
+        const Typed = window.Typed;
+        if (Typed && !window.typedInstance) {
+          // Split your header into static and dynamic parts
+          const staticText = "Welcome to ";
+          document.getElementById('loginheader').innerHTML = 
+            `${staticText}<span id="scope"></span>`;
+          
+          window.typedInstance = new Typed('#scope', {
+            strings: ['Scope', 'The future', 'Ease'],
+            typeSpeed: 100,
+            backSpeed: 50,
+            loop: true,
+            showCursor: true,
+            cursorChar: '|',
+            smartBackspace: true,
+            startDelay: 300,
+            backDelay: 1500
+          });
+        }
+      };
+    
+      document.body.appendChild(script);
+    
+      return () => {
+        if (window.typedInstance) {
+          window.typedInstance.destroy();
+          delete window.typedInstance;
+        }
+        document.body.removeChild(script);
+      };
+    }, []);
+    
+
+
     return <>
-      <div className="container">
-       
-        <div id="left">
-          <div>
-              <img id="logo" src={logo} alt="Logo" />
-          </div>
-          
-              <img id="topright" src={topright} alt="" />
-              <img id="bottomleft" src={bottomleft} alt="" />
-              <img id="bottomright" src={bottomright} alt="" />
+      <div className="containerlogin">
+       <img src={logo} alt="" id="circle1" className='circle' />
+       <img src={logo} alt="" id="circle2" className='circle'/>
+       <span className="logologin">Scope</span>
+
+      <div className="content">
+        <h1 id='loginheader'>Welcome to <span id='scope'></span></h1>
+        <p id='logindescription'>SCOPE allows professors to securely swap class slots with mutual approval, ensuring transparency, minimizing conflicts, and providing real-time updates.</p>
+        <div className="bottom">
+        <div className="left">
+          <input type="text" name="email" placeholder="University or personal email" value={formData.email} onChange={handleChange} className='textfield'  />
+          <input type="password" name="password" placeholder="Password" value={formData.password} onChange={handleChange} className='textfield' />
+          <a href="" id='forgot'>Forgot Password ?</a>
+          <button onClick={handleSubmit} disabled={isLoading} id='login'>
+        {isLoading ? 'Logging in...' : 'Login'}
+        </button>       
+         </div>
+
+        <h1 id='devider'>/</h1>
+
+        <div className="right">
+          <button id='google'>Continue with Google</button>
+          <button id='contact'>Contact Us</button>
+          <button id='website'>Visit our website</button>
         </div>
-        <div id="right">
-          <h1 id='welcome'>Welcome to Scope</h1>
-          <p id='description'>SCOPE allows professors to securely swap class slots with mutual approval, ensuring transparency, minimizing conflicts, and providing real-time updates.</p>
-          
-          <button type="button" id='google'>
-            <img src={google} alt="google logo" />
-            <span>Continue with google</span>
-          </button>
 
-          {/* Mode-dependent UI */}
-          {mode === 'login' && (
-            <>
-              <form onSubmit={handleLoginSubmit}>
-                <input 
-                  type="email" 
-                  name='scope_email' 
-                  placeholder="Enter Scope Email..." 
-                  value={loginFormData.scope_email} 
-                  onChange={handleLoginChange}
-                  required
-                  disabled={isLoading}
-                />
-                {/* Password input container */}
-                <div className='password-container' style={{ position: 'relative', marginBottom: '15px' }}> 
-                  <input 
-                    type="password" 
-                    name='password'
-                    placeholder="Enter Password..." 
-                    value={loginFormData.password}
-                    onChange={handleLoginChange}
-                    required
-                    disabled={isLoading}
-                    style={{ boxSizing: 'border-box' }} 
-                  />
-                </div>
-                {/* Forgot Password Link (moved outside password-container) */} 
-                <p>
-                    <a href="#" className="textbut">Forgot Password?</a>
-                </p>
-                
-                {error && <p style={{ color: 'red', textAlign: 'center', marginTop: '10px' }}>{error}</p>}
-                {message && <p style={{ color: 'green', textAlign: 'center', marginTop: '10px' }}>{message}</p>}
-                
-                <button type="submit" id='submit' disabled={isLoading}>
-                  {isLoading ? 'Logging in...' : 'Login'}
-                </button>
-                <p >
-                Can't sign in? Try <a href="#" className="textbut">resetting your password</a> or <a href="#" className="textbut">contact us</a> for assistance.
-                </p>
-              </form>
-            </>
-          )}
+        
 
-          {mode === 'forceChangePassword' && (
-            <>
-              <h2>Set Your New Password</h2>
-              <p>Please choose a new password for your account ({loginFormData.scope_email}).</p>
-              <form onSubmit={handleChangePasswordSubmit}>
-                <div className='password-container' style={{ position: 'relative', marginBottom: '15px' }}>
-                    <label htmlFor="newPassword" style={{ display: 'block', marginBottom: '5px' }}>New Password:</label>
-                    <input
-                        type={showNewPassword ? 'text' : 'password'}
-                        id="newPassword"
-                        value={newPassword}
-                        onChange={(e) => setNewPassword(e.target.value)}
-                        required
-                        disabled={isLoading}
-                        style={{ paddingRight: '80px', boxSizing: 'border-box', width: '100%' }}
-                    />
-                    <div style={{ 
-                      position: 'absolute', 
-                      right: '10px', 
-                      top: 'calc(50% + 10px)', 
-                      transform: 'translateY(-50%)', 
-                      display: 'flex', 
-                      alignItems: 'center',
-                      gap: '5px',
-                      background: 'rgba(255, 255, 255, 0.9)',
-                      padding: '2px 8px',
-                      borderRadius: '4px',
-                      cursor: 'pointer'
-                    }}>
-                        <input 
-                            type="checkbox" 
-                            id="showNewPasswordCheck" 
-                            checked={showNewPassword} 
-                            onChange={() => setShowNewPassword(!showNewPassword)} 
-                            disabled={isLoading}
-                            style={{ 
-                              margin: 0,
-                              cursor: 'pointer',
-                              accentColor: '#4CAF50'
-                            }}
-                        />
-                        <label 
-                          htmlFor="showNewPasswordCheck" 
-                          style={{ 
-                            fontSize: '0.9em',
-                            color: '#666',
-                            cursor: 'pointer',
-                            userSelect: 'none'
-                          }}
-                        >
-                          Show
-                        </label>
-                    </div>
-                 </div>
-                 <div className='password-container' style={{ position: 'relative', marginBottom: '15px' }}>
-                    <label htmlFor="confirmPassword" style={{ display: 'block', marginBottom: '5px' }}>Confirm New Password:</label>
-                    <input
-                        type={showConfirmPassword ? 'text' : 'password'}
-                        id="confirmPassword"
-                        value={confirmPassword}
-                        onChange={(e) => setConfirmPassword(e.target.value)}
-                        required
-                        disabled={isLoading}
-                        style={{ paddingRight: '80px', boxSizing: 'border-box', width: '100%' }}
-                    />
-                    <div style={{ 
-                      position: 'absolute', 
-                      right: '10px', 
-                      top: 'calc(50% + 10px)', 
-                      transform: 'translateY(-50%)', 
-                      display: 'flex', 
-                      alignItems: 'center',
-                      gap: '5px',
-                      background: 'rgba(255, 255, 255, 0.9)',
-                      padding: '2px 8px',
-                      borderRadius: '4px',
-                      cursor: 'pointer'
-                    }}>
-                        <input 
-                            type="checkbox" 
-                            id="showConfirmPasswordCheck" 
-                            checked={showConfirmPassword} 
-                            onChange={() => setShowConfirmPassword(!showConfirmPassword)} 
-                            disabled={isLoading}
-                            style={{ 
-                              margin: 0,
-                              cursor: 'pointer',
-                              accentColor: '#4CAF50'
-                            }}
-                        />
-                        <label 
-                          htmlFor="showConfirmPasswordCheck" 
-                          style={{ 
-                            fontSize: '0.9em',
-                            color: '#666',
-                            cursor: 'pointer',
-                            userSelect: 'none'
-                          }}
-                        >
-                          Show
-                        </label>
-                    </div>
-                 </div>
-                 
-                {error && <p style={{ color: 'red', textAlign: 'center', marginTop: '10px' }}>{error}</p>}
-                {message && <p style={{ color: 'green', textAlign: 'center', marginTop: '10px' }}>{message}</p>}
-                
-                <button type="submit" id='submit-new-password' disabled={isLoading}>
-                    {isLoading ? 'Saving...' : 'Set New Password'}
-                </button>
-              </form>
-            </>
-          )}
 
         </div>
+        <a href="" id='resetpass'>Reset Password</a>
       </div>
+
+      <span className="rights">© 2025 Scope. All Rights Reserved.</span>
+      </div>
+
+
+
+
       </>
 }
 

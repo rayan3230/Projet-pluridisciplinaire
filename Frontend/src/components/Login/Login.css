@@ -1,140 +1,240 @@
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Audiowide&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@100..900&display=swap');
+
 
 * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-  }
-  
-  .container {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    height: 100vh;
-    width: 100vw;
-    overflow: hidden;
-    font-family: 'Montserrat', sans-serif;
-  }
-  
-  #left, #right {
-    height: 100;
-  }
-  
-  #left {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 15px;
-  }
-  
-  #left div {
-    width: 684px;
-    background-color: #222831;   
-    height:680px ;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-  }
-  
-  #right {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    gap: 30px;
-  }
-  
-  input{
-    width: 452px;
-    height: 51px;
-    padding: 20px;
-    border-radius: 6px;
-    border: 1px solid #ccc;
-    margin-bottom: 20px;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
-#welcome{
+body{
+  overflow: hidden;
+}
+
+.containerlogin{
+  width: 100vw;
+  height: 100vh;
+  background-color: black;
+  /*filter: hue-rotate(50deg);*/
+}
+
+.content{
+  display: flex;
   position: relative;
-  left: -15px;
+  top: 80px;
+  align-items: center;
+  width: 100vw;
+  height: 100vh;
+  color: white;
+  flex-direction: column;
 }
 
-#description{
-    position: relative;
-    left: -15px;
-    text-align: center;
-    width: 450px;
-}
+.bottom{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 70px;
 
-#submit{
-    text-align: center;
-    font-weight: bold;
-    background-color: #005691;
-    color: white;
-    border-radius: 6px;
-    width:452px ;
-    height:51px ;
-    border: none;
-    margin-bottom: 15px;
-}
-
-a{
-    color: #004A69;
-    text-decoration: none;
-}
-
-p{
-    font-family: "Lato", sans-serif;
-}
-
-#password{
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    margin-bottom: 15px;
 }
 
 
-#topright{
-    position: relative;
-    top: 25px;
-    left: 25px;
+.left{
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  gap: 30px;
 }
 
-hr {
-  position: relative;
-  left : -15px;
+.right{
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  height: 100%;
+}
+
+
+.textfield{
+  border: 1px solid white;
+  background-color:#0C0C0C ;
+  width: 450px;
+  height: 50px;
+  padding: 10px;
+  font-family: 'lato', sans-serif;
+  color: white;
+  font-weight: 500;
+}
+
+.textfield::placeholder {
+  color: white;
+}
+
+#forgot{
+  text-decoration: none;
+  color: white;
+  font-family: 'lato', sans-serif;
+  font-size: 0.8em;
+}
+
+#login{
   border: none;
-  height: 2px;
-  background-color: #ddd;
-  width: 60%;
+  color: white;
+  cursor: pointer;
+  width: 450px;
+  height: 50px;
+  transition: all 0.3s ease-out;
+  border-radius: 10px;
+  transition: all 0.1s ease-out;
+  background-image: linear-gradient(to right, #012641 , #0A2737 , #064A4C , #026D61 );
+}
+
+#login:hover {
+  color: white;
+  background-image: none;
+  background-color: black;
+  box-shadow: 
+    0 0 15px rgba(0, 255, 204, 0.7), /* Green shadow */
+    0 0 30px rgba(0, 131, 255, 0.5);  /* Blue shadow */
+  transform: translateY(-2px);
+}
+
+.circle{
+  position: absolute;
+  width: 400px;
+  height: 400px;
+  border-radius: 50%;
+  
+}
+
+#loginheader{
+  font-family: "Montserrat", sans-serif;
+  color: white;
+  font-size: 3.5em;
+  font-weight: bold;
+  margin-bottom: 20px;
+  
+}
+
+#logindescription{
+  font-family: "lato", sans-serif;
+  color: white;
+  font-size: 0.9em;
+  font-weight: 100;
+  line-height: 1.5em;
+  width:700px ;
+  text-align: center;
+  margin-bottom: 60px;
+}
+
+.logologin{
+  position: absolute;
+  font-family: "Audiowide", sans-serif;
+  color: white;
+  font-size: 1.3em;
+  top: 60px;
+  left: 80px;
+}
+
+#circle1{
+  filter: blur(90px);
+  right: -200px;
+  top: -100px;
+}
+
+#circle2{
+  filter: blur(100px);
+  left: -200px;
+  bottom: -200px;
+}
+
+#scope{
+  color: #00FFCC;
 }
 
 #google{
-  position: relative;
-  right: 15px;
-  width:452px ;
-  height: 51px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: white;
-  border-radius: 6px;
-  border: 1px solid #ddd;
-  gap: 40px;
-}
-
-#google img{
-  width: 25px;
-  height: 25px;
-}
-
-#google:hover{
-  background-color: #004A69;
+  border: 1px solid white;
+  background-color: #000000;
   color: white;
-  
+  border-radius: 5px;
+  cursor: pointer;
+  width: 450px;
+  height: 50px;
+  transition: all 0.3s ease-in-out ;
+
 }
 
-button{
-  cursor:pointer;
+#contact{
+  border: 1px solid white;
+  background-color: #000000;
+  color: white;
+  border-radius: 5px;
+  cursor: pointer;
+  width: 450px;
+  height: 50px;
+  transition: all 0.3s ease-in-out ;
+
+}
+
+#website{
+  border: 1px solid white;
+  background-color: #000000;
+  color: white;
+  border-radius: 5px;
+  cursor: pointer;
+  width: 450px;
+  height: 50px;
+  transition: all 0.3s ease-in-out ;
+}
+
+#website:hover {
+  color: white;
+  background-image: none;
+  background-color: black;
+  box-shadow: 
+    0 0 10px rgba(255, 255, 255, 0.7); /* Green shadow */
+  transform: translateY(-2px);
+  transform: scale(1.02);
+}
+
+#contact:hover {
+  color: white;
+  background-image: none;
+  background-color: black;
+  box-shadow: 
+    0 0 10px rgba(255, 255, 255, 0.7); /* Green shadow */
+  transform: translateY(-2px);
+  transform: scale(1.02);
+}
+
+#google:hover {
+  color: white;
+  background-image: none;
+  background-color: black;
+  box-shadow: 
+    0 0 10px rgba(255, 255, 255, 0.7); /* Green shadow */
+  transform: translateY(-2px);
+  transform: scale(1.02);
+}
+
+
+#devider{
+  font-size: 3em;
+}
+
+#resetpass{
+  margin-top: 70px;
+  color: white;
+  font-family: 'lato', sans-serif;
+  font-size: 1em;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.rights{
+  font-family: 'lato', sans-serif;
+  color: white;
+  font-size: 0.8em;
+  bottom: 20px;
+  position: absolute;
+  right: 40px;
 }
