@@ -16,7 +16,7 @@ body{
   width: 100vw;
   height: 100vh;
   background-color: black;
-  /*filter: hue-rotate(50deg);*/
+  filter: hue-rotate(50deg);
 }
 
 .content{
