@@ -23,8 +23,8 @@ const Login = () => {
     // Component Mode: 'login' or 'forceChangePassword'
     const [mode, setMode] = useState('login');
 
-    // State for force change password form
-    const [tempPassword, setTempPassword] = useState(''); // To store the successful temp password
+    // State for force change password form (re-added from LoginOld)
+    const [tempPassword, setTempPassword] = useState('');
     const [newPassword, setNewPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
 
@@ -36,8 +36,7 @@ const Login = () => {
     // State to store user data after initial successful login
     const [initialUserData, setInitialUserData] = useState(null);
 
-    // State for password visibility
-    const [showPassword, setShowPassword] = useState(false);
+    // State for password visibility (only for new/confirm password)
     const [showNewPassword, setShowNewPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
@@ -236,32 +235,84 @@ const Login = () => {
         <h1 id='loginheader'>Welcome to <span id='scope'></span></h1>
         <p id='logindescription'>SCOPE allows professors to securely swap class slots with mutual approval, ensuring transparency, minimizing conflicts, and providing real-time updates.</p>
         <div className="bottom">
-        <div >
-          {/* Wrap inputs and button in a form */}
-          <form className='left'onSubmit={handleSubmit}>
-            <input type="text" name="email" placeholder="University or personal email" value={formData.email} onChange={handleChange} className='textfield' required />
-            <input type="password" name="password" placeholder="Password" value={formData.password} onChange={handleChange} className='textfield' required />
-            <a href="" id='forgot'>Forgot Password ?</a>
-            {/* Display error/message if any */}
-            {error && <p style={{ color: 'red', textAlign: 'center', marginTop: '10px' }}>{error}</p>}
-            {message && <p style={{ color: 'green', textAlign: 'center', marginTop: '10px' }}>{message}</p>}
-            <button type="submit" disabled={isLoading} id='login'>
-              {isLoading ? 'Logging in...' : 'Login'}
-            </button>
-          </form>
-         </div>
+          {/* Mode-dependent UI starts here */}
+          {mode === 'login' && (
+            <div className="bottom">
+              <div className='left'>
+                {/* Wrap inputs and button in a form */}
+                <form className='left'onSubmit={handleSubmit}>
+                  <input type="text" name="email" placeholder="University or personal email" value={formData.email} onChange={handleChange} className='textfield' required />
+                  <input type="password" name="password" placeholder="Password" value={formData.password} onChange={handleChange} className='textfield' required />
+                  <a href="" id='forgot'>Forgot Password ?</a>
+                  {/* Display error/message if any */}
+                  {error && <p style={{ color: 'red', textAlign: 'center', marginTop: '10px' }}>{error}</p>}
+                  {message && <p style={{ color: 'green', textAlign: 'center', marginTop: '10px' }}>{message}</p>}
+                  <button type="submit" disabled={isLoading} id='login'>
+                    {isLoading ? 'Logging in...' : 'Login'}
+                  </button>
+                </form>
+              </div>
 
-        <h1 id='devider'>/</h1>
+              <h1 id='devider'>/</h1>
 
-        <div className="right">
-          <button id='google'>Continue with Google</button>
-          <button id='contact'>Contact Us</button>
-          <button id='website'>Visit our website</button>
-        </div>
+              <div className="right">
+                <button id='google'>Continue with Google</button>
+                <button id='contact'>Contact Us</button>
+                <button id='website'>Visit our website</button>
+              </div>
+            </div>
+          )}
 
-        
+          {/* Force Change Password Mode UI */} 
+          {mode === 'forceChangePassword' && (
+              <div className="change-password-container">
+                  <h2>Set Your New Password</h2>
+                  <p>Please choose a new password for your account ({initialUserData?.scope_email || 'your account'}).</p>
 
+                  <form onSubmit={handleChangePasswordSubmit} className="change-password-form">
+                      {/* New Password Field */} 
+                      <div className='password-input-wrapper'>
+                          <label htmlFor="newPassword">New Password:</label>
+                          <input
+                              type={showNewPassword ? 'text' : 'password'}
+                              id="newPassword"
+                              className='textfield' // Use existing style
+                              value={newPassword}
+                              onChange={(e) => setNewPassword(e.target.value)}
+                              required
+                              disabled={isLoading}
+                          />
+                          <button type="button" onClick={() => setShowNewPassword(!showNewPassword)} className="show-hide-btn">
+                              {showNewPassword ? 'Hide' : 'Show'}
+                          </button>
+                      </div>
 
+                      {/* Confirm New Password Field */} 
+                      <div className='password-input-wrapper'>
+                          <label htmlFor="confirmPassword">Confirm New Password:</label>
+                          <input
+                              type={showConfirmPassword ? 'text' : 'password'}
+                              id="confirmPassword"
+                              className='textfield' // Use existing style
+                              value={confirmPassword}
+                              onChange={(e) => setConfirmPassword(e.target.value)}
+                              required
+                              disabled={isLoading}
+                          />
+                          <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="show-hide-btn">
+                              {showConfirmPassword ? 'Hide' : 'Show'}
+                          </button>
+                      </div>
+
+                      {error && <p style={{ color: 'red', textAlign: 'center', marginTop: '10px' }}>{error}</p>}
+                      {message && <p style={{ color: 'green', textAlign: 'center', marginTop: '10px' }}>{message}</p>}
+                      
+                      <button type="submit" id='login' disabled={isLoading}> {/* Reuse login button style */} 
+                          {isLoading ? 'Saving...' : 'Set New Password'}
+                      </button>
+                  </form>
+              </div>
+          )}
         </div>
         <a href="" id='resetpass'>Reset Password</a>
       </div>
