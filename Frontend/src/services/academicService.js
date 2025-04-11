@@ -20,12 +20,12 @@ export const createSpeciality = async (specialityData) => {
     throw error;
   }
 };
-// Add getSpeciality, updateSpeciality, deleteSpeciality as needed
+// TODO: Add getSpeciality(id), updateSpeciality(id, data), deleteSpeciality(id)
 
 // --- Promos ---
 export const getPromos = async (specialityId = null) => {
   try {
-    const params = specialityId ? { speciality: specialityId } : {};
+    const params = specialityId ? { speciality_id: specialityId } : {};
     const response = await apiClient.get('/promos/', { params });
     return response.data;
   } catch (error) {
@@ -35,7 +35,7 @@ export const getPromos = async (specialityId = null) => {
 };
 
 export const createPromo = async (promoData) => {
-  // promoData should include { name, speciality: specialityId }
+  // Expecting { name, speciality_id } from the form
   try {
     const response = await apiClient.post('/promos/', promoData);
     return response.data;
@@ -44,12 +44,12 @@ export const createPromo = async (promoData) => {
     throw error;
   }
 };
-// Add getPromo, updatePromo, deletePromo as needed
+// TODO: Add getPromo(id), updatePromo(id, data), deletePromo(id)
 
 // --- Sections ---
 export const getSections = async (promoId = null) => {
   try {
-    const params = promoId ? { promo: promoId } : {};
+    const params = promoId ? { promo_id: promoId } : {};
     const response = await apiClient.get('/sections/', { params });
     return response.data;
   } catch (error) {
@@ -59,7 +59,7 @@ export const getSections = async (promoId = null) => {
 };
 
 export const createSection = async (sectionData) => {
-  // sectionData should include { name, promo: promoId }
+  // Expecting { name, promo_id }
   try {
     const response = await apiClient.post('/sections/', sectionData);
     return response.data;
@@ -68,28 +68,31 @@ export const createSection = async (sectionData) => {
     throw error;
   }
 };
-// Add getSection, updateSection, deleteSection as needed
+// TODO: Add getSection(id), updateSection(id, data), deleteSection(id)
 
-// --- Classes (Rooms) ---
-export const getClasses = async (sectionId = null) => {
+// --- Classrooms ---
+export const getClassrooms = async () => {
   try {
-    const params = sectionId ? { section: sectionId } : {};
-    const response = await apiClient.get('/classes/', { params });
+    const response = await apiClient.get('/classrooms/');
     return response.data;
   } catch (error) {
-    console.error('Get Classes API error:', error.response || error.message);
+    console.error('Get Classrooms API error:', error.response || error.message);
     throw error;
   }
 };
 
-export const createClass = async (classData) => {
-  // classData includes { name, type, has_projector, section, tp_computers? }
+export const createClassroom = async (classroomData) => {
+  // Expecting { name, type, capacity, has_projector, computers_count }
   try {
-    const response = await apiClient.post('/classes/', classData);
+    const response = await apiClient.post('/classrooms/', classroomData);
     return response.data;
   } catch (error) {
-    console.error('Create Class API error:', error.response || error.message);
+    console.error('Create Classroom API error:', error.response || error.message);
     throw error;
   }
 };
-// Add getClass, updateClass, deleteClass as needed 
+// TODO: Add getClassroom(id), updateClassroom(id, data), deleteClassroom(id)
+
+// Renaming classes to classrooms for clarity
+// export const getClasses = getClassrooms;
+// export const createClass = createClassroom; 

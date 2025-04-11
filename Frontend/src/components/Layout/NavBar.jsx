@@ -1,55 +1,82 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext'; // Import useAuth hook
+import logo from '../../assets/circle.png'; // Assuming this is the correct path
+import './NavBar.css'; // Make sure CSS supports the new structure
 
 function NavBar() {
   // Get actual roles and logout function from AuthContext
-  const { isAdmin, isTeacher, logout } = useAuth(); 
+  const { user, isAdmin, isTeacher, logout } = useAuth(); 
+  const navigate = useNavigate();
 
   const handleLogout = () => {
     logout();
-    // Navigate to login page after logout - useNavigate can be added if needed
-    // For simplicity, the AppRouter logic might handle redirecting to /login anyway
-    console.log('User logged out');
+    navigate('/login', { replace: true }); // Redirect to login after logout
   };
 
   return (
-    <nav style={{ background: '#eee', padding: '1rem', marginBottom: '1rem' }}>
-      {/* Basic NavBar structure - consider using Tailwind or MUI later */}
-      <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', gap: '1rem', alignItems: 'center' }}>
-        {/* Admin Links */}
-        {isAdmin && (
+    <nav className="navbar">
+      <div className="navbar-logo">
+        <Link to={user ? (isAdmin ? '/admin/dashboard' : '/teacher/dashboard') : '/'}>
+          <img src={logo} alt="Scope Logo" style={{ height: '40px' }} />
+          <span>Scope</span>
+        </Link>
+      </div>
+      <ul className="navbar-links">
+        {user ? (
           <>
-            <li><Link to="/admin/dashboard">Dashboard</Link></li>
-            <li><Link to="/admin/users">Users</Link></li>
-            {/* Add other admin links from Promps.md as needed */}
-            {/* Example: */}
-            <li><Link to="/admin/specialities">Specialities</Link></li>
-            <li><Link to="/admin/promos">Promos</Link></li>
-            <li><Link to="/admin/sections">Sections</Link></li>
-            <li><Link to="/admin/classes">Classes</Link></li>
-            <li><Link to="/admin/modules/base">Base Modules</Link></li>
-            <li><Link to="/admin/modules/version">Version Modules</Link></li>
-            <li><Link to="/admin/teachers/assign">Assign Teachers</Link></li>
-            <li><Link to="/admin/semesters">Semesters</Link></li>
-            <li><Link to="/admin/exams">Exams</Link></li>
-            <li><Link to="/admin/schedule/generate">Generate Schedule</Link></li>
+            <li>
+              <span className="navbar-user">Welcome, {user.name || 'User'}!</span>
+            </li>
+            {/* Admin Specific Links */}
+            {isAdmin && (
+              <>
+                <li><Link to="/admin/dashboard">Dashboard</Link></li>
+                <li><Link to="/admin/users">Manage Users</Link></li>
+                {/* Dropdown or separate links for academic structure */}
+                <li className="dropdown">
+                  <button className="dropbtn">Academic Structure</button>
+                  <div className="dropdown-content">
+                    <Link to="/admin/specialities">Specialities</Link>
+                    <Link to="/admin/promos">Promos</Link>
+                    <Link to="/admin/sections">Sections</Link>
+                    <Link to="/admin/classrooms">Classrooms</Link>
+                  </div>
+                </li>
+                <li className="dropdown">
+                  <button className="dropbtn">Modules</button>
+                  <div className="dropdown-content">
+                    <Link to="/admin/base-modules">Base Modules</Link>
+                    <Link to="/admin/version-modules">Version Modules</Link>
+                  </div>
+                </li>
+                {/* TODO: Add links for Semesters, Exams, Assignments, Schedule Gen */}
+                <li><Link to="/admin/assignments">Assign Teachers</Link></li>
+                {/* Add more admin links as needed */}
+              </>
+            )}
+            {/* Teacher Specific Links */}
+            {!isAdmin && (
+              <>
+                <li><Link to="/teacher/dashboard">Dashboard</Link></li>
+                <li><Link to="/teacher/preferences">Module Preferences</Link></li>
+                <li><Link to="/teacher/schedule">My Schedule</Link></li>
+                {/* Add more teacher links */}
+              </>
+            )}
+            <li>
+              <button onClick={handleLogout} className="navbar-button logout-button">
+                Logout
+              </button>
+            </li>
+          </>
+        ) : (
+          // Links for logged-out users
+          <>
+            <li><Link to="/login">Login</Link></li>
+            {/* Maybe add About, Contact links etc. */}
           </>
         )}
-
-        {/* Teacher Links */}
-        {isTeacher && (
-          <>
-            <li><Link to="/teacher/dashboard">Dashboard</Link></li>
-            <li><Link to="/teacher/modules/select">Select Modules</Link></li>
-            <li><Link to="/teacher/schedule">My Schedule</Link></li>
-          </>
-        )}
-
-        {/* Logout Button - aligned to the right */}
-        <li style={{ marginLeft: 'auto' }}>
-            <button onClick={handleLogout}>Logout</button>
-        </li>
       </ul>
     </nav>
   );

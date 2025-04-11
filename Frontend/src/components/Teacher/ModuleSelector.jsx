@@ -1,49 +1,46 @@
 import React, { useState, useEffect } from 'react';
-// import { getBaseModules } from '../../services/moduleService';
-// import { getTeacherPreferences, updateTeacherPreferences } from '../../services/teacherService'; // Assuming teacherId is available
+import { getBaseModules } from '../../services/moduleService';
+import { getTeacherPreferences, updateTeacherPreferences } from '../../services/teacherService';
+import { useAuth } from '../../context/AuthContext';
 
 function ModuleSelector() {
   const [availableModules, setAvailableModules] = useState([]);
-  const [selectedModules, setSelectedModules] = useState(new Set()); // Using a Set for efficient add/remove
+  const [selectedModules, setSelectedModules] = useState(new Set());
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  // const { user } = useAuth(); // Assuming useAuth provides logged-in user info including ID
-  const teacherId = 1; // Placeholder: Get actual teacher ID from context
+  const [isSaving, setIsSaving] = useState(false);
+  const { user } = useAuth();
+  const teacherId = user?.id;
 
   useEffect(() => {
-    // Fetch available base modules and teacher's current preferences
     const fetchData = async () => {
-      if (!teacherId) return; // Don't fetch if teacher ID isn't available
+      if (!teacherId) return;
 
       setIsLoading(true);
       setError('');
+      setSuccess('');
       try {
-        // const modulesData = await getBaseModules();
-        // const preferencesData = await getTeacherPreferences(teacherId); // API needed
-        // setAvailableModules(modulesData);
-        // setSelectedModules(new Set(preferencesData?.map(pref => pref.id) || [])); // Handle potential null/undefined preferences
-
-        // Mock Data
-        setAvailableModules([
-          { id: 1, name: 'Analyse', code: 'ANAL' },
-          { id: 2, name: 'Programmation', code: 'PROG' },
-          { id: 3, name: 'Algèbre', code: 'ALG' },
-          { id: 4, name: 'Physique 1', code: 'PHY1' },
+        const [modulesData, preferencesData] = await Promise.all([
+            getBaseModules(), 
+            getTeacherPreferences(teacherId)
         ]);
-        // Simulate fetching preferences for teacherId 1
-        const mockPreferences = await Promise.resolve([1, 3]); // Mock API call
-        setSelectedModules(new Set(mockPreferences));
+        
+        setAvailableModules(modulesData);
+        const preferenceIds = Array.isArray(preferencesData) 
+            ? preferencesData.map(pref => typeof pref === 'object' ? pref.id : pref) 
+            : [];
+        setSelectedModules(new Set(preferenceIds));
 
       } catch (err) {
         console.error('Failed to load module data:', err);
-        setError('Could not load modules or preferences.');
+        setError('Could not load modules or preferences. Please try refreshing.');
       } finally {
         setIsLoading(false);
       }
     };
     fetchData();
-  }, [teacherId]); // Re-fetch if teacherId changes (though unlikely in this context)
+  }, [teacherId]);
 
   const handleCheckboxChange = (moduleId) => {
     setSelectedModules(prevSelected => {
@@ -55,6 +52,7 @@ function ModuleSelector() {
       }
       return newSelected;
     });
+    setSuccess('');
   };
 
   const handleSubmit = async (e) => {
@@ -66,51 +64,70 @@ function ModuleSelector() {
         return;
     }
 
-    setIsLoading(true);
+    setIsSaving(true);
     try {
       const preferenceIds = Array.from(selectedModules);
-      // await updateTeacherPreferences(teacherId, preferenceIds); // API needed
-      console.log(`Updated preferences for teacher ${teacherId} (mock): `, preferenceIds);
+      await updateTeacherPreferences(teacherId, preferenceIds);
       setSuccess('Preferences updated successfully!');
-      // Optionally re-fetch preferences to confirm, though API should be source of truth
     } catch (err) {
       console.error('Failed to update preferences:', err);
       setError('Could not save preferences. Please try again.');
     } finally {
-      setIsLoading(false);
+      setIsSaving(false);
     }
   };
 
-  if (isLoading && availableModules.length === 0) {
-    return <p>Loading modules...</p>;
+  if (!teacherId) {
+    return <p>Error: Could not identify teacher. Please log in again.</p>;
+  }
+
+  if (isLoading) {
+    return <p>Loading module preferences...</p>;
   }
 
   return (
-    <form onSubmit={handleSubmit} style={{ border: '1px solid #ccc', padding: '1rem', marginTop: '1rem' }}>
-      <h2>Select Your Preferred Base Modules</h2>
+    <div style={{ padding: '1rem' }}>
+      <h2>Select Your Preferred Modules</h2>
       {error && <p style={{ color: 'red' }}>{error}</p>}
-      {availableModules.length > 0 ? (
-        availableModules.map(module => (
-          <div key={module.id}>
-            <label>
-              <input
-                type="checkbox"
-                checked={selectedModules.has(module.id)}
-                onChange={() => handleCheckboxChange(module.id)}
-                disabled={isLoading}
-              />
-              {module.name} ({module.code})
-            </label>
-          </div>
-        ))
-      ) : (
-        !isLoading && <p>No modules available to select.</p>
-      )}
       {success && <p style={{ color: 'green' }}>{success}</p>}
-      <button type="submit" disabled={isLoading} style={{ marginTop: '1rem' }}>
-        {isLoading ? 'Saving...' : 'Save Preferences'}
-      </button>
-    </form>
+      
+      {availableModules.length === 0 && !isLoading ? (
+        <p>No base modules available to select.</p>
+      ) : (
+        <form onSubmit={handleSubmit}>
+          <div style={{ maxHeight: '400px', overflowY: 'auto', border: '1px solid #eee', marginBottom: '1rem', padding: '0.5rem' }}>
+            {availableModules.map(module => (
+              <div key={module.id} style={{ marginBottom: '0.5rem' }}>
+                <label>
+                  <input 
+                    type="checkbox"
+                    checked={selectedModules.has(module.id)}
+                    onChange={() => handleCheckboxChange(module.id)}
+                    disabled={isSaving}
+                    style={{ marginRight: '0.5rem' }}
+                  />
+                  {module.name} ({module.code})
+                </label>
+              </div>
+            ))}
+          </div>
+          <button 
+            type="submit" 
+            disabled={isSaving}
+            style={{
+              padding: '10px 15px', 
+              backgroundColor: isSaving ? '#ccc' : '#007bff',
+              color: 'white', 
+              border: 'none', 
+              borderRadius: '3px', 
+              cursor: isSaving ? 'not-allowed' : 'pointer'
+            }}
+          >
+            {isSaving ? 'Saving...' : 'Save Preferences'}
+          </button>
+        </form>
+      )}
+    </div>
   );
 }
 

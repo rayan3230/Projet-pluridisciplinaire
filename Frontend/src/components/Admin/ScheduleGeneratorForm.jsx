@@ -1,40 +1,62 @@
 import React, { useState, useEffect } from 'react';
-// import { getPromos } from '../../services/academicService';
-// import { getSemesters } from '../../services/semesterService';
-// import { getTeachers } from '../../services/adminService'; // Assuming teachers are users
-// import { getModulesForPromo } from '../../services/moduleService'; // Need endpoint for this
-// import { generateSchedule } from '../../services/scheduleService';
+import { getPromos } from '../../services/academicService';
+import { getSemesters } from '../../services/semesterService';
+// Assuming you might need teacher assignments for generation
+// import { getAssignments } from '../../services/adminService'; 
+import { generateSchedule } from '../../services/scheduleService';
+
+// Basic styling
+const styles = {
+  form: { border: '1px solid #ccc', padding: '1rem', marginTop: '1rem', borderRadius: '5px', backgroundColor: '#f9f9f9' },
+  label: { display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' },
+  select: { width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '3px', marginBottom: '1rem' },
+  button: { padding: '10px 15px', backgroundColor: '#17a2b8', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer' },
+  disabledButton: { backgroundColor: '#ccc', cursor: 'not-allowed' },
+  error: { color: 'red', marginBottom: '1rem' },
+  loading: { fontStyle: 'italic' }
+};
+
+// Note: Teacher assignment selection logic is complex and omitted for now.
+// It would likely involve fetching assignments based on selected promo/semester
+// and displaying them, or allowing manual mapping here.
 
 function ScheduleGeneratorForm({ onScheduleGenerated }) {
   const [selectedPromo, setSelectedPromo] = useState('');
   const [selectedSemester, setSelectedSemester] = useState('');
   const [promos, setPromos] = useState([]);
   const [semesters, setSemesters] = useState([]);
-  // TODO: Add state and UI for assigning teachers to modules for this specific generation request
+  // const [teacherAssignments, setTeacherAssignments] = useState({}); // State for assignments if needed
+  
   const [error, setError] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingData, setIsLoadingData] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
 
   // Fetch Promos and Semesters
   useEffect(() => {
     const fetchData = async () => {
+      setIsLoadingData(true);
+      setError('');
       try {
-        // const promoData = await getPromos();
-        // const semesterData = await getSemesters();
-        // setPromos(promoData);
-        // setSemesters(semesterData);
-        setPromos([{ id: 1, name: '1st year Informatique (Mock)' }]); // Mock
-        setSemesters([{ id: 1, name: 'Semester 1 2024/2025 (Mock)' }]); // Mock
+        const [promoData, semesterData] = await Promise.all([
+          getPromos(),
+          getSemesters()
+        ]);
+        setPromos(promoData);
+        setSemesters(semesterData);
+        // Mock data removed
+        // setPromos([{ id: 1, name: '1st year Informatique (Mock)' }]);
+        // setSemesters([{ id: 1, name: 'Semester 1 2024/2025 (Mock)' }]);
       } catch (err) {
-        setError('Failed to load necessary data.');
+        setError('Failed to load necessary data (promos/semesters).');
         console.error('Data fetch error:', err);
+      } finally {
+        setIsLoadingData(false);
       }
     };
     fetchData();
   }, []);
 
-  // TODO: Add logic to fetch modules for the selected promo/semester
-  // TODO: Add logic to fetch available teachers
-  // TODO: Add UI for mapping teachers to modules
+  // TODO: Add logic useEffect to fetch modules/assignments when promo/semester changes?
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -43,55 +65,80 @@ function ScheduleGeneratorForm({ onScheduleGenerated }) {
       setError('Please select a Promo and Semester.');
       return;
     }
-    // TODO: Validate that teachers are assigned
+    // TODO: Add validation for teacher assignments if required by backend
 
-    setIsLoading(true);
+    setIsGenerating(true);
     try {
       const generationParams = {
         promo_id: selectedPromo,
         semester_id: selectedSemester,
-        // teacher_assignments: { moduleId1: teacherId1, moduleId2: teacherId2, ... } // Structure TBD
+        // teacher_assignments: teacherAssignments, // Pass assignments if needed
       };
-      // const generatedSchedule = await generateSchedule(generationParams);
-      console.log('Schedule generation triggered (mock)', generationParams);
-      // onScheduleGenerated(generatedSchedule); // Pass generated data to parent
-      alert('Schedule generation started! (Mock) Check results below.');
+      const generatedSchedule = await generateSchedule(generationParams); // Use real API call
+      // console.log('Schedule generation triggered (mock)', generationParams); // Remove mock
+      
+      // Pass generated data/success signal to parent
+      if (onScheduleGenerated) onScheduleGenerated(generatedSchedule); 
+      alert('Schedule generation request sent successfully! Check results.'); // Simple feedback
+
     } catch (err) {
       console.error('Schedule generation failed:', err);
-      setError('Failed to generate schedule. Check console for details.');
+      setError(err.response?.data?.error || 'Failed to generate schedule. Check backend logs for details.');
     } finally {
-      setIsLoading(false);
+      setIsGenerating(false);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} style={{ border: '1px solid #ccc', padding: '1rem', marginTop: '1rem' }}>
-      <h2>Configure Schedule Generation</h2>
+    <form onSubmit={handleSubmit} style={styles.form}>
+      <h2 style={{ marginBottom: '1rem', fontSize: '1.2em' }}>Configure Schedule Generation</h2>
+      {error && <p style={styles.error}>{error}</p>}
+      
       <div>
-        <label htmlFor="promoSelect">Promo:</label>
-        <select id="promoSelect" value={selectedPromo} onChange={(e) => setSelectedPromo(e.target.value)} required>
+        <label htmlFor="promoSelect" style={styles.label}>Promo:</label>
+        <select 
+          id="promoSelect" 
+          value={selectedPromo} 
+          onChange={(e) => setSelectedPromo(e.target.value)} 
+          required
+          disabled={isLoadingData || isGenerating}
+          style={styles.select}
+        >
           <option value="">-- Select Promo --</option>
-          {promos.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+          {promos.map(p => (
+            <option key={p.id} value={p.id}>{p.name} ({p.speciality?.name || 'N/A'})</option>
+          ))}
         </select>
       </div>
+
       <div>
-        <label htmlFor="semesterSelect">Semester:</label>
-        <select id="semesterSelect" value={selectedSemester} onChange={(e) => setSelectedSemester(e.target.value)} required>
+        <label htmlFor="semesterSelect" style={styles.label}>Semester:</label>
+        <select 
+          id="semesterSelect" 
+          value={selectedSemester} 
+          onChange={(e) => setSelectedSemester(e.target.value)} 
+          required
+          disabled={isLoadingData || isGenerating}
+          style={styles.select}
+        >
           <option value="">-- Select Semester --</option>
-          {semesters.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+          {semesters.map(s => (
+            <option key={s.id} value={s.id}>{s.name}</option>
+          ))}
         </select>
       </div>
 
-      {/* Placeholder for Teacher Assignment UI */}
-      <div style={{ marginTop: '1rem', border: '1px dashed gray', padding: '0.5rem' }}>
-        <p><strong>Teacher Assignments:</strong></p>
-        <p><em>(UI for assigning teachers to modules for this promo/semester will go here)</em></p>
-        {/* Example: Fetch modules for promo/semester, list them, allow selecting teacher per module */} 
-      </div>
+      {/* Placeholder for teacher assignment selection/display */} 
+      {/* <div> ... UI to select/confirm teachers for modules ... </div> */}
 
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-      <button type="submit" disabled={isLoading || promos.length === 0 || semesters.length === 0}>
-        {isLoading ? 'Generating...' : 'Generate Schedule'}
+      {isLoadingData && <p style={styles.loading}>Loading data...</p>}
+
+      <button 
+        type="submit" 
+        disabled={isLoadingData || isGenerating}
+        style={{...styles.button, ...( (isLoadingData || isGenerating) ? styles.disabledButton : {})}}
+      >
+        {isGenerating ? 'Generating...' : 'Generate Schedule'}
       </button>
     </form>
   );

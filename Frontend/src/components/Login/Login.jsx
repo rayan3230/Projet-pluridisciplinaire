@@ -56,7 +56,7 @@ const Login = () => {
 
       try {
           console.log('Attempting login with:', loginPayload);
-          const response = await apiClient.post('/auth/login/', loginPayload);
+          const response = await apiClient.post('/users/auth/login/', loginPayload);
           
           console.log('Login response:', response.data);
           const userData = response.data.user;
@@ -241,7 +241,7 @@ const Login = () => {
               <div className='left'>
                 {/* Wrap inputs and button in a form */}
                 <form className='left'onSubmit={handleSubmit}>
-                  <input type="text" name="email" placeholder="University or personal email" value={formData.email} onChange={handleChange} className='textfield' required />
+                  <input type="text" name="email" placeholder="Scope email" value={formData.email} onChange={handleChange} className='textfield' required />
                   <input type="password" name="password" placeholder="Password" value={formData.password} onChange={handleChange} className='textfield' required />
                   <a href="" id='forgot'>Forgot Password ?</a>
                   {/* Display error/message if any */}
