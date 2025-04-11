@@ -132,6 +132,7 @@ body{
   font-size: 1.3em;
   top: 60px;
   left: 80px;
+  cursor: pointer;
 }
 
 #circle1{
