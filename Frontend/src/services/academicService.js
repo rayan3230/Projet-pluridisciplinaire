@@ -20,7 +20,25 @@ export const createSpeciality = async (specialityData) => {
     throw error;
   }
 };
-// TODO: Add getSpeciality(id), updateSpeciality(id, data), deleteSpeciality(id)
+
+export const updateSpeciality = async (id, specialityData) => {
+  try {
+    const response = await apiClient.put(`/specialities/${id}/`, specialityData);
+    return response.data;
+  } catch (error) {
+    console.error(`Update Speciality ${id} API error:`, error.response || error.message);
+    throw error;
+  }
+};
+
+export const deleteSpeciality = async (id) => {
+  try {
+    await apiClient.delete(`/specialities/${id}/`);
+  } catch (error) {
+    console.error(`Delete Speciality ${id} API error:`, error.response || error.message);
+    throw error;
+  }
+};
 
 // --- Promos ---
 export const getPromos = async (specialityId = null) => {
@@ -35,7 +53,6 @@ export const getPromos = async (specialityId = null) => {
 };
 
 export const createPromo = async (promoData) => {
-  // Expecting { name, speciality_id } from the form
   try {
     const response = await apiClient.post('/promos/', promoData);
     return response.data;
@@ -44,7 +61,25 @@ export const createPromo = async (promoData) => {
     throw error;
   }
 };
-// TODO: Add getPromo(id), updatePromo(id, data), deletePromo(id)
+
+export const updatePromo = async (id, promoData) => {
+  try {
+    const response = await apiClient.put(`/promos/${id}/`, promoData);
+    return response.data;
+  } catch (error) {
+    console.error(`Update Promo ${id} API error:`, error.response || error.message);
+    throw error;
+  }
+};
+
+export const deletePromo = async (id) => {
+  try {
+    await apiClient.delete(`/promos/${id}/`);
+  } catch (error) {
+    console.error(`Delete Promo ${id} API error:`, error.response || error.message);
+    throw error;
+  }
+};
 
 // --- Sections ---
 export const getSections = async (promoId = null) => {
@@ -59,7 +94,6 @@ export const getSections = async (promoId = null) => {
 };
 
 export const createSection = async (sectionData) => {
-  // Expecting { name, promo_id }
   try {
     const response = await apiClient.post('/sections/', sectionData);
     return response.data;
@@ -68,7 +102,25 @@ export const createSection = async (sectionData) => {
     throw error;
   }
 };
-// TODO: Add getSection(id), updateSection(id, data), deleteSection(id)
+
+export const updateSection = async (id, sectionData) => {
+  try {
+    const response = await apiClient.put(`/sections/${id}/`, sectionData);
+    return response.data;
+  } catch (error) {
+    console.error(`Update Section ${id} API error:`, error.response || error.message);
+    throw error;
+  }
+};
+
+export const deleteSection = async (id) => {
+  try {
+    await apiClient.delete(`/sections/${id}/`);
+  } catch (error) {
+    console.error(`Delete Section ${id} API error:`, error.response || error.message);
+    throw error;
+  }
+};
 
 // --- Classrooms ---
 export const getClassrooms = async () => {
@@ -82,7 +134,6 @@ export const getClassrooms = async () => {
 };
 
 export const createClassroom = async (classroomData) => {
-  // Expecting { name, type, capacity, has_projector, computers_count }
   try {
     const response = await apiClient.post('/classrooms/', classroomData);
     return response.data;
@@ -91,7 +142,25 @@ export const createClassroom = async (classroomData) => {
     throw error;
   }
 };
-// TODO: Add getClassroom(id), updateClassroom(id, data), deleteClassroom(id)
+
+export const updateClassroom = async (id, classroomData) => {
+  try {
+    const response = await apiClient.put(`/classrooms/${id}/`, classroomData);
+    return response.data;
+  } catch (error) {
+    console.error(`Update Classroom ${id} API error:`, error.response || error.message);
+    throw error;
+  }
+};
+
+export const deleteClassroom = async (id) => {
+  try {
+    await apiClient.delete(`/classrooms/${id}/`);
+  } catch (error) {
+    console.error(`Delete Classroom ${id} API error:`, error.response || error.message);
+    throw error;
+  }
+};
 
 // Renaming classes to classrooms for clarity
 // export const getClasses = getClassrooms;

@@ -1,14 +1,13 @@
 from rest_framework import serializers
-from django.conf import settings
-from django.contrib.auth import get_user_model # Import get_user_model
+from django.contrib.auth import get_user_model
 from .models import (
     Classroom, Speciality, Promo, Section,
     BaseModule, VersionModule, Semester, Exam,
     TeacherModuleAssignment, ScheduleEntry
 )
+# Import UserSerializer from the correct app
 from users.serializers import UserSerializer
 
-# Get the actual User model class
 User = get_user_model()
 
 class SpecialitySerializer(serializers.ModelSerializer):
@@ -17,9 +16,9 @@ class SpecialitySerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class PromoSerializer(serializers.ModelSerializer):
-    # Optionally include speciality details when reading
+    # Nested serializer for reading
     speciality = SpecialitySerializer(read_only=True)
-    # Allow writing speciality by ID
+    # Writable field for creating/updating by ID
     speciality_id = serializers.PrimaryKeyRelatedField(
         queryset=Speciality.objects.all(), source='speciality', write_only=True
     )
@@ -29,9 +28,7 @@ class PromoSerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'speciality', 'speciality_id']
 
 class SectionSerializer(serializers.ModelSerializer):
-    # Optionally include promo details when reading
     promo = PromoSerializer(read_only=True)
-     # Allow writing promo by ID
     promo_id = serializers.PrimaryKeyRelatedField(
         queryset=Promo.objects.all(), source='promo', write_only=True
     )
@@ -53,9 +50,7 @@ class BaseModuleSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class VersionModuleSerializer(serializers.ModelSerializer):
-    # Optionally include base module details when reading
     base_module = BaseModuleSerializer(read_only=True)
-     # Allow writing base_module by ID
     base_module_id = serializers.PrimaryKeyRelatedField(
         queryset=BaseModule.objects.all(), source='base_module', write_only=True
     )
@@ -81,11 +76,10 @@ class ExamSerializer(serializers.ModelSerializer):
 
 
 class TeacherModuleAssignmentSerializer(serializers.ModelSerializer):
-    teacher = UserSerializer(read_only=True) # Assuming UserSerializer exists and shows relevant info
+    teacher = UserSerializer(read_only=True)
     module = VersionModuleSerializer(read_only=True)
     promo = PromoSerializer(read_only=True)
 
-    # Use the imported User model class here
     teacher_id = serializers.PrimaryKeyRelatedField(queryset=User.objects.filter(is_teacher=True), source='teacher', write_only=True)
     module_id = serializers.PrimaryKeyRelatedField(queryset=VersionModule.objects.all(), source='module', write_only=True)
     promo_id = serializers.PrimaryKeyRelatedField(queryset=Promo.objects.all(), source='promo', write_only=True)
@@ -105,7 +99,6 @@ class ScheduleEntrySerializer(serializers.ModelSerializer):
     section_id = serializers.PrimaryKeyRelatedField(queryset=Section.objects.all(), source='section', write_only=True)
     semester_id = serializers.PrimaryKeyRelatedField(queryset=Semester.objects.all(), source='semester', write_only=True)
     module_id = serializers.PrimaryKeyRelatedField(queryset=VersionModule.objects.all(), source='module', write_only=True)
-    # Use the imported User model class here
     teacher_id = serializers.PrimaryKeyRelatedField(queryset=User.objects.filter(is_teacher=True), source='teacher', write_only=True)
     classroom_id = serializers.PrimaryKeyRelatedField(queryset=Classroom.objects.all(), source='classroom', write_only=True, allow_null=True, required=False)
 
@@ -115,7 +108,4 @@ class ScheduleEntrySerializer(serializers.ModelSerializer):
             'id', 'section', 'semester', 'module', 'teacher', 'classroom',
             'day_of_week', 'start_time', 'end_time', 'entry_type',
             'section_id', 'semester_id', 'module_id', 'teacher_id', 'classroom_id'
-        ]
-
-# Remove the import from the bottom as it's now at the top
-# from django.conf import settings 
+        ] 

@@ -1,0 +1,388 @@
+/* === Global Admin Styles === */
+@import url('https://fonts.googleapis.com/css2?family=Audiowide&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@100..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap');
+
+:root {
+  --admin-bg-color: #000000;
+  --admin-text-color: #ffffff;
+  --admin-primary-color: #00FFCC; /* Accent color from login */
+  --admin-secondary-color: #0A2737; /* From login button gradient */
+  --admin-border-color: rgba(255, 255, 255, 0.2);
+  --admin-input-bg: #0C0C0C;
+  --admin-input-border: #ffffff;
+  --admin-hover-shadow: 0 0 10px rgba(0, 255, 204, 0.5);
+  --admin-font-body: 'Lato', sans-serif;
+  --admin-font-heading: 'Montserrat', sans-serif;
+  --admin-font-logo: 'Audiowide', sans-serif;
+}
+
+body.admin-body {
+  background-color: var(--admin-bg-color);
+  color: var(--admin-text-color);
+  font-family: var(--admin-font-body);
+  margin: 0; /* Ensure no default margin */
+  overflow-y: auto !important; /* Force scrollbar if content overflows */
+}
+
+/* === Admin Layout & NavBar === */
+.admin-layout {
+  /* display: flex; */ /* REMOVE */
+  /* min-height: 100vh; */ /* REMOVE */
+  /* flex-direction: column; */ /* REMOVE */
+}
+
+.admin-navbar {
+  background-color: #1a1a1a; /* Slightly lighter than pure black */
+  padding: 0.8rem 2rem;
+  border-bottom: 1px solid var(--admin-border-color);
+}
+
+.admin-navbar .navbar-logo a span {
+  font-family: var(--admin-font-logo);
+}
+
+.admin-navbar .navbar-links a,
+.admin-navbar .navbar-links .dropbtn {
+  font-family: var(--admin-font-body);
+  font-weight: 400;
+  padding: 0.6rem 1rem;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.admin-navbar .navbar-links a:hover,
+.admin-navbar .navbar-links .dropbtn:hover {
+  background-color: var(--admin-secondary-color);
+  color: var(--admin-primary-color);
+}
+
+.admin-navbar .dropdown-content {
+  background-color: #1a1a1a;
+  border: 1px solid var(--admin-border-color);
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.5);
+}
+
+.admin-navbar .dropdown-content a {
+  color: var(--admin-text-color);
+  font-family: var(--admin-font-body);
+}
+
+.admin-navbar .dropdown-content a:hover {
+  background-color: var(--admin-secondary-color);
+  color: var(--admin-primary-color);
+}
+
+.admin-navbar .navbar-button.logout-button {
+  background-image: linear-gradient(to right, #012641 , #0A2737 , #064A4C , #026D61 );
+  border: none;
+  transition: all 0.3s ease-out;
+}
+
+.admin-navbar .navbar-button.logout-button:hover {
+  background-image: none;
+  background-color: var(--admin-bg-color);
+  box-shadow: var(--admin-hover-shadow);
+}
+
+.admin-main-content {
+  /* flex-grow: 1; */ /* REMOVE */
+  padding: 2rem;
+  width: 100%;
+  max-width: 1200px; /* Or desired max width */
+  margin: 0 auto; /* Center content */
+}
+
+/* === Headings & Basic Elements === */
+h1, h2, h3 {
+  font-family: var(--admin-font-heading);
+  color: var(--admin-primary-color);
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+}
+
+h1 {
+  font-size: 2.5em;
+  border-bottom: 1px solid var(--admin-border-color);
+  padding-bottom: 0.5rem;
+}
+
+h2 {
+  font-size: 1.8em;
+  margin-top: 2rem;
+}
+
+/* === Forms === */
+.admin-form {
+  background-color: rgba(26, 26, 26, 0.8); /* Semi-transparent dark */
+  border: 1px solid var(--admin-border-color);
+  padding: 2rem;
+  border-radius: 8px;
+  margin-bottom: 2rem;
+  backdrop-filter: blur(5px); /* Optional blur effect */
+}
+
+.admin-form h2 {
+  margin-top: 0;
+  color: var(--admin-text-color);
+  font-weight: 500;
+  border-bottom: none;
+  font-size: 1.5em;
+}
+
+.admin-form label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 400;
+  color: #ccc;
+}
+
+.admin-form input[type="text"],
+.admin-form input[type="email"],
+.admin-form input[type="password"],
+.admin-form input[type="number"],
+.admin-form input[type="date"],
+.admin-form select {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+  background-color: var(--admin-input-bg);
+  border: 1px solid var(--admin-input-border);
+  border-radius: 5px;
+  color: var(--admin-text-color);
+  font-family: var(--admin-font-body);
+  font-size: 1rem;
+  box-sizing: border-box;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.admin-form input::placeholder {
+  color: #888; 
+}
+
+.admin-form input:focus,
+.admin-form select:focus {
+  outline: none;
+  border-color: var(--admin-primary-color);
+  box-shadow: var(--admin-hover-shadow);
+}
+
+.admin-form input[type="checkbox"] {
+    width: auto;
+    margin-right: 0.5rem;
+}
+
+.admin-form button[type="submit"],
+.admin-button {
+  border: none;
+  color: white;
+  cursor: pointer;
+  padding: 0.8rem 1.5rem;
+  font-size: 1rem;
+  font-family: var(--admin-font-body);
+  border-radius: 5px;
+  transition: all 0.3s ease-out;
+  background-image: linear-gradient(to right, #012641 , #0A2737 , #064A4C , #026D61 );
+  display: inline-block;
+  margin-top: 0.5rem;
+}
+
+.admin-form button[type="submit"]:hover,
+.admin-button:hover {
+  background-image: none;
+  background-color: var(--admin-bg-color);
+  box-shadow: var(--admin-hover-shadow);
+  transform: translateY(-2px);
+}
+
+.admin-form button:disabled,
+.admin-button:disabled {
+  background-image: none;
+  background-color: #555;
+  cursor: not-allowed;
+  opacity: 0.7;
+  box-shadow: none;
+  transform: none;
+}
+
+/* === Lists === */
+.admin-list {
+  list-style: none;
+  padding: 0;
+  margin-top: 1rem;
+}
+
+.admin-list-item {
+  background-color: rgba(26, 26, 26, 0.6);
+  border: 1px solid var(--admin-border-color);
+  border-radius: 4px;
+  padding: 1rem 1.5rem;
+  margin-bottom: 0.8rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: background-color 0.2s ease;
+}
+
+.admin-list-item:hover {
+    background-color: rgba(40, 40, 40, 0.8);
+}
+
+.admin-list-item span {
+    font-size: 1.1em;
+}
+
+.admin-list-item div { /* Container for buttons */
+    display: flex;
+    gap: 0.5rem;
+}
+
+.admin-list-item button {
+    /* Smaller buttons for lists */
+    padding: 0.4rem 0.8rem;
+    font-size: 0.9rem;
+    background-image: none;
+}
+
+.admin-list-item .edit-button {
+    background-color: var(--admin-secondary-color);
+}
+.admin-list-item .delete-button {
+    background-color: #b02a37;
+}
+
+/* === Utility === */
+.admin-error {
+    color: #ff4d4d;
+    background-color: rgba(255, 77, 77, 0.1);
+    border: 1px solid #ff4d4d;
+    padding: 0.8rem;
+    border-radius: 4px;
+    margin-bottom: 1rem;
+}
+
+.admin-loading {
+    font-style: italic;
+    color: #ccc;
+}
+
+/* Table Scrolling - REMOVED for full page scroll */
+.admin-table-container {
+  /* max-height: 60vh; */ /* REMOVED */
+  /* overflow-y: auto; */ /* REMOVED */
+  margin-top: 1.5rem;
+  border: 1px solid var(--admin-border-color);
+  border-radius: 6px;
+  background-color: rgba(26, 26, 26, 0.7); /* Match table background */
+}
+
+/* Remove margin-top from table itself when inside the container */
+.admin-table-container .admin-table {
+  margin-top: 0;
+  border: none; /* Border is handled by container */
+  border-radius: 0; /* Border radius is handled by container */
+  overflow: initial; /* Let container handle overflow */
+}
+
+.admin-table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background-color: rgba(40, 40, 40, 0.95); /* Ensure header background is solid */
+}
+
+/* Ensure the container doesn't add extra borders if table has one */
+.admin-table-container > .admin-table {
+  border: none;
+}
+
+/* Style the actions cell specifically */
+.admin-table td.actions-cell {
+  text-align: right; 
+}
+
+.admin-table th,
+.admin-table td {
+  padding: 0.9rem 1.8rem; /* Increased horizontal padding */
+  text-align: left;
+  border-bottom: 1px solid var(--admin-border-color);
+}
+
+.admin-table td .action-buttons {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end; /* Align buttons to the right */
+  margin-left: 1rem; /* Add margin to push buttons away from previous column */
+}
+
+.admin-table td .action-buttons button {
+  /* ... existing code ... */
+}
+
+/* Specific styles for Teacher Assignment Page */
+/* Remove page-level flex/height rules */
+/* .teacher-assignment-page {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 100px); 
+} */
+
+.teacher-assignment-page .assignment-form-container {
+  margin-bottom: 2rem; /* Add space below the form */
+  /* flex-shrink: 0; */ /* Remove flex property */
+}
+
+.teacher-assignment-page .assignment-list-container {
+  /* flex-grow: 1; */ /* Remove flex property */
+  /* overflow: hidden; */ /* Remove overflow */
+  /* display: flex; */ /* Remove flex property */
+  /* flex-direction: column; */
+}
+
+.teacher-assignment-page .assignment-list-container h2 {
+  /* flex-shrink: 0; */ /* Remove flex property */
+}
+
+/* Ensure the table container inside the list has a max-height and scrolls - REMOVED */
+/* .teacher-assignment-page .assignment-list-container .admin-table-container {
+  max-height: 60vh; 
+  overflow-y: auto; 
+} */
+
+/* Ensure User Management page table scrolls - REMOVED */
+/* .user-management-page .admin-table-container {
+  max-height: 60vh; 
+  overflow-y: auto;
+} */
+
+/* Add delete assignment function if needed */
+/* ... existing code ... */
+
+/* Form layout helpers */
+.form-row {
+  display: flex;
+  gap: 1.5rem; /* Adjust gap as needed */
+  margin-bottom: 1rem;
+}
+
+.form-group-half {
+  flex: 1; /* Make groups take equal space */
+}
+
+.form-group-third {
+  flex: 1; /* Adjust basis if needed, e.g., flex: 0 0 32%; */
+}
+
+.form-group-check {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1; /* Adjust flex basis if needed */
+}
+
+.form-group-check label {
+  margin-bottom: 0; /* Override default label margin */
+}
+
+.form-group-check input[type="checkbox"] {
+  margin-bottom: 0; /* Override default input margin */
+} 

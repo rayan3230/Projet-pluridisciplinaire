@@ -1,7 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { createVersionModule, getBaseModules } from '../../services/moduleService';
+import {
+  createVersionModule,
+  updateVersionModule,
+  getBaseModules
+} from '../../services/moduleService';
 
-function VersionModuleForm({ onSubmitSuccess }) {
+function VersionModuleForm({ onSubmitSuccess, initialData, onCancel }) {
   const [versionName, setVersionName] = useState('');
   const [baseModuleId, setBaseModuleId] = useState('');
   const [coursHours, setCoursHours] = useState(0);
@@ -9,25 +13,45 @@ function VersionModuleForm({ onSubmitSuccess }) {
   const [tpHours, setTpHours] = useState(0);
   const [baseModules, setBaseModules] = useState([]);
   const [error, setError] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingBaseModules, setIsLoadingBaseModules] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const isEditing = Boolean(initialData);
 
+  // Fetch base modules for dropdown
   useEffect(() => {
-    const fetchBaseModules = async () => {
-      setIsLoading(true);
+    const fetchBaseModulesData = async () => {
+      setIsLoadingBaseModules(true);
       setError('');
       try {
         const data = await getBaseModules();
         setBaseModules(data);
       } catch (err) {
         console.error('Failed to fetch base modules:', err);
-        setError('Could not load base modules for selection. Please refresh or try again.');
+        setError('Could not load base modules. Please refresh.');
       } finally {
-        setIsLoading(false);
+        setIsLoadingBaseModules(false);
       }
     };
-    fetchBaseModules();
+    fetchBaseModulesData();
   }, []);
+
+  // Populate form for editing
+  useEffect(() => {
+    if (initialData) {
+      setVersionName(initialData.version_name || '');
+      setBaseModuleId(initialData.base_module?.id || '');
+      setCoursHours(initialData.cours_hours || 0);
+      setTdHours(initialData.td_hours || 0);
+      setTpHours(initialData.tp_hours || 0);
+    } else {
+      // Reset form for adding
+      setVersionName('');
+      setBaseModuleId('');
+      setCoursHours(0);
+      setTdHours(0);
+      setTpHours(0);
+    }
+  }, [initialData]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -37,24 +61,35 @@ function VersionModuleForm({ onSubmitSuccess }) {
       return;
     }
     setIsSubmitting(true);
+    const payload = {
+      version_name: versionName || null, // Handle optional field
+      base_module_id: baseModuleId,
+      cours_hours: parseInt(coursHours, 10) || 0,
+      td_hours: parseInt(tdHours, 10) || 0,
+      tp_hours: parseInt(tpHours, 10) || 0,
+    };
+
     try {
-      const payload = {
-        version_name: versionName,
-        base_module_id: baseModuleId,
-        cours_hours: parseInt(coursHours, 10) || 0,
-        td_hours: parseInt(tdHours, 10) || 0,
-        tp_hours: parseInt(tpHours, 10) || 0,
-      };
-      await createVersionModule(payload);
-      setVersionName('');
-      setBaseModuleId('');
-      setCoursHours(0);
-      setTdHours(0);
-      setTpHours(0);
+      if (isEditing) {
+        await updateVersionModule(initialData.id, payload);
+      } else {
+        await createVersionModule(payload);
+      }
       if (onSubmitSuccess) onSubmitSuccess();
     } catch (err) {
-      console.error('Version Module creation failed:', err);
-      const errorMsg = err.response?.data?.detail || 'Failed to create version module.';
+      console.error(`Version Module ${isEditing ? 'update' : 'creation'} failed:`, err);
+      let errorMsg = `Failed to ${isEditing ? 'update' : 'create'} version module.`;
+      if (err.response?.data) {
+        const errors = err.response.data;
+        const fieldErrors = Object.keys(errors)
+          .map(key => `${key}: ${errors[key].join ? errors[key].join(', ') : errors[key]}`)
+          .join('; ');
+        if (fieldErrors) {
+          errorMsg = fieldErrors;
+        } else if (errors.detail) {
+          errorMsg = errors.detail;
+        }
+      }
       setError(errorMsg);
     } finally {
       setIsSubmitting(false);
@@ -62,42 +97,42 @@ function VersionModuleForm({ onSubmitSuccess }) {
   };
 
   return (
-    <form onSubmit={handleSubmit} style={{ border: '1px solid #ccc', padding: '1rem', marginTop: '1rem', borderRadius: '5px', backgroundColor: '#f9f9f9' }}>
-      <h2 style={{ marginBottom: '1rem', fontSize: '1.2em' }}>Create New Version Module</h2>
+    <form onSubmit={handleSubmit} className="admin-form">
+      <h2>{isEditing ? 'Edit Version Module' : 'Create New Version Module'}</h2>
 
-      <div style={{ marginBottom: '1rem' }}>
-        <label htmlFor="baseModuleSelect" style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>Base Module:</label>
+      <div className="form-group">
+        <label htmlFor="baseModuleSelect">Base Module:</label>
         <select 
           id="baseModuleSelect" 
           value={baseModuleId} 
           onChange={(e) => setBaseModuleId(e.target.value)} 
           required
-          disabled={isLoading || isSubmitting}
-          style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '3px' }}
+          // Disable changing base module when editing
+          disabled={isLoadingBaseModules || isSubmitting || isEditing} 
         >
           <option value="">-- Select Base Module --</option>
           {baseModules.map(bm => (
             <option key={bm.id} value={bm.id}>{bm.name} ({bm.code})</option>
           ))}
         </select>
-        {isLoading && <p>Loading base modules...</p>}
+        {isLoadingBaseModules && <p className="admin-loading">Loading base modules...</p>}
       </div>
       
-      <div style={{ marginBottom: '1rem' }}>
-        <label htmlFor="versionName" style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>Version Name (e.g., 1, Advanced, optional):</label>
+      <div className="form-group">
+        <label htmlFor="versionName">Version Name (optional):</label>
         <input
           type="text"
           id="versionName"
           value={versionName}
           onChange={(e) => setVersionName(e.target.value)}
           disabled={isSubmitting}
-          style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '3px' }}
         />
       </div>
 
-      <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem' }}>
-        <div style={{ flex: 1 }}>
-          <label htmlFor="coursHours" style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>Cours Hours:</label>
+      {/* Use form-row for horizontal layout */}
+      <div className="form-row">
+        <div className="form-group form-group-third">
+          <label htmlFor="coursHours">Cours Hours:</label>
           <input
             type="number"
             id="coursHours"
@@ -106,11 +141,10 @@ function VersionModuleForm({ onSubmitSuccess }) {
             min="0"
             required
             disabled={isSubmitting}
-            style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '3px' }}
           />
         </div>
-        <div style={{ flex: 1 }}>
-          <label htmlFor="tdHours" style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>TD Hours:</label>
+        <div className="form-group form-group-third">
+          <label htmlFor="tdHours">TD Hours:</label>
           <input
             type="number"
             id="tdHours"
@@ -119,11 +153,10 @@ function VersionModuleForm({ onSubmitSuccess }) {
             min="0"
             required
             disabled={isSubmitting}
-            style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '3px' }}
           />
         </div>
-        <div style={{ flex: 1 }}>
-          <label htmlFor="tpHours" style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>TP Hours:</label>
+        <div className="form-group form-group-third">
+          <label htmlFor="tpHours">TP Hours:</label>
           <input
             type="number"
             id="tpHours"
@@ -132,29 +165,31 @@ function VersionModuleForm({ onSubmitSuccess }) {
             min="0"
             required
             disabled={isSubmitting}
-            style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '3px' }}
           />
         </div>
       </div>
 
-      {error && <p style={{ color: 'red', marginBottom: '1rem' }}>{error}</p>}
+      {error && <p className="admin-error">{error}</p>}
       
-      <button 
-        type="submit" 
-        disabled={isLoading || isSubmitting}
-        style={{
-          padding: '10px 15px', 
-          backgroundColor: (isLoading || isSubmitting) ? '#ccc' : '#007bff', 
-          color: 'white', 
-          border: 'none', 
-          borderRadius: '3px', 
-          cursor: (isLoading || isSubmitting) ? 'not-allowed' : 'pointer'
-        }}
-      >
-        {isSubmitting ? 'Creating...' : 'Create Version Module'}
-      </button>
+      <div className="form-actions">
+        <button 
+          type="submit" 
+          disabled={isLoadingBaseModules || isSubmitting}
+          className="admin-button"
+        >
+          {isSubmitting ? (isEditing ? 'Updating...' : 'Creating...') : (isEditing ? 'Update Version' : 'Create Version')}
+        </button>
+        <button 
+          type="button" 
+          onClick={onCancel} 
+          disabled={isSubmitting}
+          className="admin-button cancel-button"
+        >
+          Cancel
+        </button>
+      </div>
     </form>
   );
 }
 
-export default VersionModuleForm; 
+export default VersionModuleForm;

@@ -11,12 +11,12 @@ import Login from '../components/Login/Login.jsx';
 // Admin Pages
 import AdminDashboardPage from '../pages/Admin/DashboardPage';
 import UserManagementPage from '../pages/Admin/UserManagementPage';
-import SpecialityManagementPage from '../pages/Admin/SpecialityManagementPage';
-import PromoManagementPage from '../pages/Admin/PromoManagementPage';
-import SectionManagementPage from '../pages/Admin/SectionManagementPage';
-import ClassManagementPage from '../pages/Admin/ClassManagementPage';
-import BaseModuleManagerPage from '../pages/Admin/BaseModuleManagerPage';
-import VersionModuleManagerPage from '../pages/Admin/VersionModuleManagerPage';
+import SpecialityListPage from '../pages/Admin/SpecialityListPage.jsx';
+import PromoListPage from '../pages/Admin/PromoListPage.jsx';
+import SectionListPage from '../pages/Admin/SectionListPage.jsx';
+import ClassroomListPage from '../pages/Admin/ClassroomListPage.jsx';
+import BaseModuleListPage from '../pages/Admin/BaseModuleListPage.jsx';
+import VersionModuleListPage from '../pages/Admin/VersionModuleListPage.jsx';
 import TeacherAssignmentPage from '../pages/Admin/TeacherAssignmentPage';
 import SemesterManagementPage from '../pages/Admin/SemesterManagementPage';
 import ExamDefinitionPage from '../pages/Admin/ExamDefinitionPage';
@@ -74,13 +74,13 @@ function AppRouter() {
         <Route path="/admin" element={<ProtectedAdminRoute />}>
           <Route path="dashboard" element={<AdminDashboardPage />} />
           <Route path="users" element={<UserManagementPage />} />
-          <Route path="specialities" element={<SpecialityManagementPage />} />
-          <Route path="promos" element={<PromoManagementPage />} />
-          <Route path="sections" element={<SectionManagementPage />} />
-          <Route path="classes" element={<ClassManagementPage />} />
-          <Route path="modules/base" element={<BaseModuleManagerPage />} />
-          <Route path="modules/version" element={<VersionModuleManagerPage />} />
-          <Route path="teachers/assign" element={<TeacherAssignmentPage />} />
+          <Route path="specialities" element={<SpecialityListPage />} />
+          <Route path="promos" element={<PromoListPage />} />
+          <Route path="sections" element={<SectionListPage />} />
+          <Route path="classrooms" element={<ClassroomListPage />} />
+          <Route path="base-modules" element={<BaseModuleListPage />} />
+          <Route path="version-modules" element={<VersionModuleListPage />} />
+          <Route path="assignments" element={<TeacherAssignmentPage />} />
           <Route path="semesters" element={<SemesterManagementPage />} />
           <Route path="exams" element={<ExamDefinitionPage />} />
           <Route path="schedule/generate" element={<ScheduleGenerationPage />} />
@@ -90,7 +90,7 @@ function AppRouter() {
         {/* Teacher Routes */}
         <Route path="/teacher" element={<ProtectedTeacherRoute />}>
           <Route path="dashboard" element={<TeacherDashboardPage />} />
-          <Route path="modules/select" element={<ModuleSelectionPage />} />
+          <Route path="preferences" element={<ModuleSelectionPage />} />
           <Route path="schedule" element={<TeacherSchedulePage />} />
           <Route index element={<Navigate to="dashboard" replace />} />
         </Route>

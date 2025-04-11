@@ -1,21 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { getVersionModules } from '../../services/moduleService';
+import {
+  getVersionModules,
+  deleteVersionModule,
+  // updateVersionModule handled by form
+} from '../../services/moduleService';
 import VersionModuleForm from '../../components/Admin/VersionModuleForm';
-
-// Basic styling
-const styles = {
-  container: { padding: '1rem', maxWidth: '800px', margin: 'auto' },
-  list: { listStyle: 'none', padding: 0 },
-  listItem: { borderBottom: '1px solid #eee', padding: '0.5rem 0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' },
-  error: { color: 'red', marginBottom: '1rem' },
-  loading: { fontStyle: 'italic' }
-};
 
 function VersionModuleListPage() {
   const [modules, setModules] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [showForm, setShowForm] = useState(false);
+  const [editingModule, setEditingModule] = useState(null); // State for editing
 
   const fetchData = async () => {
     setIsLoading(true);
@@ -36,44 +32,115 @@ function VersionModuleListPage() {
     fetchData();
   }, []);
 
+  // Show form for adding
+  const handleAddClick = () => {
+    setEditingModule(null);
+    setShowForm(true);
+  }
+
+  // Show form for editing
+  const handleEditClick = (module) => {
+    setEditingModule(module);
+    setShowForm(true);
+  };
+
+  // Handle deletion
+  const handleDeleteClick = async (id) => {
+    if (window.confirm('Are you sure you want to delete this version module? This might affect schedules or teacher assignments.')) {
+      try {
+        await deleteVersionModule(id);
+        fetchData(); // Refresh list
+      } catch (err) {
+        console.error("Failed to delete version module:", err);
+        setError('Failed to delete version module. It might be linked to other items.');
+      }
+    }
+  };
+
+  // Callback for form success
   const handleFormSubmitSuccess = () => {
     setShowForm(false); 
+    setEditingModule(null);
     fetchData(); 
   };
 
+  // Cancel adding/editing
+  const handleCancel = () => {
+    setShowForm(false);
+    setEditingModule(null);
+  };
+
   return (
-    <div style={styles.container}>
+    <div className="admin-page-container">
       <h1>Manage Version Modules</h1>
-      {error && <p style={styles.error}>{error}</p>}
+      {error && <p className="admin-error">{error}</p>}
 
-      <button 
-        onClick={() => setShowForm(!showForm)} 
-        style={{ marginBottom: '1rem', padding: '8px 12px', cursor: 'pointer' }}
-      >
-        {showForm ? 'Cancel' : 'Add New Version Module'}
-      </button>
-
-      {showForm && (
-        <VersionModuleForm onSubmitSuccess={handleFormSubmitSuccess} />
+      {!showForm && (
+        <button 
+          onClick={handleAddClick} 
+          className="admin-button add-button"
+        >
+          Add New Version Module
+        </button>
       )}
 
+      {showForm && (
+        <VersionModuleForm 
+          onSubmitSuccess={handleFormSubmitSuccess} 
+          initialData={editingModule}
+          onCancel={handleCancel}
+        />
+      )}
+
+      <h2>Existing Version Modules</h2>
       {isLoading ? (
-        <p style={styles.loading}>Loading version modules...</p>
+        <p className="admin-loading">Loading version modules...</p>
       ) : modules.length === 0 && !error ? (
         <p>No version modules found.</p>
       ) : (
-        <ul style={styles.list}>
-          {modules.map(mod => (
-            <li key={mod.id} style={styles.listItem}>
-              <span>
-                {mod.base_module?.name || 'N/A'} 
-                {mod.version_name ? ` - ${mod.version_name}` : ''} 
-                (C: {mod.cours_hours}h, TD: {mod.td_hours}h, TP: {mod.tp_hours}h)
-              </span> 
-              {/* Add Edit/Delete buttons later */}
-            </li>
-          ))}
-        </ul>
+        <div className="admin-table-container">
+          <table className="admin-table">
+            <thead>
+              <tr>
+                <th>Base Module</th>
+                <th>Version Name</th>
+                <th>Cours (h)</th>
+                <th>TD (h)</th>
+                <th>TP (h)</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {modules.map(mod => (
+                <tr key={mod.id}>
+                  <td>{mod.base_module?.name || 'N/A'}</td>
+                  <td>{mod.version_name || '-'}</td>
+                  <td>{mod.cours_hours}</td>
+                  <td>{mod.td_hours}</td>
+                  <td>{mod.tp_hours}</td>
+                  <td className="actions-cell">
+                    <div className="action-buttons">
+                      <button 
+                        onClick={() => handleEditClick(mod)} 
+                        className="admin-button edit-button"
+                        disabled={showForm}
+                      >
+                        Edit
+                      </button>
+                      <button 
+                        onClick={() => handleDeleteClick(mod.id)} 
+                        className="admin-button delete-button"
+                        disabled={showForm}
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
     </div>
   );

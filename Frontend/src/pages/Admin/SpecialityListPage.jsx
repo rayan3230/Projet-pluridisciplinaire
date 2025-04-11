@@ -1,22 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { getSpecialities } from '../../services/academicService'; 
+import {
+  getSpecialities,
+  deleteSpeciality, 
+  // updateSpeciality will be handled by the form
+} from '../../services/academicService'; 
 import SpecialityForm from '../../components/Admin/SpecialityForm'; // Import the form
-
-// Basic styling (replace with CSS classes or UI library)
-const styles = {
-  container: { padding: '1rem', maxWidth: '800px', margin: 'auto' },
-  list: { listStyle: 'none', padding: 0 },
-  listItem: { borderBottom: '1px solid #eee', padding: '0.5rem 0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' },
-  error: { color: 'red', marginBottom: '1rem' },
-  loading: { fontStyle: 'italic' }
-  // TODO: Add styles for Edit/Delete buttons if needed
-};
 
 function SpecialityListPage() {
   const [specialities, setSpecialities] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [showForm, setShowForm] = useState(false); // State to toggle form visibility
+  const [editingSpeciality, setEditingSpeciality] = useState(null); // State to hold the item being edited
 
   // Function to fetch data
   const fetchData = async () => {
@@ -38,45 +33,110 @@ function SpecialityListPage() {
     fetchData();
   }, []);
 
-  // Callback for when the form successfully submits
+  // Show form for adding
+  const handleAddClick = () => {
+    setEditingSpeciality(null); // Ensure we are not editing
+    setShowForm(true);
+  }
+
+  // Show form for editing
+  const handleEditClick = (speciality) => {
+    setEditingSpeciality(speciality);
+    setShowForm(true);
+  };
+
+  // Handle deletion
+  const handleDeleteClick = async (id) => {
+    // Simple confirmation, ideally use a modal
+    if (window.confirm('Are you sure you want to delete this speciality?')) {
+      try {
+        await deleteSpeciality(id);
+        fetchData(); // Refresh list after delete
+      } catch (err) {
+        console.error("Failed to delete speciality:", err);
+        setError('Failed to delete speciality. It might be linked to other items.');
+      }
+    }
+  };
+
+  // Callback for when the form successfully submits (add or edit)
   const handleFormSubmitSuccess = () => {
     setShowForm(false); // Hide the form
+    setEditingSpeciality(null); // Reset editing state
     fetchData(); // Refresh the list
   };
 
+  // Cancel adding/editing
+  const handleCancel = () => {
+    setShowForm(false);
+    setEditingSpeciality(null);
+  };
+
   return (
-    <div style={styles.container}>
+    <div className="admin-page-container">
       <h1>Manage Specialities</h1>
-      {error && <p style={styles.error}>{error}</p>}
+      {error && <p className="admin-error">{error}</p>}
 
-      <button 
-        onClick={() => setShowForm(!showForm)} 
-        style={{ marginBottom: '1rem', padding: '8px 12px', cursor: 'pointer' }}
-      >
-        {showForm ? 'Cancel' : 'Add New Speciality'}
-      </button>
-
-      {showForm && (
-        <SpecialityForm onSubmitSuccess={handleFormSubmitSuccess} />
+      {/* Show Add button only if form is not visible */}
+      {!showForm && (
+        <button 
+          onClick={handleAddClick} 
+          className="admin-button add-button"
+        >
+          Add New Speciality
+        </button>
       )}
 
+      {/* Show the form if showForm is true (for add or edit) */}
+      {showForm && (
+        <SpecialityForm 
+          onSubmitSuccess={handleFormSubmitSuccess} 
+          initialData={editingSpeciality} // Pass initial data for editing
+          onCancel={handleCancel} // Pass cancel handler
+        />
+      )}
+
+      <h2>Existing Specialities</h2>
       {isLoading ? (
-        <p style={styles.loading}>Loading specialities...</p>
+        <p className="admin-loading">Loading specialities...</p>
       ) : specialities.length === 0 && !error ? (
         <p>No specialities found.</p>
       ) : (
-        <ul style={styles.list}>
-          {specialities.map(spec => (
-            <li key={spec.id} style={styles.listItem}>
-              <span>{spec.name}</span>
-              {/* Add Edit/Delete buttons here later */}
-              {/* <div>
-                  <button>Edit</button>
-                  <button>Delete</button>
-              </div> */}
-            </li>
-          ))}
-        </ul>
+        <div className="admin-table-container">
+          <table className="admin-table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {specialities.map(spec => (
+                <tr key={spec.id}>
+                  <td>{spec.name}</td>
+                  <td className="actions-cell">
+                    <div className="action-buttons">
+                      <button 
+                        onClick={() => handleEditClick(spec)} 
+                        className="admin-button edit-button"
+                        disabled={showForm} // Disable if form is already open
+                      >
+                        Edit
+                      </button>
+                      <button 
+                        onClick={() => handleDeleteClick(spec.id)} 
+                        className="admin-button delete-button"
+                        disabled={showForm} // Disable if form is already open
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
     </div>
   );

@@ -219,7 +219,11 @@ body{
 
 #devider{
   font-size: 3em;
+  color: white;
+  text-decoration: none;
+  border :none;
 }
+
 
 #resetpass{
   margin-top: 70px;

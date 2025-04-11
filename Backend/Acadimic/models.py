@@ -2,7 +2,7 @@ from django.db import models
 from enum import Enum 
 from django.conf import settings # Import settings to reference the custom User model
 
-class MyEnum(Enum):
+class SessionType(Enum):
     COURS = 'Cours'
     TD = 'TD'
     TP = 'TP'
@@ -11,7 +11,7 @@ class Classroom(models.Model) :
     name = models.CharField(max_length=50)
     type = models.CharField(
         max_length=10,
-        choices=[(tag.name, tag.value) for tag in MyEnum]  # Use Enum values as choices
+        choices=[(tag.name, tag.value) for tag in SessionType]  # Use Enum values as choices
     )
     capacity = models.IntegerField(default=0)
     has_projector = models.BooleanField(default=False)
@@ -59,7 +59,7 @@ class BaseModule(models.Model):
 
 class VersionModule(models.Model):
     base_module = models.ForeignKey(BaseModule, on_delete=models.CASCADE, related_name='versions')
-    version_name = models.CharField(max_length=50, blank=True) # e.g., "1", "Advanced", could be blank if only one version
+    version_name = models.CharField(max_length=50, blank=True, null=True) # e.g., "1", "Advanced"
     cours_hours = models.PositiveIntegerField(default=0)
     td_hours = models.PositiveIntegerField(default=0)
     tp_hours = models.PositiveIntegerField(default=0)
@@ -118,7 +118,7 @@ class ScheduleEntry(models.Model):
     end_time = models.TimeField()
     entry_type = models.CharField(
         max_length=10,
-        choices=[(tag.name, tag.value) for tag in MyEnum] # Cours, TD, TP
+        choices=[(tag.name, tag.value) for tag in SessionType] # Cours, TD, TP
     )
     # Add a unique constraint to prevent conflicts
     class Meta:

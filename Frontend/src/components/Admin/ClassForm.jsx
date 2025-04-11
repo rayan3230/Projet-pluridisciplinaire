@@ -1,8 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 // Use createClassroom from the updated service
-import { createClassroom } from '../../services/academicService'; 
+import {
+  createClassroom,
+  updateClassroom // Import updateClassroom
+} from '../../services/academicService'; 
 
-function ClassForm({ onSubmitSuccess }) {
+function ClassForm({ onSubmitSuccess, initialData, onCancel }) {
   const [name, setName] = useState(''); 
   const [classType, setClassType] = useState('Cours'); // Cours, TD, TP
   const [capacity, setCapacity] = useState(30); // Added capacity field
@@ -14,81 +17,104 @@ function ClassForm({ onSubmitSuccess }) {
   // const sectionId = 1; // Placeholder removed
 
   const [error, setError] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false); // Renamed for clarity
+  const isEditing = Boolean(initialData);
+
+  // Pre-fill form for editing
+  useEffect(() => {
+    if (initialData) {
+      setName(initialData.name || '');
+      setClassType(initialData.type || 'Cours');
+      setCapacity(initialData.capacity || 0);
+      setHasProjector(initialData.has_projector || false);
+      setComputersCount(initialData.computers_count || 0);
+    } else {
+      // Reset form for adding
+      setName('');
+      setClassType('Cours');
+      setCapacity(30);
+      setHasProjector(false);
+      setComputersCount(0);
+    }
+  }, [initialData]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    setIsLoading(true);
+    setIsSubmitting(true);
 
     const payload = {
       name,
       type: classType,
       capacity: parseInt(capacity, 10) || 0,
       has_projector: hasProjector,
-      computers_count: parseInt(computersCount, 10) || 0 // Use correct field name
-      // section: sectionId, // Removed - Classroom model doesn't link directly to Section
+      computers_count: parseInt(computersCount, 10) || 0
     };
-    // computers_count is always sent now, backend model handles defaults
-    // if (classType === 'TP') {
-    //   payload.computers_count = parseInt(computersCount, 10) || 0;
-    // }
 
     try {
-      await createClassroom(payload); // Use real API call
-      // console.log(`Class '${name}' of type '${classType}' created (mock)`); // Remove mock
-      // Reset form
-      setName('');
-      setClassType('Cours');
-      setCapacity(30);
-      setHasProjector(false);
-      setComputersCount(0);
+      if (isEditing) {
+        await updateClassroom(initialData.id, payload); // Use update API
+      } else {
+        await createClassroom(payload); // Use create API
+      }
+      // Reset form fields is handled by useEffect when initialData changes back to null
       if (onSubmitSuccess) onSubmitSuccess();
     } catch (err) {
-      console.error('Classroom creation failed:', err);
-      const errorMsg = err.response?.data?.detail || 'Failed to create classroom.';
+      console.error(`Classroom ${isEditing ? 'update' : 'creation'} failed:`, err);
+      // Attempt to get more specific error messages
+      let errorMsg = `Failed to ${isEditing ? 'update' : 'create'} classroom.`;
+      if (err.response?.data) {
+        const errors = err.response.data;
+        // Concatenate multiple errors if they exist
+        const fieldErrors = Object.keys(errors)
+          .map(key => `${key}: ${errors[key].join ? errors[key].join(', ') : errors[key]}`)
+          .join('; ');
+        if (fieldErrors) {
+          errorMsg = fieldErrors;
+        } else if (errors.detail) {
+          errorMsg = errors.detail;
+        }
+      }
       setError(errorMsg);
     } finally {
-      setIsLoading(false);
+      setIsSubmitting(false);
     }
   };
 
   // Basic styling similar to other forms
   return (
-    <form onSubmit={handleSubmit} style={{ border: '1px solid #ccc', padding: '1rem', marginTop: '1rem', borderRadius: '5px', backgroundColor: '#f9f9f9' }}>
-      <h2 style={{ marginBottom: '1rem', fontSize: '1.2em' }}>Create New Classroom</h2>
+    <form onSubmit={handleSubmit} className="admin-form">
+      <h2>{isEditing ? 'Edit Classroom' : 'Create New Classroom'}</h2>
       
-      <div style={{ marginBottom: '1rem' }}>
-        <label htmlFor="className" style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>Classroom Name/Number:</label>
+      <div className="form-group">
+        <label htmlFor="className">Classroom Name/Number:</label>
         <input
           type="text"
           id="className"
           value={name}
           onChange={(e) => setName(e.target.value)}
           required
-          disabled={isLoading}
-          style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '3px' }}
+          disabled={isSubmitting}
         />
       </div>
 
-      <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem' }}>
-        <div style={{ flex: 1 }}>
-          <label htmlFor="classType" style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>Type:</label>
+      <div className="form-row">
+        <div className="form-group form-group-half">
+          <label htmlFor="classType">Type:</label>
           <select
             id="classType"
             value={classType}
             onChange={(e) => setClassType(e.target.value)}
             required
-            disabled={isLoading}
-            style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '3px' }}
+            disabled={isSubmitting}
           >
             <option value="Cours">Cours</option>
             <option value="TD">TD</option>
             <option value="TP">TP</option>
           </select>
         </div>
-        <div style={{ flex: 1 }}>
-           <label htmlFor="capacity" style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>Capacity:</label>
+        <div className="form-group form-group-half">
+           <label htmlFor="capacity">Capacity:</label>
             <input
               type="number"
               id="capacity"
@@ -96,26 +122,24 @@ function ClassForm({ onSubmitSuccess }) {
               onChange={(e) => setCapacity(e.target.value)}
               min="0"
               required
-              disabled={isLoading}
-              style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '3px' }}
+              disabled={isSubmitting}
             />
         </div>
       </div>
 
-       <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem' }}>
-         <div style={{ flex: 2, display: 'flex', alignItems: 'center' }}>
+       <div className="form-row">
+         <div className="form-group form-group-check">
             <input
               type="checkbox"
               id="hasProjector"
               checked={hasProjector}
               onChange={(e) => setHasProjector(e.target.checked)}
-              disabled={isLoading}
-              style={{ marginRight: '0.5rem' }}
+              disabled={isSubmitting}
             />
-            <label htmlFor="hasProjector" style={{ fontWeight: 'bold' }}>Has Projector?</label>
+            <label htmlFor="hasProjector">Has Projector?</label>
         </div>
-         <div style={{ flex: 1 }}>
-           <label htmlFor="computersCount" style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>Computers (if TP):</label>
+         <div className="form-group form-group-half">
+           <label htmlFor="computersCount">Computers Count:</label>
             <input
               type="number"
               id="computersCount"
@@ -123,28 +147,30 @@ function ClassForm({ onSubmitSuccess }) {
               onChange={(e) => setComputersCount(e.target.value)}
               min="0"
               required
-              disabled={isLoading}
-              style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '3px' }}
+              disabled={isSubmitting}
             />
         </div>
       </div>
 
-      {error && <p style={{ color: 'red', marginBottom: '1rem' }}>{error}</p>}
+      {error && <p className="admin-error">{error}</p>}
       
-      <button 
-        type="submit" 
-        disabled={isLoading}
-        style={{
-          padding: '10px 15px', 
-          backgroundColor: isLoading ? '#ccc' : '#007bff', 
-          color: 'white', 
-          border: 'none', 
-          borderRadius: '3px', 
-          cursor: isLoading ? 'not-allowed' : 'pointer'
-        }}
-      >
-        {isLoading ? 'Creating...' : 'Create Classroom'}
-      </button>
+      <div className="form-actions">
+        <button 
+          type="submit" 
+          disabled={isSubmitting}
+          className="admin-button"
+        >
+          {isSubmitting ? (isEditing ? 'Updating...' : 'Creating...') : (isEditing ? 'Update Classroom' : 'Create Classroom')}
+        </button>
+        <button 
+          type="button" 
+          onClick={onCancel} 
+          disabled={isSubmitting}
+          className="admin-button cancel-button"
+        >
+          Cancel
+        </button>
+      </div>
     </form>
   );
 }

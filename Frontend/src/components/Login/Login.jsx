@@ -241,7 +241,7 @@ const Login = () => {
               <div className='left'>
                 {/* Wrap inputs and button in a form */}
                 <form className='left'onSubmit={handleSubmit}>
-                  <input type="text" name="email" placeholder="Scope email" value={formData.email} onChange={handleChange} className='textfield' required />
+                  <input type="text" name="email" placeholder="Scope  box iemail" value={formData.email} onChange={handleChange} className='textfield' required />
                   <input type="password" name="password" placeholder="Password" value={formData.password} onChange={handleChange} className='textfield' required />
                   <a href="" id='forgot'>Forgot Password ?</a>
                   {/* Display error/message if any */}

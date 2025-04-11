@@ -21,7 +21,25 @@ export const createBaseModule = async (moduleData) => {
     throw error;
   }
 };
-// Add getBaseModule, updateBaseModule, deleteBaseModule as needed
+
+export const updateBaseModule = async (id, moduleData) => {
+  try {
+    const response = await apiClient.put(`/base-modules/${id}/`, moduleData);
+    return response.data;
+  } catch (error) {
+    console.error(`Update Base Module ${id} API error:`, error.response || error.message);
+    throw error;
+  }
+};
+
+export const deleteBaseModule = async (id) => {
+  try {
+    await apiClient.delete(`/base-modules/${id}/`);
+  } catch (error) {
+    console.error(`Delete Base Module ${id} API error:`, error.response || error.message);
+    throw error;
+  }
+};
 
 // --- Version Modules ---
 export const getVersionModules = async (baseModuleId = null) => {
@@ -45,15 +63,32 @@ export const createVersionModule = async (moduleData) => {
     throw error;
   }
 };
-// Add getVersionModule, updateVersionModule, deleteVersionModule as needed
+
+export const updateVersionModule = async (id, moduleData) => {
+  try {
+    const response = await apiClient.put(`/version-modules/${id}/`, moduleData);
+    return response.data;
+  } catch (error) {
+    console.error(`Update Version Module ${id} API error:`, error.response || error.message);
+    throw error;
+  }
+};
+
+export const deleteVersionModule = async (id) => {
+  try {
+    await apiClient.delete(`/version-modules/${id}/`);
+  } catch (error) {
+    console.error(`Delete Version Module ${id} API error:`, error.response || error.message);
+    throw error;
+  }
+};
 
 // --- Helper for Schedule Generation/Teacher Assignment ---
 export const getModulesForPromo = async (promoId, semesterId) => {
-    // This might need a specific backend endpoint
+    // Note: Assumes backend API supports filtering version modules by promo & semester
     try {
-      // Example: Might fetch version modules filtered by promo/semester linkage
       const response = await apiClient.get('/version-modules/', {
-        params: { promo: promoId, semester: semesterId } // Adjust params based on API design
+        params: { promo: promoId, semester: semesterId }
       });
       return response.data;
     } catch (error) {

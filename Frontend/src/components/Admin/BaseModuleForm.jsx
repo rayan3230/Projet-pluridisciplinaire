@@ -1,68 +1,94 @@
-import React, { useState } from 'react';
-import { createBaseModule } from '../../services/moduleService';
+import React, { useState, useEffect } from 'react';
+import {
+  createBaseModule,
+  updateBaseModule
+} from '../../services/moduleService';
 
-function BaseModuleForm({ onSubmitSuccess }) {
+function BaseModuleForm({ onSubmitSuccess, initialData, onCancel }) {
   const [name, setName] = useState('');
   const [code, setCode] = useState('');
   const [coef, setCoef] = useState(1);
   const [error, setError] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const isEditing = Boolean(initialData);
+
+  // Populate form fields when editing
+  useEffect(() => {
+    if (initialData) {
+      setName(initialData.name || '');
+      setCode(initialData.code || '');
+      setCoef(initialData.coef || 1);
+    } else {
+      // Reset form for adding
+      setName('');
+      setCode('');
+      setCoef(1);
+    }
+  }, [initialData]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    setIsLoading(true);
+    setIsSubmitting(true);
+    const payload = { name, code, coef: parseFloat(coef) || 1.0 };
+
     try {
-      const payload = { name, code, coef: parseFloat(coef) || 1.0 };
-      await createBaseModule(payload);
-      setName('');
-      setCode('');
-      setCoef(1);
+      if (isEditing) {
+        await updateBaseModule(initialData.id, payload);
+      } else {
+        await createBaseModule(payload);
+      }
       if (onSubmitSuccess) onSubmitSuccess();
     } catch (err) {
-      console.error('Base Module creation failed:', err);
-      const errorMsg = err.response?.data?.detail || 'Failed to create base module. Check fields.';
-      if (err.response?.data?.name) setError(`Name: ${err.response.data.name[0]}`);
-      else if (err.response?.data?.code) setError(`Code: ${err.response.data.code[0]}`);
-      else if (err.response?.data?.coef) setError(`Coefficient: ${err.response.data.coef[0]}`);
-      else setError(errorMsg);
+      console.error(`Base Module ${isEditing ? 'update' : 'creation'} failed:`, err);
+      let errorMsg = `Failed to ${isEditing ? 'update' : 'create'} base module.`;
+      if (err.response?.data) {
+        const errors = err.response.data;
+        const fieldErrors = Object.keys(errors)
+          .map(key => `${key}: ${errors[key].join ? errors[key].join(', ') : errors[key]}`)
+          .join('; ');
+        if (fieldErrors) {
+          errorMsg = fieldErrors;
+        } else if (errors.detail) {
+          errorMsg = errors.detail;
+        }
+      }
+      setError(errorMsg);
     } finally {
-      setIsLoading(false);
+      setIsSubmitting(false);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} style={{ border: '1px solid #ccc', padding: '1rem', marginTop: '1rem', borderRadius: '5px', backgroundColor: '#f9f9f9' }}>
-      <h2 style={{ marginBottom: '1rem', fontSize: '1.2em' }}>Create New Base Module</h2>
+    <form onSubmit={handleSubmit} className="admin-form">
+      <h2>{isEditing ? 'Edit Base Module' : 'Create New Base Module'}</h2>
       
-      <div style={{ marginBottom: '1rem' }}>
-        <label htmlFor="moduleName" style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>Name:</label>
+      <div className="form-group">
+        <label htmlFor="moduleName">Name:</label>
         <input
           type="text"
           id="moduleName"
           value={name}
           onChange={(e) => setName(e.target.value)}
           required
-          disabled={isLoading}
-          style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '3px' }}
+          disabled={isSubmitting}
         />
       </div>
 
-      <div style={{ marginBottom: '1rem' }}>
-        <label htmlFor="moduleCode" style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>Code (e.g., ANAL):</label>
+      <div className="form-group">
+        <label htmlFor="moduleCode">Code (e.g., ANAL):</label>
         <input
           type="text"
           id="moduleCode"
           value={code}
           onChange={(e) => setCode(e.target.value)}
           required
-          disabled={isLoading}
-          style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '3px' }}
+          disabled={isSubmitting}
         />
       </div>
 
-      <div style={{ marginBottom: '1rem' }}>
-        <label htmlFor="moduleCoef" style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>Coefficient:</label>
+      <div className="form-group">
+        <label htmlFor="moduleCoef">Coefficient:</label>
         <input
           type="number"
           id="moduleCoef"
@@ -71,27 +97,29 @@ function BaseModuleForm({ onSubmitSuccess }) {
           min="0" 
           step="0.5"
           required
-          disabled={isLoading}
-          style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '3px' }}
+          disabled={isSubmitting}
         />
       </div>
 
-      {error && <p style={{ color: 'red', marginBottom: '1rem' }}>{error}</p>}
+      {error && <p className="admin-error">{error}</p>}
       
-      <button 
-        type="submit" 
-        disabled={isLoading}
-        style={{
-          padding: '10px 15px', 
-          backgroundColor: isLoading ? '#ccc' : '#007bff', 
-          color: 'white', 
-          border: 'none', 
-          borderRadius: '3px', 
-          cursor: isLoading ? 'not-allowed' : 'pointer'
-        }}
-      >
-        {isLoading ? 'Creating...' : 'Create Base Module'}
-      </button>
+      <div className="form-actions">
+        <button 
+          type="submit" 
+          disabled={isSubmitting}
+          className="admin-button"
+        >
+          {isSubmitting ? (isEditing ? 'Updating...' : 'Creating...') : (isEditing ? 'Update Base Module' : 'Create Base Module')}
+        </button>
+        <button 
+          type="button" 
+          onClick={onCancel} 
+          disabled={isSubmitting}
+          className="admin-button cancel-button"
+        >
+          Cancel
+        </button>
+      </div>
     </form>
   );
 }

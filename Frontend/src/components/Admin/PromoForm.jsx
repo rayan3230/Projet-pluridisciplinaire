@@ -1,31 +1,49 @@
 import React, { useState, useEffect } from 'react';
-import { createPromo, getSpecialities } from '../../services/academicService';
+import {
+  createPromo,
+  updatePromo,
+  getSpecialities
+} from '../../services/academicService';
 
-function PromoForm({ onSubmitSuccess }) {
+function PromoForm({ onSubmitSuccess, initialData, onCancel }) {
   const [name, setName] = useState('');
   const [specialityId, setSpecialityId] = useState('');
-  const [specialities, setSpecialities] = useState([]); // To populate dropdown
+  const [specialities, setSpecialities] = useState([]);
   const [error, setError] = useState('');
-  const [isLoading, setIsLoading] = useState(false); // Loading state for fetch and submit
-  const [isSubmitting, setIsSubmitting] = useState(false); // Specific submitting state
+  const [isLoadingSpecialities, setIsLoadingSpecialities] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const isEditing = Boolean(initialData);
 
+  // Fetch specialities for the dropdown
   useEffect(() => {
-    const fetchSpecialities = async () => {
-      setIsLoading(true);
-      setError(''); // Clear previous errors
+    const fetchSpecialitiesData = async () => {
+      setIsLoadingSpecialities(true);
+      setError('');
       try {
-        const data = await getSpecialities(); // Use real API call
-        setSpecialities(data); 
-        // setSpecialities([{ id: 1, name: 'Informatique (Mock)' }, { id: 2, name: 'Génie Civil (Mock)' }]); // Remove Mock data
+        const data = await getSpecialities();
+        setSpecialities(data);
       } catch (err) {
         console.error('Failed to fetch specialities:', err);
-        setError('Could not load specialities for selection. Please refresh or try again.');
+        setError('Could not load specialities. Please refresh.');
       } finally {
-        setIsLoading(false);
+        setIsLoadingSpecialities(false);
       }
     };
-    fetchSpecialities();
+    fetchSpecialitiesData();
   }, []);
+
+  // Populate form fields when editing
+  useEffect(() => {
+    if (initialData) {
+      setName(initialData.name || '');
+      // Use optional chaining and correct field from serializer
+      setSpecialityId(initialData.speciality?.id || ''); 
+    } else {
+      // Clear form for adding
+      setName('');
+      setSpecialityId('');
+    }
+  }, [initialData]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -34,75 +52,78 @@ function PromoForm({ onSubmitSuccess }) {
       setError('Please select a speciality.');
       return;
     }
-    setIsSubmitting(true); // Start submission loading state
+    setIsSubmitting(true);
+    const promoData = { name, speciality_id: specialityId };
+
     try {
-      const payload = { name, speciality_id: specialityId }; // Ensure key is speciality_id
-      await createPromo(payload); // Use real API call
-      // console.log(`Promo '${name}' for speciality ${specialityId} created (mock)`); // Remove mock
-      setName('');
-      setSpecialityId('');
+      if (isEditing) {
+        await updatePromo(initialData.id, promoData);
+      } else {
+        await createPromo(promoData);
+      }
+      // Reset form is handled by useEffect
       if (onSubmitSuccess) onSubmitSuccess();
     } catch (err) {
-      console.error('Promo creation failed:', err);
-      const errorMsg = err.response?.data?.name?.[0] || err.response?.data?.detail || 'Failed to create promo.';
+      console.error(`Promo ${isEditing ? 'update' : 'creation'} failed:`, err);
+      const errorMsg = err.response?.data?.name?.[0] || err.response?.data?.detail || `Failed to ${isEditing ? 'update' : 'create'} promo.`;
       setError(errorMsg);
     } finally {
-      setIsSubmitting(false); // End submission loading state
+      setIsSubmitting(false);
     }
   };
 
-  // Basic styling similar to SpecialityForm
   return (
-    <form onSubmit={handleSubmit} style={{ border: '1px solid #ccc', padding: '1rem', marginTop: '1rem', borderRadius: '5px', backgroundColor: '#f9f9f9' }}>
-      <h2 style={{ marginBottom: '1rem', fontSize: '1.2em' }}>Create New Promo</h2>
+    <form onSubmit={handleSubmit} className="admin-form">
+      <h2>{isEditing ? 'Edit Promo' : 'Create New Promo'}</h2>
       
-      <div style={{ marginBottom: '1rem' }}>
-        <label htmlFor="promoName" style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>Promo Name:</label>
+      <div className="form-group">
+        <label htmlFor="promoName">Promo Name:</label>
         <input
           type="text"
           id="promoName"
           value={name}
           onChange={(e) => setName(e.target.value)}
           required
-          disabled={isSubmitting} // Disable during submission
-          style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '3px' }}
+          disabled={isSubmitting}
         />
       </div>
 
-      <div style={{ marginBottom: '1rem' }}>
-        <label htmlFor="specialitySelect" style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>Speciality:</label>
+      <div className="form-group">
+        <label htmlFor="specialitySelect">Speciality:</label>
         <select 
           id="specialitySelect" 
           value={specialityId} 
           onChange={(e) => setSpecialityId(e.target.value)} 
           required
-          disabled={isLoading || isSubmitting} // Disable while loading specialities or submitting
-          style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '3px' }}
+          disabled={isLoadingSpecialities || isSubmitting} 
         >
           <option value="">-- Select Speciality --</option>
           {specialities.map(spec => (
             <option key={spec.id} value={spec.id}>{spec.name}</option>
           ))}
         </select>
-        {isLoading && <p>Loading specialities...</p>} 
+        {isLoadingSpecialities && <p className="admin-loading">Loading specialities...</p>} 
       </div>
 
-      {error && <p style={{ color: 'red', marginBottom: '1rem' }}>{error}</p>}
+      {error && <p className="admin-error">{error}</p>}
       
-      <button 
-        type="submit" 
-        disabled={isLoading || isSubmitting}
-        style={{
-          padding: '10px 15px', 
-          backgroundColor: (isLoading || isSubmitting) ? '#ccc' : '#007bff', 
-          color: 'white', 
-          border: 'none', 
-          borderRadius: '3px', 
-          cursor: (isLoading || isSubmitting) ? 'not-allowed' : 'pointer'
-        }}
-      >
-        {isSubmitting ? 'Creating...' : 'Create Promo'}
-      </button>
+      <div className="form-actions">
+        <button 
+          type="submit" 
+          disabled={isLoadingSpecialities || isSubmitting}
+          className="admin-button"
+        >
+          {isSubmitting ? (isEditing ? 'Updating...' : 'Creating...') : (isEditing ? 'Update Promo' : 'Create Promo')}
+        </button>
+        <button 
+          type="button" 
+          onClick={onCancel} 
+          disabled={isSubmitting}
+          className="admin-button cancel-button"
+        >
+          Cancel
+        </button>
+      </div>
     </form>
   );
 }
