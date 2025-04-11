@@ -1,18 +1,13 @@
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import { BrowserRouter } from 'react-router-dom'
+import React from 'react'
+import ReactDOM from 'react-dom/client'
+import App from './App.jsx'
 import './index.css'
-import Profile from './components/Newrequest/Newrequest.jsx'
-import Login from './components/Login/Login.jsx'
-import { ScheduleProvider } from './context/ScheduleContext'
+import { AuthProvider } from './context/AuthContext'
 
-createRoot(document.getElementById('root')).render(
-  <StrictMode>
-    <BrowserRouter>
-      <ScheduleProvider>
-        {/* <Profile Name="wassim" Email="mho" Phone="000" Department="some" Year="2025" Branch="info" /> */}
-        <Login />
-      </ScheduleProvider>
-    </BrowserRouter>
-  </StrictMode>,
+ReactDOM.createRoot(document.getElementById('root')).render(
+  <React.StrictMode>
+    <AuthProvider>
+      <App />
+    </AuthProvider>
+  </React.StrictMode>,
 )

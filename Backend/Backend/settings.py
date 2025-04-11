@@ -53,7 +53,8 @@ INSTALLED_APPS = [
     'corsheaders',
     'rest_framework',
     'users',
-    'Acadimic'
+    'Acadimic',
+    'django_extensions',
 ]
 
 MIDDLEWARE = [
@@ -65,7 +66,6 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-
 ]
 
 CORS_ALLOW_ALL_ORIGINS = True  # For development only
@@ -208,3 +208,17 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'Scope67890@gmail.com'  # Your email address
 EMAIL_HOST_PASSWORD = 'jqra juwo ferc xftg'  # Your email password or app password
 DEFAULT_FROM_EMAIL = 'SCOPE Admin <SCOPEADMIN@SCOPE.com>'
+
+# Django REST Framework settings
+# Remove or comment out the entire REST_FRAMEWORK setting to use DRF defaults
+# REST_FRAMEWORK = {
+#     'DEFAULT_AUTHENTICATION_CLASSES': [
+#         # 'users.authentication.APIKeyAuthentication',
+#     ],
+#     'DEFAULT_PERMISSION_CLASSES': [
+#         # 'rest_framework.permissions.IsAuthenticatedOrReadOnly',
+#     ],
+#     'DEFAULT_RENDERER_CLASSES': (
+#         'rest_framework.renderers.JSONRenderer',
+#     )
+# }
