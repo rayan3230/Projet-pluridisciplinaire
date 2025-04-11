@@ -1,7 +1,8 @@
 import './Login.css'
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios'
+import apiClient from '../../config/axiosConfig';
+import { useAuth } from '../../context/AuthContext';
 import logo from '../../assets/circle.png';
 import topright from '../../assets/topright.png';
 import bottomleft from '../../assets/bottomleft.png';
@@ -13,14 +14,14 @@ const Login = () => {
     const navigate = useNavigate();
     const { login } = useAuth();
 
+    // State for login form (using formData now)
+    const [formData, setFormData] = useState({
+        email: '',
+        password: ''
+    });
+
     // Component Mode: 'login' or 'forceChangePassword'
     const [mode, setMode] = useState('login');
-
-    // State for login form
-    const [loginFormData, setLoginFormData] = useState({
-        scope_email: '',
-        password: '' // This will hold the temporary password initially
-    });
 
     // State for force change password form
     const [tempPassword, setTempPassword] = useState(''); // To store the successful temp password
@@ -48,9 +49,15 @@ const Login = () => {
       setError('');
       setInitialUserData(null); // Clear previous user data
       
+      // Adapt to use formData from the new state
+      const loginPayload = {
+          scope_email: formData.email, // Use formData.email
+          password: formData.password    // Use formData.password
+      };
+
       try {
-          console.log('Attempting login with:', loginFormData);
-          const response = await apiClient.post('/auth/login/', loginFormData);
+          console.log('Attempting login with:', loginPayload);
+          const response = await apiClient.post('/auth/login/', loginPayload);
           
           console.log('Login response:', response.data);
           const userData = response.data.user;
@@ -62,7 +69,7 @@ const Login = () => {
               // --- Needs Password Change ---
               setMessage('Login successful! Please set your new password.');
               // Store the temporary password that worked
-              setTempPassword(loginFormData.password);
+              setTempPassword(formData.password); // Use formData.password
               // Store the received user data before changing mode
               setInitialUserData(userData);
               // Switch mode to show password change fields
@@ -124,7 +131,7 @@ const Login = () => {
         try {
             const payload = {
                 // Use the initial user data email
-                scope_email: initialUserData.scope_email, 
+                scope_email: initialUserData.scope_email,
                 current_password: tempPassword, 
                 new_password: newPassword
             };
@@ -167,13 +174,17 @@ const Login = () => {
     };
 
     // --- Input Change Handlers ---
-    const handleLoginChange = (e) => {
-      setLoginFormData({
-          ...loginFormData,
+    const handleChange = (e) => {
+      setFormData({
+          ...formData,
           [e.target.name]: e.target.value
       });
     };
 
+    // New handleSubmit to call the original login logic
+    const handleSubmit = (event) => {
+        handleLoginSubmit(event); // Call the existing login submission logic
+    };
 
     useEffect(() => {
       const script = document.createElement('script');
@@ -225,13 +236,19 @@ const Login = () => {
         <h1 id='loginheader'>Welcome to <span id='scope'></span></h1>
         <p id='logindescription'>SCOPE allows professors to securely swap class slots with mutual approval, ensuring transparency, minimizing conflicts, and providing real-time updates.</p>
         <div className="bottom">
-        <div className="left">
-          <input type="text" name="email" placeholder="University or personal email" value={formData.email} onChange={handleChange} className='textfield'  />
-          <input type="password" name="password" placeholder="Password" value={formData.password} onChange={handleChange} className='textfield' />
-          <a href="" id='forgot'>Forgot Password ?</a>
-          <button onClick={handleSubmit} disabled={isLoading} id='login'>
-        {isLoading ? 'Logging in...' : 'Login'}
-        </button>       
+        <div >
+          {/* Wrap inputs and button in a form */}
+          <form className='left'onSubmit={handleSubmit}>
+            <input type="text" name="email" placeholder="University or personal email" value={formData.email} onChange={handleChange} className='textfield' required />
+            <input type="password" name="password" placeholder="Password" value={formData.password} onChange={handleChange} className='textfield' required />
+            <a href="" id='forgot'>Forgot Password ?</a>
+            {/* Display error/message if any */}
+            {error && <p style={{ color: 'red', textAlign: 'center', marginTop: '10px' }}>{error}</p>}
+            {message && <p style={{ color: 'green', textAlign: 'center', marginTop: '10px' }}>{message}</p>}
+            <button type="submit" disabled={isLoading} id='login'>
+              {isLoading ? 'Logging in...' : 'Login'}
+            </button>
+          </form>
          </div>
 
         <h1 id='devider'>/</h1>
