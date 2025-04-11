@@ -111,7 +111,7 @@ body{
   font-size: 3.5em;
   font-weight: bold;
   margin-bottom: 20px;
-  
+  border:none;
 }
 
 #logindescription{
@@ -269,4 +269,115 @@ body{
   font-family: 'Montserrat', sans-serif;
   margin-bottom: 15px;
   text-align: center;
+}
+
+/* Entrance Animation */
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.entrance-animation {
+  animation: slideUp 1s ease-out forwards;
+  opacity: 0;
+}
+
+.entrance-animation-delayed {
+  animation: slideUp 1s ease-out 0.5s forwards;
+  opacity: 0;
+}
+
+.entrance-animation-more-delayed {
+  animation: slideUp 1s ease-out 1s forwards;
+  opacity: 0;
+}
+
+/* Welcome Text Animation */
+@keyframes moveUp {
+  0% {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    opacity: 0;
+    z-index: 1000;
+  }
+  20% {
+    opacity: 1;
+  }
+  60% {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    opacity: 1;
+  }
+  100% {
+    position: relative;
+    top: 80px;
+    left: 50%;
+    transform: translate(-50%, 0);
+    opacity: 1;
+    z-index: 1;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+#loginheader.welcome-text {
+  position: relative;
+  left: 50%;
+  font-family: "Montserrat", sans-serif;
+  font-size: 3.5em;
+  color: white;
+  text-align: center;
+  animation: moveUp 1.5s ease-out forwards;
+  margin-bottom: 20px;
+}
+
+#loginheader.welcome-text span {
+  color: #00FFCC;
+}
+
+#logindescription {
+  opacity: 0;
+  animation: fadeIn 0.5s ease-out 1.5s forwards;
+}
+
+.welcome-text {
+  position: absolute;
+  left: 50%;
+  font-family: "Montserrat", sans-serif;
+  font-size: 4em;
+  color: white;
+  text-align: center;
+  animation: moveUp 3s ease-out forwards;
+}
+
+.welcome-text span {
+  color: #00FFCC;
 }

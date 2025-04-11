@@ -40,6 +40,8 @@ const Login = () => {
     const [showNewPassword, setShowNewPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
+    const [showWelcome, setShowWelcome] = useState(true);
+
     // --- LOGIN FORM HANDLER ---
     const handleLoginSubmit = async (event) => {
       event.preventDefault();
@@ -186,6 +188,15 @@ const Login = () => {
     };
 
     useEffect(() => {
+        // Hide welcome text after 3 seconds
+        const timer = setTimeout(() => {
+            setShowWelcome(false);
+        }, 3000);
+
+        return () => clearTimeout(timer);
+    }, []);
+
+    useEffect(() => {
       const script = document.createElement('script');
       script.src = "https://unpkg.com/typed.js@2.1.0/dist/typed.umd.js";
       script.async = true;
@@ -229,18 +240,19 @@ const Login = () => {
       <div className="containerlogin">
        <img src={logo} alt="" id="circle1" className='circle' />
        <img src={logo} alt="" id="circle2" className='circle'/>
+       
+       <h1 id='loginheader' className="welcome-text">Welcome to <span>Scope</span></h1>
+
        <span className="logologin" onClick={() => { setMode('login'); setMessage(""); }}>Scope</span>
        
       <div className="content">
-        <h1 id='loginheader'>Welcome to <span id='scope'></span></h1>
         <p id='logindescription'>SCOPE allows professors to securely swap class slots with mutual approval, ensuring transparency, minimizing conflicts, and providing real-time updates.</p>
         <div className="bottom">
           {/* Mode-dependent UI starts here */}
           {mode === 'login' && (
             <div className="bottom">
               <div className='left'>
-                {/* Wrap inputs and button in a form */}
-                <form className='left'onSubmit={handleSubmit}>
+                <form className='left entrance-animation-more-delayed' onSubmit={handleSubmit}>
                   <input type="text" name="email" placeholder="Scope  box iemail" value={formData.email} onChange={handleChange} className='textfield' required />
                   <input type="password" name="password" placeholder="Password" value={formData.password} onChange={handleChange} className='textfield' required />
                   <a href="" id='forgot'>Forgot Password ?</a>
@@ -253,9 +265,9 @@ const Login = () => {
                 </form>
               </div>
 
-              <h1 id='devider'>/</h1>
+              <h1 id='devider' className="entrance-animation-more-delayed">/</h1>
 
-              <div className="right">
+              <div className="right entrance-animation-more-delayed">
                 <button id='google'>Continue with Google</button>
                 <button id='contact'>Contact Us</button>
                 <button id='website'>Visit our website</button>
@@ -367,7 +379,7 @@ const Login = () => {
             </div>
           )}
         </div>
-        <a href="" id='resetpass'>Reset Password</a>
+        <a href="" id='resetpass' className="entrance-animation-more-delayed">Reset Password</a>
       </div>
 
       <span className="rights">© 2025 Scope. All Rights Reserved.</span>
