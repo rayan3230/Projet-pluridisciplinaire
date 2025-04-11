@@ -28,6 +28,9 @@ body{
   height: 100vh;
   color: white;
   flex-direction: column;
+  z-index: 1;
+  opacity: 0;
+  animation: fadeIn 0.3s ease-out 1s forwards;
 }
 
 .bottom{
@@ -133,6 +136,8 @@ body{
   top: 60px;
   left: 80px;
   cursor: pointer;
+  opacity: 0;
+  animation: fadeIn 0.3s ease-out 1s forwards;
 }
 
 #circle1{
@@ -241,6 +246,8 @@ body{
   bottom: 20px;
   position: absolute;
   right: 40px;
+  opacity: 0;
+  animation: fadeIn 0.3s ease-out 1s forwards;
 }
 
 
@@ -271,113 +278,108 @@ body{
   text-align: center;
 }
 
-/* Entrance Animation */
-@keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(50px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
+/* Completely rebuilt animation */
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-.entrance-animation {
-  animation: slideUp 1s ease-out forwards;
-  opacity: 0;
-}
-
-.entrance-animation-delayed {
-  animation: slideUp 1s ease-out 0.5s forwards;
-  opacity: 0;
-}
-
-.entrance-animation-more-delayed {
-  animation: slideUp 1s ease-out 1s forwards;
-  opacity: 0;
-}
-
-/* Welcome Text Animation */
-@keyframes moveUp {
+/* Animation for the temp header - from center to top */
+@keyframes moveUpAndFade {
   0% {
-    position: fixed;
     top: 50%;
-    left: 50%;
     transform: translate(-50%, -50%);
     opacity: 0;
-    z-index: 1000;
   }
-  20% {
+  10% {
     opacity: 1;
+    top: 50%; 
+    transform: translate(-50%, -50%);
   }
   60% {
-    position: fixed;
+    opacity: 1;
     top: 50%;
-    left: 50%;
     transform: translate(-50%, -50%);
+  }
+  90% {
+    top: 120px;
+    transform: translate(-50%, 0);
     opacity: 1;
   }
   100% {
-    position: relative;
-    top: 80px;
-    left: 50%;
+    top: 120px;
     transform: translate(-50%, 0);
-    opacity: 1;
-    z-index: 1;
+    opacity: 0;
   }
 }
 
+/* Fade in animation */
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(20px);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
   }
 }
 
-#loginheader.welcome-text {
-  position: relative;
+/* Temp header styling */
+.temp-header {
+  position: fixed;
   left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
   font-family: "Montserrat", sans-serif;
   font-size: 3.5em;
   color: white;
   text-align: center;
-  animation: moveUp 1.5s ease-out forwards;
-  margin-bottom: 20px;
+  animation: moveUpAndFade 1s ease-out forwards;
+  z-index: 999;
+  width: 100%;
 }
 
-#loginheader.welcome-text span {
+.temp-header span {
   color: #00FFCC;
 }
 
+/* Content area with delay */
+.content {
+  display: flex;
+  position: relative;
+  top: 80px;
+  align-items: center;
+  width: 100vw;
+  height: 100vh;
+  color: white;
+  flex-direction: column;
+  z-index: 1;
+  opacity: 0;
+  animation: fadeIn 0.3s ease-out 1s forwards;
+}
+
+/* Logo fades in */
+.logologin {
+  position: absolute;
+  font-family: "Audiowide", sans-serif;
+  color: white;
+  font-size: 1.3em;
+  top: 60px;
+  left: 80px;
+  cursor: pointer;
+  opacity: 0;
+  animation: fadeIn 0.3s ease-out 1s forwards;
+}
+
+/* Rights text fades in */
+.rights {
+  font-family: 'lato', sans-serif;
+  color: white;
+  font-size: 0.8em;
+  bottom: 20px;
+  position: absolute;
+  right: 40px;
+  opacity: 0;
+  animation: fadeIn 0.3s ease-out 1s forwards;
+}
+
+/* Description text fades in */
 #logindescription {
   opacity: 0;
-  animation: fadeIn 0.5s ease-out 1.5s forwards;
-}
-
-.welcome-text {
-  position: absolute;
-  left: 50%;
-  font-family: "Montserrat", sans-serif;
-  font-size: 4em;
-  color: white;
-  text-align: center;
-  animation: moveUp 3s ease-out forwards;
-}
-
-.welcome-text span {
-  color: #00FFCC;
+  animation: fadeIn 0.3s ease-out 1s forwards;
 }
