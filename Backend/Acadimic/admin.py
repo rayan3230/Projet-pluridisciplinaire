@@ -2,16 +2,27 @@ from django.contrib import admin
 from .models import (
     Classroom, Speciality, Promo, Section,
     BaseModule, VersionModule, Semester, Exam,
-    TeacherModuleAssignment, ScheduleEntry
+    TeacherModuleAssignment, ScheduleEntry, Location
 )
 
 # Basic registration first, customization can be added later
 
+@admin.register(Location)
+class LocationAdmin(admin.ModelAdmin):
+    list_display = ('name',)
+    search_fields = ('name',)
+
 @admin.register(Classroom)
 class ClassroomAdmin(admin.ModelAdmin):
+<<<<<<< Updated upstream
     #list_display = ('name', 'type', 'has_projector', 'computers_count')
     list_filter = ('type', 'has_projector')
     search_fields = ('name',)
+=======
+    list_display = ('name', 'type', 'has_projector', 'location')
+    list_filter = ('location', 'type', 'has_projector')
+    search_fields = ('name', 'location__name')
+>>>>>>> Stashed changes
 
 @admin.register(Speciality)
 class SpecialityAdmin(admin.ModelAdmin):

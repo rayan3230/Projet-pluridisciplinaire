@@ -41,6 +41,7 @@ function NavBar() {
                     <Link to="/admin/promos">Promos</Link>
                     <Link to="/admin/sections">Sections</Link>
                     <Link to="/admin/classrooms">Classrooms</Link>
+                    <Link to="/admin/locations">Locations</Link>
                   </div>
                 </li>
                 <li className="dropdown">

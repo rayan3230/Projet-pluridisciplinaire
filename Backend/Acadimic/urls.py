@@ -14,9 +14,12 @@ router.register(r'exams', views.ExamViewSet, basename='exam')
 router.register(r'exam-periods', views.ExamPeriodViewSet, basename='examperiod')
 router.register(r'assignments', views.TeacherModuleAssignmentViewSet, basename='teachermoduleassignment')
 router.register(r'schedule-entries', views.ScheduleEntryViewSet, basename='scheduleentry')
+router.register(r'locations', views.LocationViewSet, basename='location')
 
 urlpatterns = [
     path('', include(router.urls)),
     path('generate-exam-schedule/', views.generate_exam_schedule_view, name='generate-exam-schedule'),
     path('generate-class-schedule/', views.generate_class_schedule_view, name='generate-class-schedule'),
+    path('export-schedule-pdf/', views.export_schedule_pdf, name='export-schedule-pdf'),
+    path('export-schedule-excel/', views.export_schedule_excel, name='export-schedule-excel'),
 ]

@@ -63,14 +63,16 @@ const Login = () => {
               setInitialUserData(userData);
               setMode('forceChangePassword');
           } else {
-              setMessage('Login successful!');
-              if (userData?.is_admin) {
-                  navigate('/admin/dashboard', { replace: true });
-              } else if (userData?.is_teacher) {
-                  navigate('/teacher/dashboard', { replace: true });
-              } else {
-                  navigate('/', { replace: true }); 
-              }
+              setMessage('Login successful! Redirecting...');
+              setTimeout(() => {
+                  if (userData?.is_admin) {
+                      navigate('/admin/dashboard', { replace: true });
+                  } else if (userData?.is_teacher) {
+                      navigate('/teacher/dashboard', { replace: true });
+                  } else {
+                      navigate('/', { replace: true }); 
+                  }
+              }, 100);
           }
           
       } catch (err) {
@@ -229,7 +231,7 @@ const Login = () => {
              <div className="bottom">
                <div className='left'>
                  <form className='left' onSubmit={handleSubmit}>
-                   <input type="text" name="email" placeholder="Scope box email" value={formData.email} onChange={handleChange} className='textfield' required />
+                   <input type="text" name="email" placeholder="Scope email" value={formData.email} onChange={handleChange} className='textfield' required />
                    <input type="password" name="password" placeholder="Password" value={formData.password} onChange={handleChange} className='textfield' required />
                    <p className="login-hint">Please use your assigned Scope email and password.</p>
                    

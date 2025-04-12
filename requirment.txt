@@ -15,7 +15,8 @@ pip install cryptography
 pip install supabase // for Supabase connection
 pip install python-dotenv // for environment variables
 pip install python-dotenv psycopg2
-pip install django-extentions
+pip install django-extentions //we dont need it anymore
+pip install reportlab openpyxl
 //-----------------------------------------------------frontend----------------------------------------------------//
 // use npm start   or  npm run dev // to start server frontend
 npx create-react-app Frontend // to install react
@@ -26,3 +27,4 @@ npm install react-router-dom axios @fortawesome/fontawesome-free
 npm install @mui/material @emotion/react @emotion/styled
 npm install xlsx
 
+djangoenv\Scripts\activate ; cd backend ; python manage.py runserver

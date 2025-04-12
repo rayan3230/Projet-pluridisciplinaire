@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { getSemesters } from '../../services/semesterService';
 import { getUsers } from '../../services/adminService'; // To get teachers
+import { exportTeacherScheduleToPDF, exportTeacherScheduleToExcel } from '../../services/scheduleService';
 import ScheduleTable from '../../components/Schedule/ScheduleTable'; // Reuse the table
 // Add specific styling if needed
 
@@ -11,6 +12,7 @@ const AdminTeacherScheduleViewerPage = () => {
   const [selectedSemester, setSelectedSemester] = useState('');
   const [loading, setLoading] = useState(true); // Combined loading state
   const [error, setError] = useState(null);
+  const [exporting, setExporting] = useState(false);
 
   // Fetch available teachers and semesters
   useEffect(() => {
@@ -33,6 +35,40 @@ const AdminTeacherScheduleViewerPage = () => {
     };
     fetchData();
   }, []);
+
+  const handleExportPDF = async () => {
+    if (!selectedTeacher || !selectedSemester) {
+      setError('Please select both teacher and semester before exporting.');
+      return;
+    }
+
+    setExporting(true);
+    try {
+      await exportTeacherScheduleToPDF(selectedTeacher, selectedSemester);
+    } catch (error) {
+      console.error('Export to PDF error:', error);
+      setError('Failed to export schedule to PDF.');
+    } finally {
+      setExporting(false);
+    }
+  };
+
+  const handleExportExcel = async () => {
+    if (!selectedTeacher || !selectedSemester) {
+      setError('Please select both teacher and semester before exporting.');
+      return;
+    }
+
+    setExporting(true);
+    try {
+      await exportTeacherScheduleToExcel(selectedTeacher, selectedSemester);
+    } catch (error) {
+      console.error('Export to Excel error:', error);
+      setError('Failed to export schedule to Excel.');
+    } finally {
+      setExporting(false);
+    }
+  };
 
   return (
     <div className="admin-page-container teacher-schedule-viewer-page">
@@ -79,6 +115,25 @@ const AdminTeacherScheduleViewerPage = () => {
               </select>
             </div>
           </div>
+
+          {selectedTeacher && selectedSemester && (
+            <div className="export-buttons">
+              <button
+                onClick={handleExportPDF}
+                disabled={exporting}
+                className="admin-button"
+              >
+                {exporting ? 'Exporting...' : 'Export to PDF'}
+              </button>
+              <button
+                onClick={handleExportExcel}
+                disabled={exporting}
+                className="admin-button"
+              >
+                {exporting ? 'Exporting...' : 'Export to Excel'}
+              </button>
+            </div>
+          )}
         </div>
       )}
 

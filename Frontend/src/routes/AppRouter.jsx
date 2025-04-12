@@ -15,6 +15,7 @@ import SpecialityListPage from '../pages/Admin/SpecialityListPage.jsx';
 import PromoListPage from '../pages/Admin/PromoListPage.jsx';
 import SectionListPage from '../pages/Admin/SectionListPage.jsx';
 import ClassroomListPage from '../pages/Admin/ClassroomListPage.jsx';
+import LocationListPage from '../pages/Admin/LocationListPage.jsx';
 import BaseModuleListPage from '../pages/Admin/BaseModuleListPage.jsx';
 import VersionModuleListPage from '../pages/Admin/VersionModuleListPage.jsx';
 import TeacherAssignmentPage from '../pages/Admin/TeacherAssignmentPage';
@@ -32,24 +33,41 @@ import TeacherScheduleViewPage from '../pages/Teacher/TeacherScheduleViewPage';
 
 // Protected Route Component for Admins
 const ProtectedAdminRoute = () => {
-  const { isAuthenticated, isAdmin, isLoading, needsPasswordChange } = useAuth();
+  const { isAuthenticated, isAdmin, isLoading, needsPasswordChange, user } = useAuth();
 
-  if (isLoading) return <div>Loading...</div>; // Wait for auth check
-  if (!isAuthenticated) return <Navigate to="/login" replace />;
-  if (needsPasswordChange) return <Navigate to="/login" replace />;
-  if (!isAdmin) return <Navigate to="/unauthorized" replace />;
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+  if (needsPasswordChange) {
+    return <Navigate to="/login" replace />;
+  }
+  if (!isAdmin) {
+    return <Navigate to="/unauthorized" replace />;
+  }
 
-  return <Outlet />; // Renders nested routes
+  return <Outlet />; // Renders nested routes (AdminLayout)
 };
 
 // Protected Route Component for Teachers
 const ProtectedTeacherRoute = () => {
-  const { isAuthenticated, isTeacher, isLoading, needsPasswordChange } = useAuth();
+  const { isAuthenticated, isTeacher, isLoading, needsPasswordChange, user } = useAuth();
 
-  if (isLoading) return <div>Loading...</div>;
-  if (!isAuthenticated) return <Navigate to="/login" replace />;
-  if (needsPasswordChange) return <Navigate to="/login" replace />;
-  if (!isTeacher) return <Navigate to="/unauthorized" replace />;
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+  if (needsPasswordChange) {
+    return <Navigate to="/login" replace />;
+  }
+
+  if (!isTeacher) {
+    return <Navigate to="/unauthorized" replace />;
+  }
 
   return <Outlet />;
 };
@@ -79,6 +97,7 @@ function AppRouter() {
             <Route path="promos" element={<PromoListPage />} />
             <Route path="sections" element={<SectionListPage />} />
             <Route path="classrooms" element={<ClassroomListPage />} />
+            <Route path="locations" element={<LocationListPage />} />
             <Route path="base-modules" element={<BaseModuleListPage />} />
             <Route path="version-modules" element={<VersionModuleListPage />} />
             <Route path="assignments" element={<TeacherAssignmentPage />} />

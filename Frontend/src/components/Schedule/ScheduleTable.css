@@ -1,5 +1,8 @@
 /* Frontend/src/components/Schedule/ScheduleTable.css */
+
+/* Apply container styles for border-radius, shadow, and border */
 .schedule-table-container {
+<<<<<<< Updated upstream
     margin-top: 20px;
     overflow-x: auto; /* Allow horizontal scrolling on small screens */
     border-radius: 8px; /* Added border-radius */
@@ -119,3 +122,125 @@
    font-size: 0.7rem;
    color: #94a3b8; /* Lighter grey */
   }
+=======
+  border: 1px solid var(--admin-border-color);
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+  overflow: hidden; /* Important for applying radius to table */
+  margin-top: 20px;
+}
+
+/* Style the table itself, inheriting container styles from Admin.css */
+.schedule-table {
+  width: 100%;
+  border-collapse: collapse; /* Use collapse */
+  /* border: 1px solid var(--admin-border-color); <-- Removed, use container border */
+  table-layout: fixed;
+  font-size: 0.85rem;
+  /* Remove background-color, let cells handle it */
+}
+
+.schedule-table th,
+.schedule-table td {
+  border: 1px solid var(--admin-border-color); /* Light grey border */
+  padding: 8px;
+  text-align: center;
+  vertical-align: top;
+  min-width: 100px;
+  height: 80px;
+  color: var(--admin-text-color); /* Dark text */
+  background-color: white; /* Default white background for cells */
+}
+
+/* Header row styling (Days) - Increased Specificity */
+.schedule-table-container .schedule-table thead th {
+  background-color: var(--admin-secondary-color); /* Use light grey header bg from vars */
+  color: var(--admin-text-dark-grey); /* Use dark grey text from vars */
+  font-weight: 600; /* Match global header weight */
+  text-transform: uppercase; /* Match global header transform */
+  letter-spacing: 0.5px; /* Match global header spacing */
+  font-size: 0.9rem; /* Match global header font size */
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  text-align: center !important; /* Center the day names, forced */
+  padding: 8px; /* Ensure padding is explicitly set */
+  vertical-align: middle; /* Vertically center too */
+}
+
+/* Time slot column header styling */
+.schedule-table .time-slot-header {
+  background-color: var(--admin-secondary-color); /* Light grey background */
+  color: var(--admin-text-dark-grey); /* Dark grey text */
+  font-weight: 600; /* Bold */
+  vertical-align: middle;
+  width: 150px; /* Increased width to match TeacherSchedule */
+  border-right: 1px solid var(--admin-border-color); /* Ensure border */
+  padding: 0 10px; /* Add padding */
+}
+
+.schedule-cell {
+  /* Base style for cells - background/color set in th/td rule */
+  transition: background-color 0.2s ease; /* Add transition for hover */
+}
+
+/* Add hover effect for empty cells - slight scale */
+.schedule-cell:not(.has-entry):hover {
+  background-color: var(--admin-secondary-color); /* Light hover */
+  transform: scale(1.01); /* Slight zoom */
+  z-index: 1; /* Bring to front */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Add subtle shadow */
+}
+
+.schedule-cell.has-entry {
+  /* Style for cells WITH schedule entries */
+  background-color: #cfe2ff; /* Light blue background */
+  color: var(--admin-text-color); /* Dark text */
+  vertical-align: middle;
+  cursor: pointer; /* Indicate clickability */
+  transition: all 0.2s ease; /* Add transition for hover */
+}
+
+/* Add hover effect for filled cells */
+.schedule-cell.has-entry:hover {
+  background-color: #b9d7ff; /* Slightly darker blue */
+  box-shadow: inset 0 0 0 2px var(--admin-primary-color); /* Inner border highlight */
+  transform: scale(1.01);
+  z-index: 1;
+}
+
+.schedule-entry {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  font-size: 0.8rem;
+  padding: 2px; /* Add slight padding */
+}
+
+.schedule-entry span {
+  display: block;
+  margin-bottom: 2px;
+  line-height: 1.2;
+  word-break: break-word;
+}
+
+.entry-module {
+  font-weight: bold;
+}
+
+.entry-teacher {
+  font-style: italic;
+  color: var(--admin-text-muted); /* Muted text for teacher */
+}
+
+.entry-classroom {
+  color: var(--admin-text-muted); /* Muted text for room */
+}
+
+.entry-section {
+ font-size: 0.7rem;
+ color: var(--admin-text-muted); /* Muted text for section */
+}
+>>>>>>> Stashed changes

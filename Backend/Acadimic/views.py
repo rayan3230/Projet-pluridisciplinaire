@@ -9,14 +9,27 @@ from .models import (
     Classroom, Speciality, Promo, Section,
     BaseModule, VersionModule, Semester, Exam,
     TeacherModuleAssignment, ScheduleEntry, ExamPeriod,
-    SessionType
+    SessionType, Location
 )
 from .serializers import (
     ClassroomSerializer, SpecialitySerializer, PromoSerializer, SectionSerializer,
     BaseModuleSerializer, VersionModuleSerializer, SemesterSerializer, ExamSerializer,
-    TeacherModuleAssignmentSerializer, ScheduleEntrySerializer, ExamPeriodSerializer
+    TeacherModuleAssignmentSerializer, ScheduleEntrySerializer, ExamPeriodSerializer,
+    LocationSerializer
 )
 import random
+import traceback # Import traceback module
+from django.http import HttpResponse
+from reportlab.lib import colors
+from reportlab.lib.pagesizes import letter, A4
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, Image, PageBreak
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib.enums import TA_CENTER
+from openpyxl import Workbook
+from openpyxl.styles import Font, Alignment, PatternFill
+import io
+import os
+from django.conf import settings
 
 # Permissions: Default is IsAuthenticated. Consider IsAdminUser for stricter control.
 # from rest_framework.permissions import IsAdminUser, IsAuthenticated
@@ -320,17 +333,29 @@ def generate_class_schedule_view(request):
             # Pre-categorize classrooms by type
             print("generate_class_schedule_view: Categorizing classrooms...")
             classrooms_by_type = {
+<<<<<<< Updated upstream
                 SessionType.COURSE.value: [c for c in all_classrooms if c.type == SessionType.COURSE.value],
                 SessionType.TD.value:    [c for c in all_classrooms if c.type == SessionType.TD.value],
                 SessionType.TP.value:    [c for c in all_classrooms if c.type == SessionType.TP.value],
+=======
+                SessionType.COURSE.name: [c for c in all_classrooms if c.type == SessionType.COURSE.value],
+                SessionType.TD.name: [c for c in all_classrooms if c.type == SessionType.TD.value],
+                SessionType.TP.name: [c for c in all_classrooms if c.type == SessionType.TP.value],
+>>>>>>> Stashed changes
             }
             # Use .value for accessing the dictionary keys as well
             print(f"generate_class_schedule_view: COURS rooms: {[c.name for c in classrooms_by_type.get(SessionType.COURSE.value, [])]}")
             print(f"generate_class_schedule_view: TD rooms: {[c.name for c in classrooms_by_type.get(SessionType.TD.value, [])]}")
             print(f"generate_class_schedule_view: TP rooms: {[c.name for c in classrooms_by_type.get(SessionType.TP.value, [])]}")
             # Allow COURS/TD rooms to be used interchangeably if needed?
+<<<<<<< Updated upstream
             # Use .get with default empty list to avoid KeyError if no rooms of a type exist
             flexible_classrooms = classrooms_by_type.get(SessionType.COURSE.value, []) + classrooms_by_type.get(SessionType.TD.value, [])
+=======
+            # Note: The keys of classrooms_by_type are still .name ('COURSE', 'TD', 'TP')
+            # The lookups later in the code use .name, so this part is okay.
+            flexible_classrooms = classrooms_by_type[SessionType.COURSE.name] + classrooms_by_type[SessionType.TD.name]
+>>>>>>> Stashed changes
             random.shuffle(flexible_classrooms)
             # Also use .get for TP rooms
             tp_classrooms = classrooms_by_type.get(SessionType.TP.value, [])
@@ -361,9 +386,15 @@ def generate_class_schedule_view(request):
                     
                     # Calculate slots needed based on hours and duration
                     slots_to_schedule = [
+<<<<<<< Updated upstream
                         (SessionType.COURSE.value, (module.cours_hours * 60 + SLOT_DURATION_MINUTES - 1) // SLOT_DURATION_MINUTES if module.cours_hours > 0 else 0),
                         (SessionType.TD.value,    (module.td_hours * 60 + SLOT_DURATION_MINUTES - 1) // SLOT_DURATION_MINUTES if module.td_hours > 0 else 0),
                         (SessionType.TP.value,    (module.tp_hours * 60 + SLOT_DURATION_MINUTES - 1) // SLOT_DURATION_MINUTES if module.tp_hours > 0 else 0),
+=======
+                        (SessionType.COURSE.name, (module.cours_hours * 60 + SLOT_DURATION_MINUTES - 1) // SLOT_DURATION_MINUTES),
+                        (SessionType.TD.name, (module.td_hours * 60 + SLOT_DURATION_MINUTES - 1) // SLOT_DURATION_MINUTES),
+                        (SessionType.TP.name, (module.tp_hours * 60 + SLOT_DURATION_MINUTES - 1) // SLOT_DURATION_MINUTES),
+>>>>>>> Stashed changes
                     ]
 
                     print(f"  Module: {module} - Teacher: {teacher.full_name} - Needs: {slots_to_schedule}")
@@ -377,10 +408,23 @@ def generate_class_schedule_view(request):
                         slots_placed = 0
                         
                         # --- Select CORRECT classroom pool based on session type --- 
+<<<<<<< Updated upstream
                         # Use .get for safety
                         possible_classroom_pool = classrooms_by_type.get(session_type, [])
                         print(f"      Selected {session_type} classroom pool (size: {len(possible_classroom_pool)})")
                        
+=======
+                        if session_type == SessionType.TP.name:
+                            possible_classroom_pool = classrooms_by_type[SessionType.TP.name]
+                        elif session_type == SessionType.TD.name:
+                            possible_classroom_pool = classrooms_by_type[SessionType.TD.name]
+                        elif session_type == SessionType.COURSE.name:
+                            possible_classroom_pool = classrooms_by_type[SessionType.COURSE.name]
+                        else:
+                            # Should not happen with current SessionType enum
+                            possible_classroom_pool = [] 
+                        
+>>>>>>> Stashed changes
                         # Shuffle the chosen pool for randomness within the correct type
                         random.shuffle(possible_classroom_pool)
                         
@@ -453,5 +497,451 @@ def generate_class_schedule_view(request):
     except IntegrityError as e: # Catch IntegrityError (raised on scheduling failure)
         return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
     except Exception as e:
-        print(f"Class Schedule Generation Error: {e}") # Log for debugging
+        print(f"Class Schedule Generation Error: Exception Type = {type(e).__name__}, Message = {e}")
+        print(traceback.format_exc()) # Print the full traceback
         return Response({'error': 'An unexpected error occurred during schedule generation.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class LocationViewSet(viewsets.ModelViewSet):
+    """API endpoint that allows locations to be viewed or edited."""
+    queryset = Location.objects.all().order_by('name')
+    serializer_class = LocationSerializer
+    # Add permission classes if needed, e.g., only admins can edit
+    # permission_classes = [permissions.IsAuthenticatedOrReadOnly] 
+
+@api_view(['GET'])
+def export_schedule_pdf(request):
+    """Export the current schedule to PDF format."""
+    try:
+        # Get filter parameters
+        promo_id = request.query_params.get('promo_id')
+        teacher_id = request.query_params.get('teacher_id')
+        semester_id = request.query_params.get('semester_id')
+        
+        print(f"Received request with promo_id={promo_id}, teacher_id={teacher_id}, semester_id={semester_id}")
+        
+        if not semester_id:
+            return Response({'error': 'semester_id is required.'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        if not promo_id and not teacher_id:
+            return Response({'error': 'Either promo_id or teacher_id is required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Create PDF
+        buffer = io.BytesIO()
+        doc = SimpleDocTemplate(buffer, pagesize=A4, topMargin=50)
+        all_elements = []  # Will contain elements for all pages
+
+        if promo_id:
+            try:
+                # Get promo information
+                promo = Promo.objects.select_related('speciality').get(id=promo_id)
+                # Get all sections for this promo
+                sections = Section.objects.filter(promo_id=promo_id)
+                
+                for section in sections:
+                    elements = []  # Elements for this section's page
+                    
+                    # Get schedule entries for this section
+                    schedule_entries = ScheduleEntry.objects.filter(
+                        semester_id=semester_id,
+                        section=section
+                    ).select_related(
+                        'section', 'section__promo', 'semester', 
+                        'module', 'module__base_module', 'teacher', 'classroom'
+                    ).order_by('day_of_week', 'start_time')
+
+                    # Add styles
+                    styles = getSampleStyleSheet()
+                    styles.add(ParagraphStyle(
+                        name='CustomTitle',
+                        parent=styles['Title'],
+                        fontSize=12,
+                        spaceAfter=30,
+                        alignment=TA_CENTER
+                    ))
+                    styles.add(ParagraphStyle(
+                        name='Header',
+                        parent=styles['Normal'],
+                        fontSize=10,
+                        alignment=TA_CENTER,
+                        spaceAfter=6
+                    ))
+
+                    # Add USTHB header
+                    header_text = [
+                        "University of Science and Technology Houari Boumediene",
+                        "Vice-rectorate in charge of the higher education of graduation, the continuing education",
+                        "et degrees"
+                    ]
+                    
+                    for text in header_text:
+                        elements.append(Paragraph(text, styles['Header']))
+                    
+                    elements.append(Spacer(1, 20))
+
+                    # Add title and semester info
+                    title_text = f"Schedules of: {promo.year_start}-{promo.year_end}  {promo.speciality.name} -- Section: {section.name}"
+                    elements.append(Paragraph(title_text, styles['CustomTitle']))
+                    
+                    semester = Semester.objects.get(id=semester_id)
+                    current_date = timezone.now().strftime("%d/%m/%Y")
+                    info_text = f"College year: {promo.year_start}-{promo.year_end}     Semester: {semester.name}     Date: {current_date}"
+                    elements.append(Paragraph(info_text, styles['Header']))
+                    elements.append(Spacer(1, 20))
+
+                    # Create time slots header
+                    time_slots = [
+                        "08:00 - 09:30",
+                        "09:40 - 11:10",
+                        "11:20 - 12:50",
+                        "13:00 - 14:30",
+                        "14:40 - 16:10",
+                        "16:20 - 17:50"
+                    ]
+
+                    # Prepare data for table
+                    data = [[''] + time_slots]  # First row is time slots
+                    day_map = {
+                        6: 'Sat',
+                        7: 'Sun',
+                        1: 'Mon',
+                        2: 'Tue',
+                        3: 'Wed',
+                        4: 'Thu'
+                    }  # Removed Friday (5) and reordered to put Saturday first
+
+                    # Initialize empty schedule grid
+                    schedule_grid = {day: [''] * len(time_slots) for day in day_map.keys()}
+
+                    # Fill in the schedule grid
+                    for entry in schedule_entries:
+                        try:
+                            day = entry.day_of_week
+                            if day not in day_map:  # Skip Friday
+                                continue
+                            # Find the time slot index
+                            time_str = entry.start_time.strftime("%H:%M")
+                            slot_index = next(
+                                (i for i, slot in enumerate(time_slots) if slot.startswith(time_str)),
+                                -1
+                            )
+                            if slot_index != -1:
+                                # Format the cell content with just section name
+                                cell_content = [
+                                    f"{entry.module.base_module.name}",
+                                    f"{entry.entry_type}",
+                                    f"Section {entry.section.name}",
+                                    f"{entry.classroom.name if entry.classroom else 'N/A'}"
+                                ]
+                                schedule_grid[day][slot_index] = '\n'.join(filter(None, cell_content))
+                        except Exception as e:
+                            print(f"Error processing entry {entry.id}: {str(e)}")
+                            continue
+
+                    # Build the table data in the correct order (Saturday first)
+                    ordered_days = [6, 7, 1, 2, 3, 4]  # Saturday to Thursday
+                    for day in ordered_days:
+                        row = [day_map[day]] + schedule_grid[day]
+                        data.append(row)
+
+                    # Create table
+                    col_widths = [40] + [85] * len(time_slots)  # Adjust the widths as needed
+                    table = Table(data, colWidths=col_widths, repeatRows=1)
+                    
+                    # Style the table
+                    table_style = [
+                        # Headers
+                        ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+                        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+                        ('ALIGN', (0, 0), (-1, 0), 'CENTER'),
+                        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                        ('FONTSIZE', (0, 0), (-1, 0), 10),
+                        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+                        # Day column
+                        ('BACKGROUND', (0, 1), (0, -1), colors.grey),
+                        ('TEXTCOLOR', (0, 1), (0, -1), colors.whitesmoke),
+                        ('ALIGN', (0, 1), (0, -1), 'CENTER'),
+                        ('FONTNAME', (0, 1), (0, -1), 'Helvetica-Bold'),
+                        # Content cells
+                        ('BACKGROUND', (1, 1), (-1, -1), colors.white),
+                        ('TEXTCOLOR', (1, 1), (-1, -1), colors.black),
+                        ('ALIGN', (1, 1), (-1, -1), 'CENTER'),
+                        ('FONTNAME', (1, 1), (-1, -1), 'Helvetica'),
+                        ('FONTSIZE', (1, 1), (-1, -1), 8),
+                        ('TOPPADDING', (1, 1), (-1, -1), 5),
+                        ('BOTTOMPADDING', (1, 1), (-1, -1), 5),
+                        # Grid
+                        ('GRID', (0, 0), (-1, -1), 1, colors.black),
+                        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+                    ]
+                    table.setStyle(TableStyle(table_style))
+
+                    elements.append(table)
+                    
+                    # Add page break after each section (except the last one)
+                    if section != sections.last():
+                        elements.append(PageBreak())
+                    
+                    # Add this section's elements to the main list
+                    all_elements.extend(elements)
+
+            except Promo.DoesNotExist:
+                print(f"Promo with id {promo_id} not found")
+                return Response({'error': f'Promo with id {promo_id} not found'}, status=status.HTTP_404_NOT_FOUND)
+            except Exception as e:
+                print(f"Error while getting promo data: {str(e)}")
+                return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        else:  # teacher_id case
+            try:
+                schedule_entries = ScheduleEntry.objects.filter(
+                    semester_id=semester_id,
+                    teacher_id=teacher_id
+                ).select_related(
+                    'section', 'section__promo', 'semester', 
+                    'module', 'module__base_module', 'teacher', 'classroom'
+                ).order_by('day_of_week', 'start_time')
+
+                if not schedule_entries:
+                    return Response({'error': 'No schedule entries found.'}, status=status.HTTP_404_NOT_FOUND)
+
+                elements = []  # Elements for teacher's page
+
+                # Add styles
+                styles = getSampleStyleSheet()
+                styles.add(ParagraphStyle(
+                    name='CustomTitle',
+                    parent=styles['Title'],
+                    fontSize=12,
+                    spaceAfter=30,
+                    alignment=TA_CENTER
+                ))
+                styles.add(ParagraphStyle(
+                    name='Header',
+                    parent=styles['Normal'],
+                    fontSize=10,
+                    alignment=TA_CENTER,
+                    spaceAfter=6
+                ))
+
+                # Add USTHB header
+                header_text = [
+                    "University of Science and Technology Houari Boumediene",
+                    "Vice-rectorate in charge of the higher education of graduation, the continuing education",
+                    "et degrees"
+                ]
+                
+                for text in header_text:
+                    elements.append(Paragraph(text, styles['Header']))
+                
+                elements.append(Spacer(1, 20))
+
+                # Add title and semester info
+                teacher = schedule_entries.first().teacher
+                title_text = f"Schedule of: {teacher.full_name}"
+                elements.append(Paragraph(title_text, styles['CustomTitle']))
+                
+                semester = Semester.objects.get(id=semester_id)
+                current_date = timezone.now().strftime("%d/%m/%Y")
+                info_text = f"Semester: {semester.name}     Date: {current_date}"
+                elements.append(Paragraph(info_text, styles['Header']))
+                elements.append(Spacer(1, 20))
+
+                # Create time slots header
+                time_slots = [
+                    "08:00 - 09:30",
+                    "09:40 - 11:10",
+                    "11:20 - 12:50",
+                    "13:00 - 14:30",
+                    "14:40 - 16:10",
+                    "16:20 - 17:50"
+                ]
+
+                # Prepare data for table
+                data = [[''] + time_slots]  # First row is time slots
+                day_map = {
+                    6: 'Sat',
+                    7: 'Sun',
+                    1: 'Mon',
+                    2: 'Tue',
+                    3: 'Wed',
+                    4: 'Thu'
+                }  # Removed Friday (5) and reordered to put Saturday first
+
+                # Initialize empty schedule grid
+                schedule_grid = {day: [''] * len(time_slots) for day in day_map.keys()}
+
+                # Fill in the schedule grid
+                for entry in schedule_entries:
+                    try:
+                        day = entry.day_of_week
+                        if day not in day_map:  # Skip Friday
+                            continue
+                        # Find the time slot index
+                        time_str = entry.start_time.strftime("%H:%M")
+                        slot_index = next(
+                            (i for i, slot in enumerate(time_slots) if slot.startswith(time_str)),
+                            -1
+                        )
+                        if slot_index != -1:
+                            # Format the cell content with just section name
+                            cell_content = [
+                                f"{entry.module.base_module.name}",
+                                f"{entry.entry_type}",
+                                f"Section {entry.section.name}",
+                                f"{entry.classroom.name if entry.classroom else 'N/A'}"
+                            ]
+                            schedule_grid[day][slot_index] = '\n'.join(filter(None, cell_content))
+                    except Exception as e:
+                        print(f"Error processing entry {entry.id}: {str(e)}")
+                        continue
+
+                # Build the table data in the correct order (Saturday first)
+                ordered_days = [6, 7, 1, 2, 3, 4]  # Saturday to Thursday
+                for day in ordered_days:
+                    row = [day_map[day]] + schedule_grid[day]
+                    data.append(row)
+
+                # Create table
+                col_widths = [40] + [85] * len(time_slots)  # Adjust the widths as needed
+                table = Table(data, colWidths=col_widths, repeatRows=1)
+                
+                # Style the table
+                table_style = [
+                    # Headers
+                    ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+                    ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+                    ('ALIGN', (0, 0), (-1, 0), 'CENTER'),
+                    ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                    ('FONTSIZE', (0, 0), (-1, 0), 10),
+                    ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+                    # Day column
+                    ('BACKGROUND', (0, 1), (0, -1), colors.grey),
+                    ('TEXTCOLOR', (0, 1), (0, -1), colors.whitesmoke),
+                    ('ALIGN', (0, 1), (0, -1), 'CENTER'),
+                    ('FONTNAME', (0, 1), (0, -1), 'Helvetica-Bold'),
+                    # Content cells
+                    ('BACKGROUND', (1, 1), (-1, -1), colors.white),
+                    ('TEXTCOLOR', (1, 1), (-1, -1), colors.black),
+                    ('ALIGN', (1, 1), (-1, -1), 'CENTER'),
+                    ('FONTNAME', (1, 1), (-1, -1), 'Helvetica'),
+                    ('FONTSIZE', (1, 1), (-1, -1), 8),
+                    ('TOPPADDING', (1, 1), (-1, -1), 5),
+                    ('BOTTOMPADDING', (1, 1), (-1, -1), 5),
+                    # Grid
+                    ('GRID', (0, 0), (-1, -1), 1, colors.black),
+                    ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+                ]
+                table.setStyle(TableStyle(table_style))
+
+                elements.append(table)
+                
+                # Add all elements to the main list
+                all_elements.extend(elements)
+
+            except Exception as e:
+                print(f"Error while getting teacher data: {str(e)}")
+                return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        # Build PDF with all elements
+        doc.build(all_elements)
+
+        # Create response
+        pdf = buffer.getvalue()
+        buffer.close()
+        response = HttpResponse(content_type='application/pdf')
+        response['Content-Disposition'] = 'attachment; filename="schedule.pdf"'
+        response.write(pdf)
+        return response
+
+    except Exception as e:
+        print(f"PDF Export Error: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+@api_view(['GET'])
+def export_schedule_excel(request):
+    """Export the current schedule to Excel format."""
+    try:
+        # Get filter parameters
+        promo_id = request.query_params.get('promo_id')
+        teacher_id = request.query_params.get('teacher_id')
+        semester_id = request.query_params.get('semester_id')
+        
+        if not semester_id:
+            return Response({'error': 'semester_id is required.'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        if not promo_id and not teacher_id:
+            return Response({'error': 'Either promo_id or teacher_id is required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Get schedule entries
+        schedule_entries = ScheduleEntry.objects.filter(
+            semester_id=semester_id
+        ).select_related(
+            'section', 'section__promo', 'semester', 
+            'module', 'module__base_module', 'teacher', 'classroom'
+        )
+
+        if promo_id:
+            schedule_entries = schedule_entries.filter(section__promo_id=promo_id)
+        if teacher_id:
+            schedule_entries = schedule_entries.filter(teacher_id=teacher_id)
+
+        schedule_entries = schedule_entries.order_by('day_of_week', 'start_time')
+
+        if not schedule_entries:
+            return Response({'error': 'No schedule entries found.'}, status=status.HTTP_404_NOT_FOUND)
+
+        # Create Excel workbook
+        wb = Workbook()
+        ws = wb.active
+        ws.title = "Schedule"
+
+        # Add headers
+        headers = ['Day', 'Time', 'Module', 'Teacher', 'Classroom', 'Type']
+        for col_num, header in enumerate(headers, 1):
+            cell = ws.cell(row=1, column=col_num)
+            cell.value = header
+            cell.font = Font(bold=True)
+            cell.alignment = Alignment(horizontal='center')
+            cell.fill = PatternFill(start_color="CCCCCC", end_color="CCCCCC", fill_type="solid")
+
+        # Add data
+        day_map = {1: 'Monday', 2: 'Tuesday', 3: 'Wednesday', 4: 'Thursday', 5: 'Friday', 6: 'Saturday', 7: 'Sunday'}
+        
+        for row_num, entry in enumerate(schedule_entries, 2):
+            ws.cell(row=row_num, column=1).value = day_map.get(entry.day_of_week, 'Unknown')
+            ws.cell(row=row_num, column=2).value = f"{entry.start_time.strftime('%H:%M')} - {entry.end_time.strftime('%H:%M')}"
+            ws.cell(row=row_num, column=3).value = entry.module.base_module.name
+            ws.cell(row=row_num, column=4).value = entry.teacher.full_name
+            ws.cell(row=row_num, column=5).value = entry.classroom.name if entry.classroom else 'N/A'
+            ws.cell(row=row_num, column=6).value = entry.entry_type
+
+        # Adjust column widths
+        for col in ws.columns:
+            max_length = 0
+            column = col[0].column_letter
+            for cell in col:
+                try:
+                    if len(str(cell.value)) > max_length:
+                        max_length = len(str(cell.value))
+                except:
+                    pass
+            adjusted_width = (max_length + 2)
+            ws.column_dimensions[column].width = adjusted_width
+
+        # Save to BytesIO
+        buffer = io.BytesIO()
+        wb.save(buffer)
+        buffer.seek(0)
+
+        # Create response
+        response = HttpResponse(
+            buffer.getvalue(),
+            content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        )
+        response['Content-Disposition'] = 'attachment; filename="schedule.xlsx"'
+        return response
+
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

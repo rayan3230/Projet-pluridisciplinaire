@@ -342,45 +342,64 @@ h2 {
   padding: 1rem;
 }
 
-/* Table Scrolling - REMOVED for full page scroll */
+/* === Tables === */
 .admin-table-container {
   overflow-x: auto; /* Allow horizontal scroll on small screens */
   background-color: white; /* White background for table container */
-  border: 1px solid var(--admin-border-color);
-  border-radius: 8px;
+  border: 1px solid var(--admin-border-color); /* Grey border */
+  border-radius: 8px; /* Add border-radius */
   margin-top: 2rem;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05); /* Add box shadow */
 }
 
 .admin-table-container .admin-table { /* Target direct child table */
   width: 100%;
-  border-collapse: collapse;
+  border-collapse: collapse; /* Use collapse for cleaner lines */
   color: var(--admin-text-color); /* Dark text */
+  /* Remove border from table itself, container has it */
 }
 
 .admin-table thead th {
   background-color: #f8f9fa; /* Light grey header */
-  border-bottom: 2px solid var(--admin-border-color);
-  padding: 0.75rem 1rem;
+  border-bottom: 2px solid var(--admin-border-color); /* Slightly thicker border below header */
+  padding: 1rem 1rem; /* Adjust padding */
   text-align: left;
   font-weight: 600; /* Bolder header text */
   color: var(--admin-text-dark-grey); /* Dark grey header text */
+  font-size: 0.9rem; /* Slightly smaller header font */
+  text-transform: uppercase; /* Uppercase headers */
+  letter-spacing: 0.5px; /* Add letter spacing */
 }
 
+/* Remove potential conflicting styles if they exist */
+/*
 .admin-table-container > .admin-table {
-  /* Remove conflicting styles if they exist */
+
 }
+*/
 
 .admin-table td.actions-cell {
   /* Styles for cell containing action buttons */
   text-align: right;
+  white-space: nowrap; /* Prevent buttons wrapping */
 }
 
 .admin-table th,
 .admin-table td {
-  padding: 0.75rem 1rem;
+  padding: 1rem 1rem; /* Consistent padding */
   border-bottom: 1px solid var(--admin-border-color); /* Light border between rows */
   vertical-align: middle;
+  text-align: left; /* Ensure text aligns left */
+}
+
+/* Remove border from the last row's cells */
+.admin-table tr:last-child td {
+  border-bottom: none;
+}
+
+/* Add hover effect to table rows */
+.admin-table tbody tr:hover {
+  background-color: var(--admin-secondary-color); /* Use light hover */
 }
 
 .admin-table td .action-buttons {

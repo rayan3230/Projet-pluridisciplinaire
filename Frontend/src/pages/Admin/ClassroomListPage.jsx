@@ -4,7 +4,7 @@ import {
   deleteClassroom,
   // updateClassroom handled by form
 } from '../../services/academicService';
-import ClassForm from '../../components/Admin/ClassForm';
+import ClassroomForm from '../../components/Admin/ClassroomForm';
 
 function ClassroomListPage() {
   const [classrooms, setClassrooms] = useState([]);
@@ -84,7 +84,7 @@ function ClassroomListPage() {
       )}
 
       {showForm && (
-        <ClassForm 
+        <ClassroomForm 
           onSubmitSuccess={handleFormSubmitSuccess} 
           initialData={editingClassroom}
           onCancel={handleCancel}
@@ -102,10 +102,7 @@ function ClassroomListPage() {
             <thead>
               <tr>
                 <th>Name</th>
-                <th>Type</th>
-                <th>Capacity</th>
-                <th>Projector</th>
-                <th>PCs</th>
+                <th>Location</th>
                 <th>Actions</th>
               </tr>
             </thead>
@@ -113,10 +110,7 @@ function ClassroomListPage() {
               {classrooms.map(cr => (
                 <tr key={cr.id}>
                   <td>{cr.name}</td>
-                  <td>{cr.type}</td>
-                  <td>{cr.capacity}</td>
-                  <td>{cr.has_projector ? 'Yes' : 'No'}</td>
-                  <td>{cr.computers_count}</td>
+                  <td>{cr.location?.name || 'N/A'}</td>
                   <td className="actions-cell">
                     <div className="action-buttons">
                       <button 

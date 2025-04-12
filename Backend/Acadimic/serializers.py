@@ -4,7 +4,7 @@ from .models import (
     Classroom, Speciality, Promo, Section,
     BaseModule, VersionModule, Semester, Exam,
     TeacherModuleAssignment, ScheduleEntry, ExamPeriod,
-    SessionType
+    SessionType, Location
 )
 # Import UserSerializer from the correct app
 from users.serializers import UserSerializer
@@ -77,19 +77,29 @@ class SectionSerializer(serializers.ModelSerializer):
         model = Section
         fields = ['id', 'name', 'promo', 'promo_id']
 
+class LocationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Location
+        fields = ['id', 'name']
 
 class ClassroomSerializer(serializers.ModelSerializer):
+    location = LocationSerializer(read_only=True)
+    location_id = serializers.PrimaryKeyRelatedField(
+        queryset=Location.objects.all(), source='location', write_only=True, required=False, allow_null=True
+    )
+    type = serializers.ChoiceField(choices=SessionType.choices)
+    has_projector = serializers.BooleanField()
+
     class Meta:
         model = Classroom
-        fields = ['id', 'name', 'type', 'has_projector', 'computers_count']
-
-    def validate(self, data):
-        """Ensure computers_count is 0 if type is not TP."""
-        if data.get('type') != SessionType.TP.name and data.get('computers_count', 0) > 0:
-            # Instead of raising validation error, just force it to 0
-            data['computers_count'] = 0
-        return data
-
+        fields = [
+            'id',
+            'name',
+            'type',
+            'has_projector',
+            'location',
+            'location_id'
+        ]
 
 class ExamSerializer(serializers.ModelSerializer):
     module = VersionModuleSerializer(read_only=True)

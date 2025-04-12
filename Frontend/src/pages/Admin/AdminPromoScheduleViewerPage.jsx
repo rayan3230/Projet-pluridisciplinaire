@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { getSemesters } from '../../services/semesterService';
 // Import functions to get promos and sections data
 import { getPromos, getSections } from '../../services/academicService';
+import { exportScheduleToPDF, exportScheduleToExcel } from '../../services/scheduleService';
 // Import the reusable schedule table component
 import ScheduleTable from '../../components/Schedule/ScheduleTable';
 // Add specific styling if needed
@@ -15,6 +16,7 @@ const AdminPromoScheduleViewerPage = () => {
   const [selectedSemester, setSelectedSemester] = useState('');
   const [loading, setLoading] = useState(true); // Combined loading state
   const [error, setError] = useState(null);
+  const [exporting, setExporting] = useState(false);
 
   // Fetch available promos and semesters
   useEffect(() => {
@@ -58,6 +60,40 @@ const AdminPromoScheduleViewerPage = () => {
     };
     fetchSections();
   }, [selectedPromo, selectedSemester]);
+
+  const handleExportPDF = async () => {
+    if (!selectedPromo || !selectedSemester) {
+      setError('Please select both promo and semester before exporting.');
+      return;
+    }
+
+    setExporting(true);
+    try {
+      await exportScheduleToPDF(selectedPromo, selectedSemester);
+    } catch (error) {
+      console.error('Export to PDF error:', error);
+      setError('Failed to export schedule to PDF.');
+    } finally {
+      setExporting(false);
+    }
+  };
+
+  const handleExportExcel = async () => {
+    if (!selectedPromo || !selectedSemester) {
+      setError('Please select both promo and semester before exporting.');
+      return;
+    }
+
+    setExporting(true);
+    try {
+      await exportScheduleToExcel(selectedPromo, selectedSemester);
+    } catch (error) {
+      console.error('Export to Excel error:', error);
+      setError('Failed to export schedule to Excel.');
+    } finally {
+      setExporting(false);
+    }
+  };
 
   return (
     <div className="admin-page-container promo-schedule-viewer-page">
@@ -105,6 +141,25 @@ const AdminPromoScheduleViewerPage = () => {
               </select>
             </div>
           </div>
+
+          {selectedPromo && selectedSemester && (
+            <div className="export-buttons">
+              <button
+                onClick={handleExportPDF}
+                disabled={exporting}
+                className="admin-button"
+              >
+                {exporting ? 'Exporting...' : 'Export to PDF'}
+              </button>
+              <button
+                onClick={handleExportExcel}
+                disabled={exporting}
+                className="admin-button"
+              >
+                {exporting ? 'Exporting...' : 'Export to Excel'}
+              </button>
+            </div>
+          )}
         </div>
       )}
 

@@ -70,16 +70,15 @@ const ScheduleGenerationPage = () => {
 
     setLoading(true);
     setError(null);
-    setSuccessMessage(''); // Clear previous messages
-    setScheduleGenerated(false); // Hide old tables before generating new
+    setSuccessMessage('');
+    setScheduleGenerated(false);
 
     try {
       const response = await generateClassSchedule(selectedPromo, selectedSemester);
       setSuccessMessage(response.message || 'Schedule generated successfully!');
-      setScheduleGenerated(true); // Set flag to display tables after success
+      setScheduleGenerated(true);
     } catch (err) {
       console.error("Schedule generation error:", err);
-      // Use the error message from the backend if available
       setError(err.response?.data?.error || 'An error occurred during schedule generation.');
       setScheduleGenerated(false);
     } finally {

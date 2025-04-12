@@ -1,4 +1,5 @@
 import apiClient from '../config/axiosConfig';
+import axios from 'axios';
 
 // --- Schedule Generation ---
 export const generateSchedule = async (generationParams) => {
@@ -56,4 +57,140 @@ export const generateClassSchedule = async (promoId, semesterId) => {
 // Placeholder for generating exam schedule (if separate)
 export const generateExamSchedule = async (/* params */) => {
   // ... implementation ...
+};
+
+export const exportScheduleToPDF = async (promoId, semesterId) => {
+    try {
+        // First get the promo details
+        const promoResponse = await apiClient.get(`/promos/${promoId}/`);
+        const promo = promoResponse.data;
+        
+        const response = await apiClient.get('/export-schedule-pdf/', {
+            params: { promo_id: promoId, semester_id: semesterId },
+            responseType: 'blob'
+        });
+        
+        // Create a blob from the response
+        const blob = new Blob([response.data], { type: 'application/pdf' });
+        
+        // Create filename with promo details
+        const filename = `Schedule_${promo.speciality.name}_${promo.year_start}-${promo.year_end}.pdf`;
+        
+        // Create download link and trigger download
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', filename);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+        
+        return response.data;
+    } catch (error) {
+        console.error('Export Schedule to PDF API error:', error);
+        throw error;
+    }
+};
+
+export const exportScheduleToExcel = async (promoId, semesterId) => {
+    try {
+        // First get the promo details
+        const promoResponse = await apiClient.get(`/promos/${promoId}/`);
+        const promo = promoResponse.data;
+        
+        const response = await apiClient.get('/export-schedule-excel/', {
+            params: { promo_id: promoId, semester_id: semesterId },
+            responseType: 'blob'
+        });
+        
+        // Create a blob from the response
+        const blob = new Blob([response.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+        
+        // Create filename with promo details
+        const filename = `Schedule_${promo.speciality.name}_${promo.year_start}-${promo.year_end}.xlsx`;
+        
+        // Create download link and trigger download
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', filename);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+        
+        return response.data;
+    } catch (error) {
+        console.error('Export Schedule to Excel API error:', error);
+        throw error;
+    }
+};
+
+export const exportTeacherScheduleToPDF = async (teacherId, semesterId) => {
+    try {
+        // First get the teacher details
+        const teacherResponse = await apiClient.get(`/users/${teacherId}/`);
+        const teacher = teacherResponse.data;
+        
+        const response = await apiClient.get('/export-schedule-pdf/', {
+            params: { teacher_id: teacherId, semester_id: semesterId },
+            responseType: 'blob'
+        });
+        
+        // Create a blob from the response
+        const blob = new Blob([response.data], { type: 'application/pdf' });
+        
+        // Create filename with teacher details
+        const filename = `Schedule_${teacher.full_name}_${semesterId}.pdf`;
+        
+        // Create download link and trigger download
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', filename);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+        
+        return response.data;
+    } catch (error) {
+        console.error('Export Teacher Schedule to PDF API error:', error);
+        throw error;
+    }
+};
+
+export const exportTeacherScheduleToExcel = async (teacherId, semesterId) => {
+    try {
+        // First get the teacher details
+        const teacherResponse = await apiClient.get(`/users/${teacherId}/`);
+        const teacher = teacherResponse.data;
+        
+        const response = await apiClient.get('/export-schedule-excel/', {
+            params: { teacher_id: teacherId, semester_id: semesterId },
+            responseType: 'blob'
+        });
+        
+        // Create a blob from the response
+        const blob = new Blob([response.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+        
+        // Create filename with teacher details
+        const filename = `Schedule_${teacher.full_name}_${semesterId}.xlsx`;
+        
+        // Create download link and trigger download
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', filename);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+        
+        return response.data;
+    } catch (error) {
+        console.error('Export Teacher Schedule to Excel API error:', error);
+        throw error;
+    }
 }; 

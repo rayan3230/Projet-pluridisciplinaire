@@ -77,6 +77,96 @@ export const createAssignment = async (assignmentData) => {
 
 // TODO: Implement deleteAssignment if needed
 
+// Function to fetch locations
+export const getLocations = async () => {
+    try {
+        const response = await apiClient.get('/locations/'); // Use the registered endpoint
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching locations:', error.response?.data || error.message);
+        throw error; // Re-throw the error to be handled by the component
+    }
+};
+
+// Function to fetch classrooms
+export const getClassrooms = async () => {
+    try {
+        const response = await apiClient.get('/classrooms/');
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching classrooms:', error.response?.data || error.message);
+        throw error;
+    }
+};
+
+// Function to create a classroom
+export const createClassroom = async (classroomData) => {
+    try {
+        const response = await apiClient.post('/classrooms/', classroomData);
+        return response.data;
+    } catch (error) {
+        console.error('Error creating classroom:', error.response?.data || error.message);
+        throw error;
+    }
+};
+
+// Function to update a classroom
+export const updateClassroom = async (id, classroomData) => {
+    try {
+        const response = await apiClient.put(`/classrooms/${id}/`, classroomData);
+        return response.data;
+    } catch (error) {
+        console.error(`Error updating classroom ${id}:`, error.response?.data || error.message);
+        throw error;
+    }
+};
+
+// Function to delete a classroom
+export const deleteClassroom = async (id) => {
+    try {
+        await apiClient.delete(`/classrooms/${id}/`);
+    } catch (error) {
+        console.error(`Error deleting classroom ${id}:`, error.response?.data || error.message);
+        throw error;
+    }
+};
+
+// Function to create a location
+export const createLocation = async (locationData) => {
+    try {
+        const response = await apiClient.post('/locations/', locationData);
+        return response.data;
+    } catch (error) {
+        console.error('Error creating location:', error.response?.data || error.message);
+        throw error;
+    }
+};
+
+// Function to update a location
+export const updateLocation = async (id, locationData) => {
+    try {
+        const response = await apiClient.put(`/locations/${id}/`, locationData);
+        return response.data;
+    } catch (error) {
+        console.error(`Error updating location ${id}:`, error.response?.data || error.message);
+        throw error;
+    }
+};
+
+// Function to delete a location
+export const deleteLocation = async (id) => {
+    try {
+        await apiClient.delete(`/locations/${id}/`);
+    } catch (error) {
+        // Handle potential foreign key constraints (e.g., location used by classrooms)
+        console.error(`Error deleting location ${id}:`, error.response?.data || error.message);
+        if (error.response?.status === 400 || error.response?.status === 409) { // Example: Conflict/Bad Request due to FK
+             throw new Error('Cannot delete location because it is currently assigned to one or more classrooms.');
+        } else {
+            throw error;
+        }
+    }
+};
 
 // Placeholder/Mock section removed
 // // --- Teacher Assignment (Placeholder) ---

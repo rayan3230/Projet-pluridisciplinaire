@@ -1,7 +1,9 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.conf import settings # Import settings to reference the custom User model
+from django.utils.translation import gettext_lazy as _
 
+<<<<<<< Updated upstream
 class SessionType(models.TextChoices):
     COURSE = 'COURS', _('Course')
     TD = 'TD', _('Tutorial Session')
@@ -20,6 +22,48 @@ class Classroom(models.Model):
 
     def __str__(self):
         return f"{self.name} ({self.get_type_display()})"
+=======
+# <<< NEW MODEL >>>
+class Location(models.Model):
+    name = models.CharField(max_length=100, unique=True, help_text="Name of the location (e.g., Building A, Science Faculty, Amphi B)")
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        ordering = ['name'] # Order locations alphabetically by default
+
+# Enum for Session Type
+class SessionType(models.TextChoices):
+    COURSE = 'COURS', _('Course')
+    TD = 'TD', _('Tutorial Session')
+    TP = 'TP', _('Practical Session')
+    EXAM = 'EXAM', _('Exam')
+
+class Classroom(models.Model) :
+    name = models.CharField(max_length=100, unique=True)
+    type = models.CharField(
+        max_length=10,
+        choices=SessionType.choices, # Use choices from Enum
+        default=SessionType.COURSE # Optional: Provide a default
+    )
+    has_projector = models.BooleanField(default=False)
+    # Add association to Location
+    location = models.ForeignKey(
+        Location, 
+        on_delete=models.SET_NULL, # Keep classroom if location deleted, set location to null
+        null=True, 
+        blank=True, 
+        related_name='classrooms', 
+        help_text="Optional location where the classroom is situated."
+    )
+
+    def __str__(self):
+        return f"{self.name} ({self.get_type_display()})"
+    
+    class Meta:
+        ordering = ['name']
+>>>>>>> Stashed changes
 
 # --- Academic Structure ---
 class Speciality(models.Model):

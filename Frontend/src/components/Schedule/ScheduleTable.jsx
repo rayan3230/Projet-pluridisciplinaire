@@ -86,18 +86,19 @@ const ScheduleTable = ({ promoId, semesterId, sectionId, teacherId }) => {
     <div className="schedule-table-container">
       <table className="schedule-table">
         <thead>
-          <tr>
-            <th className="time-slot-header">Time / Day</th> {/* Added class for specific styling */}
-            {DAYS.map(day => (
+          <tr><th className="time-slot-header">TIME / DAY</th>{DAYS.map(day => (
               <th key={day.id}>{day.name}</th>
-            ))}
-          </tr>
+            ))}</tr>
         </thead>
         <tbody>
           {TIME_SLOTS.map(slot => (
-            <tr key={slot.start}>
-              <td className="time-slot-header">{slot.start} - {slot.end}</td>
-              {DAYS.map(day => {
+            <tr key={slot.start}><td className="time-slot-header">
+                <div className="time-text">
+                  <span>{slot.start}</span>
+                  <span>-</span>
+                  <span>{slot.end}</span>
+                </div>
+              </td>{DAYS.map(day => {
                 const slotKey = `${day.id}_${slot.start}`;
                 const entry = scheduleData[slotKey];
                 return (
@@ -107,21 +108,16 @@ const ScheduleTable = ({ promoId, semesterId, sectionId, teacherId }) => {
                         <span className="entry-module">
                            {entry.module?.base_module?.name || 'Module?'} ({entry.entry_type})
                         </span>
-                        {/* Conditionally display teacher name unless filtering by teacher */}
                         {!teacherId && <span className="entry-teacher">{entry.teacher?.full_name || 'Teacher?'}</span>}
-                        {/* Display classroom name */}
                         <span className="entry-classroom">{entry.classroom?.name || 'Room?'}</span>
-                        {/* Conditionally display section unless filtering by section */}
                         {!sectionId && <span className="entry-section">Sec: {entry.section?.name || '?'}</span>} 
                       </div>
                     ) : (
-                      // Empty cell
                       ''
                     )}
                   </td>
                 );
-              })}
-            </tr>
+              })}</tr>
           ))}
         </tbody>
       </table>

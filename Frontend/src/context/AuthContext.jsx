@@ -19,6 +19,7 @@ export const AuthProvider = ({ children }) => {
       isTeacher: userData.is_teacher || false,
       needsPasswordChange: userData.needs_password_change || false,
     };
+
     setUser(userObject);
   };
 
