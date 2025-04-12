@@ -201,4 +201,53 @@
   padding: 0.75rem;
   margin-bottom: 0.5rem;
   border-radius: 4px;
+}
+
+/* Styles for Section Grouping */
+.section-exam-group {
+  margin-top: 25px; /* Add space above each section group */
+  margin-bottom: 30px; /* Add space below each section group */
+  padding: 20px; /* Add some padding inside the group */
+  border: 1px solid #e0e0e0; /* Add a light border */
+  border-radius: 8px; /* Rounded corners */
+  background-color: #f9f9f9; /* Slightly different background */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); /* Subtle shadow */
+}
+
+.section-exam-group h3 {
+  margin-top: 0; /* Remove default top margin */
+  margin-bottom: 15px; /* Space below the header */
+  padding-bottom: 10px; /* Space below the text */
+  border-bottom: 2px solid #007bff; /* Accent border below header */
+  color: #333; /* Darker color for header */
+  font-size: 1.3em; /* Make header slightly larger */
+}
+
+/* Ensure admin-table has some basic styling if not already defined elsewhere */
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+.admin-table th,
+.admin-table td {
+  border: 1px solid #ddd;
+  padding: 10px 12px;
+  text-align: left;
+  vertical-align: middle;
+}
+
+.admin-table th {
+  background-color: #f2f2f2;
+  font-weight: 600;
+  color: #555;
+}
+
+.admin-table tbody tr:nth-child(even) {
+  background-color: #fdfdfd;
+}
+
+.admin-table tbody tr:hover {
+  background-color: #e9f5ff;
 } 

@@ -111,12 +111,17 @@ class Exam(models.Model):
     name = models.CharField(max_length=100) # e.g., "Midterm", "Final Exam"
     semester = models.ForeignKey(Semester, on_delete=models.CASCADE, related_name='exams')
     module = models.ForeignKey(VersionModule, on_delete=models.CASCADE, related_name='exams')
+    section = models.ForeignKey(Section, on_delete=models.CASCADE, related_name='exams')
     exam_date = models.DateTimeField()
     duration_minutes = models.PositiveIntegerField(default=120)
     classroom = models.ForeignKey(Classroom, on_delete=models.SET_NULL, null=True, blank=True, related_name='exams')
 
+    class Meta:
+        unique_together = ('semester', 'module', 'section')
+        ordering = ['semester', 'section', 'exam_date']
+
     def __str__(self):
-        return f"{self.name} - {self.module} ({self.semester})"
+        return f"{self.name} - {self.module} - {self.section} ({self.semester})"
 
 class ExamPeriod(models.Model):
     semester = models.ForeignKey(Semester, on_delete=models.CASCADE, related_name='exam_periods')
@@ -172,15 +177,15 @@ class ScheduleEntry(models.Model):
 
 # --- Exam Surveillance ---
 class ExamSurveillance(models.Model):
-    exam = models.OneToOneField(
+    exam = models.ForeignKey(
         Exam,
         on_delete=models.CASCADE,
-        related_name='surveillance_assignment',
+        related_name='surveillance_assignments',
         help_text="The exam being supervised."
     )
     teacher = models.ForeignKey(
         settings.AUTH_USER_MODEL,
-        on_delete=models.SET_NULL, # Keep the record if the teacher is deleted, but set teacher to null
+        on_delete=models.SET_NULL,
         null=True,
         blank=True,
         related_name='surveillance_duties',
@@ -189,11 +194,13 @@ class ExamSurveillance(models.Model):
     )
 
     class Meta:
-        unique_together = ('exam', 'teacher') # A teacher supervises a specific exam only once
+        unique_together = ('exam', 'teacher')
         ordering = ['exam__exam_date', 'teacher']
+        verbose_name = "Exam Surveillance Assignment"
+        verbose_name_plural = "Exam Surveillance Assignments"
 
     def __str__(self):
-        teacher_name = self.teacher.full_name if self.teacher else "Unassigned"
+        teacher_name = self.teacher.get_full_name() if self.teacher else "Unassigned"
         return f"Surveillance for {self.exam} by {teacher_name}"
 
 

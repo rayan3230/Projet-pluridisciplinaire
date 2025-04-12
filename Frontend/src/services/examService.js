@@ -1,10 +1,11 @@
 import apiClient from '../config/axiosConfig';
 
 // --- Exams ---
-export const getExams = async (semesterId = null, moduleId = null) => {
+export const getExams = async (semesterId = null, promoId = null, moduleId = null) => {
   try {
     const params = {};
     if (semesterId) params.semester_id = semesterId;
+    if (promoId) params.promo_id = promoId;
     if (moduleId) params.module_id = moduleId;
     const response = await apiClient.get('/exams/', { params });
     return response.data;
@@ -67,12 +68,22 @@ export const createExamPeriod = async (periodData) => {
 }; 
 
 // --- Exam Schedule Generation ---
-export const generateExamSchedule = async (semesterId, promoId) => {
+export const generateExamSchedule = async (promoId, semesterId) => {
   try {
-    const response = await apiClient.post('/generate-exam-schedule/', { semester_id: semesterId, promo_id: promoId });
-    return response.data; // Contains { message, exam_period, exams }
+    const response = await apiClient.post('/generate-exam-schedule/', { promo_id: promoId, semester_id: semesterId });
+    return response.data;
   } catch (error) {
     console.error('Generate Exam Schedule API error:', error.response || error.message);
+    throw error;
+  }
+};
+
+export const generateAllPromosExamSchedule = async (semesterId) => {
+  try {
+    const response = await apiClient.post('/generate-all-promos-exam-schedule/', { semester_id: semesterId });
+    return response.data;
+  } catch (error) {
+    console.error('Generate All Promos Exam Schedule API error:', error.response || error.message);
     throw error;
   }
 }; 

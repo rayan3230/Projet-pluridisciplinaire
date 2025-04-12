@@ -105,6 +105,7 @@ class ExamSerializer(serializers.ModelSerializer):
     module = VersionModuleSerializer(read_only=True)
     semester = SemesterSerializer(read_only=True)
     classroom = ClassroomSerializer(read_only=True)
+    section = SectionSerializer(read_only=True)
     
     module_id = serializers.PrimaryKeyRelatedField(
         queryset=VersionModule.objects.all(),
@@ -114,6 +115,11 @@ class ExamSerializer(serializers.ModelSerializer):
     semester_id = serializers.PrimaryKeyRelatedField(
         queryset=Semester.objects.all(),
         source='semester',
+        write_only=True
+    )
+    section_id = serializers.PrimaryKeyRelatedField(
+        queryset=Section.objects.all(),
+        source='section',
         write_only=True
     )
     classroom_id = serializers.PrimaryKeyRelatedField(
@@ -128,8 +134,8 @@ class ExamSerializer(serializers.ModelSerializer):
         model = Exam
         fields = [
             'id', 'name', 'exam_date', 'duration_minutes', 
-            'module', 'semester', 'classroom',
-            'module_id', 'semester_id', 'classroom_id'
+            'module', 'semester', 'classroom', 'section',
+            'module_id', 'semester_id', 'classroom_id', 'section_id'
         ]
 
 class ExamPeriodSerializer(serializers.ModelSerializer):

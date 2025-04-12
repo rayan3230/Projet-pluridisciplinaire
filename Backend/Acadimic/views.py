@@ -83,27 +83,37 @@ class ExamViewSet(viewsets.ModelViewSet):
     serializer_class = ExamSerializer
 
     def get_queryset(self):
-        """Optionally filter exams by semester."""
-        try:
-            print("ExamViewSet: Fetching exams...")
-            queryset = Exam.objects.select_related(
-                'semester', 'module', 'module__base_module', 'classroom'
-            ).all()
-            
-            semester_id = self.request.query_params.get('semester_id')
-            print(f"ExamViewSet: Filtering by semester_id={semester_id}")
-            if semester_id:
-                queryset = queryset.filter(semester_id=semester_id)
-            
-            print(f"ExamViewSet: Found {queryset.count()} exams. Ordering...")
-            ordered_queryset = queryset.order_by('exam_date')
-            print("ExamViewSet: Returning queryset.")
-            return ordered_queryset
-        except Exception as e:
-            print(f"!!! ERROR in ExamViewSet.get_queryset: {str(e)}")
-            import traceback
-            traceback.print_exc() # Print the full traceback to console
-            return Exam.objects.none()  # Return empty queryset on error
+        """Filter exams by semester, promo (indirectly via section), and/or section."""
+        queryset = Exam.objects.select_related(
+            'semester',
+            'module',
+            'module__base_module',
+            'section',
+            'section__promo',
+            'classroom'
+        ).all()
+        
+        semester_id = self.request.query_params.get('semester_id')
+        promo_id = self.request.query_params.get('promo_id')
+        section_id = self.request.query_params.get('section_id')
+
+        if semester_id:
+            queryset = queryset.filter(semester_id=semester_id)
+        
+        # Filter by promo (if provided, overrides section_id)
+        if promo_id:
+            try:
+                queryset = queryset.filter(section__promo_id=int(promo_id))
+            except (ValueError, TypeError):
+                return queryset.none()
+        # Filter by section (if provided and promo_id wasn't)
+        elif section_id:
+            try:
+                queryset = queryset.filter(section_id=int(section_id))
+            except (ValueError, TypeError):
+                return queryset.none()
+
+        return queryset.order_by('semester', 'section', 'exam_date')
 
 class ExamPeriodViewSet(viewsets.ModelViewSet):
     queryset = ExamPeriod.objects.all()
@@ -165,141 +175,342 @@ TIME_SLOTS = [
 ]
 SLOT_DURATION_MINUTES = 90 # Assuming 1.5 hour slots
 
-# --- Function-Based View for Schedule Generation ---
-
+# --- Updated Single Promo Generation View (Section-Centric, Same Day Module) ---
 @api_view(['POST'])
-@transaction.atomic # Ensure atomicity
+@transaction.atomic
 def generate_exam_schedule_view(request):
     try:
-        print("--- generate_exam_schedule_view: START ---")
+        print("--- generate_exam_schedule_view (Section-Centric, Same Day Module): START ---")
         promo_id = request.data.get('promo_id')
-        print(f"generate_exam_schedule_view: Received promo_id={promo_id}")
-        if not promo_id:
-            return Response({'error': 'promo_id is required.'}, status=status.HTTP_400_BAD_REQUEST)
+        semester_id = request.data.get('semester_id')
 
-        # --- Wrap EVERYTHING in a transaction (already done by decorator) --- 
-        promo = Promo.objects.select_related('semester').prefetch_related('modules').get(pk=promo_id)
-        print(f"generate_exam_schedule_view: Found promo: {promo}")
-        semester = promo.semester
-        if not semester:
-            print("generate_exam_schedule_view: ERROR - Promo has no assigned semester.")
-            return Response({'error': 'The selected promo does not have an assigned semester.'}, status=status.HTTP_400_BAD_REQUEST)
-        print(f"generate_exam_schedule_view: Found semester: {semester}")
+        if not promo_id or not semester_id:
+             return Response({'error': 'promo_id and semester_id are required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        promo = Promo.objects.select_related('speciality').prefetch_related('sections', 'modules', 'modules__base_module').get(pk=promo_id)
+        semester = Semester.objects.get(pk=semester_id)
+        print(f"Found Promo {promo.id} ({promo.name}) and Semester {semester.id} ({semester.name}).")
+
+        sections_in_promo = list(promo.sections.all())
+        modules_for_promo = list(promo.modules.all())
+        num_sections = len(sections_in_promo)
+
+        if num_sections == 0:
+             return Response({'message': f"Promo '{promo.name}' has no sections. No exams generated."}, status=status.HTTP_200_OK)
+        if not modules_for_promo:
+             return Response({'message': f"Promo '{promo.name}' has no modules assigned. No exams generated."}, status=status.HTTP_200_OK)
+
+        print(f"Promo has {num_sections} sections.")
+
+        # --- Deletions --- 
+        print(f"Deleting existing exams for sections of Promo {promo_id} in Semester {semester_id}...")
+        deleted_exams, _ = Exam.objects.filter(semester=semester, section__in=sections_in_promo).delete()
+        print(f"Deleted {deleted_exams} exams.")
+        ExamPeriod.objects.filter(semester=semester).delete()
+        print(f"Deleted existing exam periods for Semester {semester.id}.")
         
-        modules = promo.modules.all()
-        if not modules:
-            print("generate_exam_schedule_view: ERROR - No modules assigned to promo.")
-            return Response({'error': 'No modules assigned to the selected promo.'}, status=status.HTTP_404_NOT_FOUND)
-        print(f"generate_exam_schedule_view: Found {modules.count()} modules.")
-
-        # --- Delete existing schedule first (within the transaction) --- 
-        print("generate_exam_schedule_view: Deleting existing exam periods and exams...")
-        deleted_periods, _ = ExamPeriod.objects.filter(semester=semester).delete()
-        deleted_exams, _ = Exam.objects.filter(semester=semester).delete()
-        print(f"generate_exam_schedule_view: Deleted {deleted_periods} periods, {deleted_exams} exams.")
-
-        # --- Fetch available classrooms --- 
+        # --- Resources --- 
         available_classrooms = list(Classroom.objects.filter(type=SessionType.COURSE.value))
-        if not available_classrooms:
-             print("generate_exam_schedule_view: ERROR - No classrooms of type 'COURS' exist.")
-             raise IntegrityError("No classrooms of type 'COURS' exist in the system to schedule exams.")
-        print(f"generate_exam_schedule_view: Found {len(available_classrooms)} classrooms of type 'COURS'.")
+        if len(available_classrooms) < num_sections:
+             # Make error message more specific
+             raise IntegrityError(f"Not enough COURS classrooms ({len(available_classrooms)}) available to schedule all {num_sections} sections simultaneously.")
+        print(f"Found {len(available_classrooms)} available COURS classrooms.")
 
-        period_start_date = semester.end_date + timedelta(days=7)
-        while period_start_date.weekday() == 4: # Skip Friday
-            period_start_date += timedelta(days=1)
-        print(f"generate_exam_schedule_view: Exam period start date: {period_start_date}")
-        
-        current_exam_date = period_start_date
-        created_exams = []
-        period_end_date = period_start_date
-        last_assigned_classroom_index = -1 # Track last used index
+        # --- Scheduling Setup --- 
+        all_created_exams = []
+        overall_start_date = None
+        overall_end_date = None
+        # Track dates where *any* section of this promo is busy
+        promo_busy_dates = set()
+        # Max attempts to prevent infinite loops if scheduling is impossible
+        MAX_DATE_ATTEMPTS = 100 # Adjust as needed
 
-        # --- Loop through modules to schedule --- 
-        print("generate_exam_schedule_view: Starting module loop...")
-        for module_index, module in enumerate(modules):
-            print(f"generate_exam_schedule_view: Processing module {module_index + 1}/{len(modules)}: {module}")
-            
-            # Ensure current_exam_date is not a Friday 
-            while current_exam_date.weekday() == 4:
-                current_exam_date += timedelta(days=1)
-            
-            duration = timedelta(minutes=120) # Default duration
-            exam_start_datetime = datetime.combine(current_exam_date, time(12, 0)) # Start at noon
-            exam_end_datetime = exam_start_datetime + duration
-            print(f"generate_exam_schedule_view: Proposed exam time: {exam_start_datetime} - {exam_end_datetime}")
+        # --- Determine starting date --- 
+        current_exam_date = semester.end_date + timedelta(days=7)
+        while current_exam_date.isoweekday() == 5: # Skip Friday
+            current_exam_date += timedelta(days=1)
+        print(f"Starting exam scheduling attempt on {current_exam_date}")
+        if not overall_start_date:
+             overall_start_date = current_exam_date
 
-            # --- Find an available classroom --- 
-            assigned_classroom = None
-            start_index = (last_assigned_classroom_index + 1) % len(available_classrooms)
-            
-            print(f"generate_exam_schedule_view: Searching for classroom starting from index {start_index}")
-            for i in range(len(available_classrooms)):
-                current_check_index = (start_index + i) % len(available_classrooms)
-                potential_classroom = available_classrooms[current_check_index]
-                print(f"generate_exam_schedule_view: Checking classroom {potential_classroom.name} (index {current_check_index})")
+        # --- Outer Loop: Iterate through Modules --- 
+        for module in modules_for_promo:
+            print(f"\n--- Attempting to schedule Module: {module.base_module.name} ---")
+            module_scheduled = False
+            attempts_for_module = 0
+            # Start searching from the current date determined by previous module or initial start
+            search_date = current_exam_date 
+
+            # --- Inner Loop: Find a suitable Date for this Module --- 
+            while not module_scheduled and attempts_for_module < MAX_DATE_ATTEMPTS:
+                attempts_for_module += 1
+                # Skip Friday
+                while search_date.isoweekday() == 5:
+                    print(f"  Skipping Friday {search_date}")
+                    search_date += timedelta(days=1)
                 
-                # Check for conflicts for this classroom at this time
-                # A simpler check: does any exam *start* in this classroom on this day?
-                # Assumes one exam per day per classroom for simplicity in generation.
-                conflicting_exams = Exam.objects.filter(
-                    classroom=potential_classroom,
-                    exam_date__date=current_exam_date
-                ).exists()
+                print(f"  Attempting date: {search_date} (Attempt {attempts_for_module})")
+
+                # Check if *any* section of this promo is already busy on this date
+                if search_date in promo_busy_dates:
+                    print(f"  Promo {promo.name} already has exams scheduled on {search_date}. Trying next day.")
+                    search_date += timedelta(days=1)
+                    continue # Try next date for the same module
+
+                # Find classrooms available on this date
+                free_classrooms_on_date = []
+                booked_classroom_ids_on_date = set(
+                    ex.classroom_id 
+                    for ex in all_created_exams 
+                    # Check against the date we are currently searching
+                    if ex.exam_date.date() == search_date and ex.classroom_id is not None
+                )
                 
-                if not conflicting_exams:
-                    assigned_classroom = potential_classroom
-                    last_assigned_classroom_index = current_check_index
-                    print(f"generate_exam_schedule_view: Found available classroom: {assigned_classroom.name}")
-                    break # Found a classroom
+                for room in available_classrooms:
+                    if room.id not in booked_classroom_ids_on_date:
+                        free_classrooms_on_date.append(room)
+                
+                print(f"  Found {len(free_classrooms_on_date)} free classrooms on {search_date}.")
+
+                # Check if enough classrooms are free simultaneously
+                if len(free_classrooms_on_date) >= num_sections:
+                    # SUCCESS! Found a date and enough classrooms for this module
+                    print(f"  Found suitable slot for Module {module.base_module.name} on {search_date}.")
+                    assigned_classrooms = random.sample(free_classrooms_on_date, num_sections) # Randomly pick N classrooms
+                    
+                    # Schedule all sections for this module on this date
+                    for i, section in enumerate(sections_in_promo):
+                        classroom = assigned_classrooms[i]
+                        exam_start_datetime = datetime.combine(search_date, time(12, 0))
+                        exam = Exam(
+                            name=f"Exam - {module.base_module.name}",
+                            semester=semester,
+                            module=module,
+                            section=section,
+                            exam_date=exam_start_datetime,
+                            duration_minutes=120,
+                            classroom=classroom
+                        )
+                        all_created_exams.append(exam)
+                        print(f"    Scheduled Sec {section.name} in Room {classroom.name}")
+                    
+                    # Mark this date as busy for the promo
+                    promo_busy_dates.add(search_date)
+                    overall_end_date = max(overall_end_date, search_date) if overall_end_date else search_date
+                    module_scheduled = True # Exit the date-finding loop for this module
+                    # Move the main current_exam_date to TWO days AFTER this module was scheduled to enforce a gap
+                    current_exam_date = search_date + timedelta(days=2) 
                 else:
-                    print(f"generate_exam_schedule_view: Classroom {potential_classroom.name} is busy on {current_exam_date}.")
-            
-            if not assigned_classroom:
-                # If no classroom found after checking all, move to the next day and retry
-                print("generate_exam_schedule_view: No classroom available for this module today. Moving to next day.")
-                current_exam_date += timedelta(days=1)
-                continue # Retry scheduling this module on the new day
+                    # Not enough classrooms on this date, try the next day for the *same* module
+                    print(f"  Not enough free classrooms ({len(free_classrooms_on_date)}/{num_sections}) on {search_date}. Trying next day.")
+                    search_date += timedelta(days=1)
+            # End of date-finding loop for module
 
-            # --- Create the Exam --- 
-            exam = Exam.objects.create(
-                name=f"Exam - {module.base_module.name}",
-                semester=semester,
-                module=module,
-                exam_date=exam_start_datetime,
-                duration_minutes=duration.total_seconds() // 60,
-                classroom=assigned_classroom
-            )
-            created_exams.append(exam)
-            print(f"generate_exam_schedule_view: Created exam: {exam}")
-            
-            # --- Update scheduling variables --- 
-            period_end_date = max(period_end_date, current_exam_date) 
-            current_exam_date += timedelta(days=1) # Move to the next day for the next module
+            # Check if the module was successfully scheduled after attempts
+            if not module_scheduled:
+                # More specific error message
+                error_msg = f"Could not find a suitable day with {num_sections} simultaneous classrooms for Module '{module.base_module.name}' after {attempts_for_module} attempts (tried up to date {search_date - timedelta(days=1)}). Increase exam period or check classroom availability."
+                print(f"ERROR: {error_msg}")
+                raise IntegrityError(error_msg)
+        # End of module loop
 
-        # --- Create ExamPeriod --- 
-        print(f"generate_exam_schedule_view: Creating ExamPeriod from {period_start_date} to {period_end_date}")
-        ExamPeriod.objects.create(
-            semester=semester,
-            start_date=period_start_date,
-            end_date=period_end_date
-        )
-        print("generate_exam_schedule_view: Exam schedule generation successful.")
-        return Response({'message': 'Exam schedule generated successfully.'}, status=status.HTTP_201_CREATED)
+        # --- After loops: Bulk create and create period --- 
+        if all_created_exams:
+            Exam.objects.bulk_create(all_created_exams)
+            print(f"Bulk created {len(all_created_exams)} exams for promo {promo.name}.")
+            if overall_start_date and overall_end_date:
+                ExamPeriod.objects.create(
+                    semester=semester,
+                    start_date=overall_start_date,
+                    end_date=overall_end_date
+                )
+                print(f"Created ExamPeriod from {overall_start_date} to {overall_end_date}.")
+            return Response({'message': f'Successfully generated {len(all_created_exams)} exams (grouped by module/day) for promo {promo.name}.'}, status=status.HTTP_201_CREATED)
+        else:
+             return Response({'message': f'No exams needed/generated for promo {promo.name}.'}, status=status.HTTP_200_OK)
 
+    # --- Exception Handling --- 
     except Promo.DoesNotExist:
         print("!!! ERROR in generate_exam_schedule_view: Promo not found.")
         return Response({'error': 'Promo not found.'}, status=status.HTTP_404_NOT_FOUND)
+    except Semester.DoesNotExist:
+        print("!!! ERROR in generate_exam_schedule_view: Semester not found.")
+        return Response({'error': 'Semester not found.'}, status=status.HTTP_404_NOT_FOUND)
     except IntegrityError as e:
         print(f"!!! ERROR in generate_exam_schedule_view (Integrity): {str(e)}")
-        import traceback
         traceback.print_exc()
-        return Response({'error': f'Database integrity error: {str(e)}'}, status=status.HTTP_400_BAD_REQUEST)
+        # Return the specific error message from the exception
+        return Response({'error': f'Scheduling failed: {str(e)}'}, status=status.HTTP_400_BAD_REQUEST)
     except Exception as e:
         print(f"!!! ERROR in generate_exam_schedule_view (General): {str(e)}")
-        import traceback
         traceback.print_exc()
-        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response({'error': f'An unexpected error occurred: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+# --- generate_all_promos_exam_schedule_view (REVISED - Same Day Module Logic Across Promos) --- 
+@api_view(['POST'])
+@transaction.atomic 
+def generate_all_promos_exam_schedule_view(request):
+    semester_id = request.data.get('semester_id')
+    if not semester_id:
+        return Response({'error': 'semester_id is required.'}, status=status.HTTP_400_BAD_REQUEST)
+    
+    print(f"--- generate_all_promos_exam_schedule_view (Same Day Module): START for Semester {semester_id} ---")
+    
+    try:
+        semester = Semester.objects.get(pk=semester_id)
+        
+        # Get all promos and sections for this semester
+        promos_in_semester = list(Promo.objects.filter(semester=semester).prefetch_related('sections', 'modules', 'modules__base_module'))
+        if not promos_in_semester:
+             return Response({'message': f'No promos found associated with Semester {semester.name}. No schedules generated.'}, status=status.HTTP_200_OK)
+
+        # Get all unique modules taught in any promo of this semester
+        unique_module_ids = set()
+        sections_by_promo = {}
+        all_sections_flat = []
+        for p in promos_in_semester:
+            sections = list(p.sections.all())
+            if sections:
+                sections_by_promo[p.id] = sections
+                all_sections_flat.extend(sections)
+                for module in p.modules.all():
+                    unique_module_ids.add(module.id)
+        
+        if not all_sections_flat:
+            return Response({'message': f'No sections found for any promo in Semester {semester.name}. No exams generated.'}, status=status.HTTP_200_OK)
+        
+        unique_modules = list(VersionModule.objects.filter(id__in=unique_module_ids).select_related('base_module'))
+        if not unique_modules:
+             return Response({'message': f'No modules found associated with any promo in Semester {semester.name}. No schedules generated.'}, status=status.HTTP_200_OK)
+
+        print(f"Found {len(unique_modules)} unique modules taught across {len(promos_in_semester)} promos.")
+
+        # --- Deletions --- 
+        print(f"Deleting ALL existing exams and periods for Semester {semester.id}...")
+        deleted_exams, _ = Exam.objects.filter(semester=semester).delete()
+        deleted_periods, _ = ExamPeriod.objects.filter(semester=semester).delete()
+        print(f"Deleted {deleted_exams} exams and {deleted_periods} periods.")
+
+        # --- Resources --- 
+        available_classrooms = list(Classroom.objects.filter(type=SessionType.COURSE.value))
+        print(f"Found {len(available_classrooms)} available COURS classrooms.")
+
+        # --- Scheduling Setup --- 
+        all_created_exams = []
+        overall_start_date = None
+        overall_end_date = None
+        promo_busy_dates = {p.id: set() for p in promos_in_semester} # {promo_id: {date1, date2}}
+        MAX_DATE_ATTEMPTS = 100 
+
+        # --- Determine starting date --- 
+        current_exam_date = semester.end_date + timedelta(days=7)
+        while current_exam_date.isoweekday() == 5:
+            current_exam_date += timedelta(days=1)
+        print(f"Starting exam scheduling attempt on {current_exam_date}")
+        if not overall_start_date:
+             overall_start_date = current_exam_date
+
+        # --- Outer Loop: Iterate through Unique Modules --- 
+        for module in unique_modules:
+            print(f"\n--- Attempting to schedule Module: {module.base_module.name} (ID: {module.id}) ---")
+            
+            # Find which promos/sections in this semester need this module exam
+            promos_for_module = [p for p in promos_in_semester if module in p.modules.all()]
+            sections_for_module = []
+            for p in promos_for_module:
+                sections_for_module.extend(sections_by_promo.get(p.id, []))
+            
+            if not sections_for_module:
+                print(f"  No sections found needing Module {module.base_module.name}. Skipping.")
+                continue
+                
+            num_sections_needed = len(sections_for_module)
+            print(f"  Module needed by {num_sections_needed} sections across {len(promos_for_module)} promos.")
+
+            module_scheduled = False
+            attempts_for_module = 0
+            search_date = current_exam_date
+
+            # --- Inner Loop: Find Date for this Module --- 
+            while not module_scheduled and attempts_for_module < MAX_DATE_ATTEMPTS:
+                attempts_for_module += 1
+                while search_date.isoweekday() == 5:
+                    print(f"  Skipping Friday {search_date}")
+                    search_date += timedelta(days=1)
+                print(f"  Attempting date: {search_date} (Attempt {attempts_for_module})")
+
+                # Check if date conflicts with *any* involved promo or the day after their exam
+                date_conflict = False
+                for p in promos_for_module:
+                    if search_date in promo_busy_dates[p.id] or (search_date - timedelta(days=1)) in promo_busy_dates[p.id]:
+                        print(f"  Date conflict: Promo {p.name} has exams on {search_date} or the day before. Trying next day.")
+                        date_conflict = True
+                        break
+                if date_conflict:
+                    search_date += timedelta(days=1)
+                    continue # Try next date
+
+                # Find available classrooms on this date
+                free_classrooms_on_date = []
+                booked_classroom_ids = set(ex.classroom_id for ex in all_created_exams if ex.exam_date.date() == search_date and ex.classroom_id)
+                for room in available_classrooms:
+                    if room.id not in booked_classroom_ids:
+                        free_classrooms_on_date.append(room)
+                print(f"  Found {len(free_classrooms_on_date)} free classrooms on {search_date}.")
+
+                # Check for enough simultaneous classrooms
+                if len(free_classrooms_on_date) >= num_sections_needed:
+                    print(f"  Found suitable slot for Module {module.base_module.name} on {search_date}.")
+                    assigned_classrooms = random.sample(free_classrooms_on_date, num_sections_needed)
+                    
+                    # Schedule all relevant sections
+                    for i, section in enumerate(sections_for_module):
+                        classroom = assigned_classrooms[i]
+                        exam_start_datetime = datetime.combine(search_date, time(12, 0))
+                        exam = Exam(name=f"Exam - {module.base_module.name}", semester=semester, module=module, section=section, exam_date=exam_start_datetime, duration_minutes=120, classroom=classroom)
+                        all_created_exams.append(exam)
+                        print(f"    Scheduled Sec {section.name} (Promo {section.promo_id}) in Room {classroom.name}")
+                    
+                    # Mark date as busy for involved promos
+                    for p in promos_for_module:
+                         promo_busy_dates[p.id].add(search_date)
+                    overall_end_date = max(overall_end_date, search_date) if overall_end_date else search_date
+                    module_scheduled = True
+                    current_exam_date = search_date + timedelta(days=2) # Advance main date cursor by 2 for the gap
+                else:
+                    print(f"  Not enough free classrooms ({len(free_classrooms_on_date)}/{num_sections_needed}) on {search_date}. Trying next day.")
+                    search_date += timedelta(days=1)
+            # End date-finding loop
+
+            if not module_scheduled:
+                 # More specific error message
+                 error_msg = f"Could not find a suitable day with {num_sections_needed} simultaneous classrooms for Module '{module.base_module.name}' after {attempts_for_module} attempts. Increase exam period or check classroom availability."
+                 print(f"ERROR: {error_msg}")
+                 raise IntegrityError(error_msg)
+        # End module loop
+
+        # --- Final Steps --- 
+        if all_created_exams:
+            Exam.objects.bulk_create(all_created_exams)
+            print(f"Bulk created {len(all_created_exams)} exams for semester {semester.name}.")
+            if overall_start_date and overall_end_date:
+                ExamPeriod.objects.create(semester=semester, start_date=overall_start_date, end_date=overall_end_date)
+                print(f"Created ExamPeriod from {overall_start_date} to {overall_end_date}.")
+            return Response({'message': f'Successfully generated {len(all_created_exams)} exams (grouped by module/day) for semester {semester.name}.'}, status=status.HTTP_201_CREATED)
+        else:
+             return Response({'message': f'No exams needed/generated for semester {semester.name}.'}, status=status.HTTP_200_OK)
+
+    # --- Exception Handling --- 
+    except Semester.DoesNotExist:
+        return Response({'error': f'Semester with id {semester_id} not found.'}, status=status.HTTP_404_NOT_FOUND)
+    except IntegrityError as e:
+        print(f"!!! generate_all_promos_exam_schedule_view: TRANSACTION ROLLED BACK due to error: {str(e)}")
+        # Return specific error
+        return Response({'error': f'Scheduling failed: {str(e)}'}, status=status.HTTP_400_BAD_REQUEST)
+    except Exception as e:
+        print(f"!!! generate_all_promos_exam_schedule_view: UNEXPECTED Top-Level Error: {str(e)}")
+        traceback.print_exc()
+        return Response({'error': f'An unexpected error occurred: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 # --- Class Schedule Generation View --- 
 @api_view(['POST'])
@@ -426,7 +637,7 @@ def generate_class_schedule_view(request):
                             end_time = slot_info['end_time']
                             slot_key = slot_info['key']
 
-                            # --- Check Conflicts ---
+                            # --- Check Conflicts --- 
                             busy_teachers_local = booked_slots.get(slot_key, {}).get('teachers', set()) # Renamed for clarity
                             busy_sections_local = booked_slots.get(slot_key, {}).get('sections', set()) # Renamed for clarity
                             busy_classrooms_local = booked_slots.get(slot_key, {}).get('classrooms', set()) # Renamed for clarity
@@ -478,10 +689,10 @@ def generate_class_schedule_view(request):
 
                             # Randomly choose one from the TRULY free list
                             assigned_classroom = random.choice(truly_free_classrooms)
-
-                            # --- Slot Found! Create Entry & Update Tracker ---
+                            
+                            # --- Slot Found! Create Entry & Update Tracker --- 
                             # print(f"    Placing {session_type} slot {slots_placed + 1}/{count} on Day {day} at {start_time} in {assigned_classroom.name}") # Debugging
-                            entry = ScheduleEntry(
+                            entry = ScheduleEntry( 
                                 section=section, semester=semester, module=module,
                                 teacher=teacher, classroom=assigned_classroom,
                                 day_of_week=day, start_time=start_time, end_time=end_time,
@@ -965,7 +1176,10 @@ def export_schedule_excel(request):
     except Exception as e:
         return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-# --- NEW VIEWSET for Exam Surveillance ---
+# Define constants if needed
+SUPERVISORS_PER_EXAM = 2
+# MAX_DUTIES_PER_TEACHER = 5 # Optional fairness constraint
+
 class ExamSurveillanceViewSet(viewsets.ModelViewSet):
     """
     API endpoint for managing Exam Surveillance assignments.
@@ -991,106 +1205,110 @@ class ExamSurveillanceViewSet(viewsets.ModelViewSet):
         return queryset.order_by('exam__exam_date')
 
     @action(detail=False, methods=['post'], url_path='generate-schedule')
-    @transaction.atomic
+    @transaction.atomic # Ensure atomicity for the entire semester
     def generate_schedule(self, request):
-        """
-        Generates the exam surveillance schedule for a given semester.
-        Assigns one available teacher per exam slot.
-        Expects 'semester_id' in the request data.
-        """
         semester_id = request.data.get('semester_id')
         if not semester_id:
             return Response({'error': 'semester_id is required.'}, status=status.HTTP_400_BAD_REQUEST)
 
+        print(f"--- generate_exam_surveillance_schedule: START for Semester {semester_id} ---")
+
         try:
-            # --- Validate Semester ---
             semester = Semester.objects.get(pk=semester_id)
 
-            # --- Get Data ---
-            exams_to_schedule = list(Exam.objects.filter(semester=semester).order_by('exam_date'))
-            available_teachers = list(User.objects.filter(is_teacher=True).order_by('id')) # Order for consistent assignment
+            # 1. Fetch all Exams for the semester, ordered by time
+            all_exams_in_semester = list(Exam.objects.filter(semester=semester).order_by('exam_date'))
+            if not all_exams_in_semester:
+                return Response({'message': f'No exams found for Semester {semester.name}. No surveillance schedule generated.'}, status=status.HTTP_200_OK)
+            print(f"Found {len(all_exams_in_semester)} exams for the semester.")
 
-            if not exams_to_schedule:
-                return Response({'warning': 'No exams found for this semester. No schedule generated.'}, status=status.HTTP_200_OK)
+            # 2. Fetch all available Teachers (using User model)
+            all_teachers = list(User.objects.filter(is_teacher=True))
+            if not all_teachers:
+                 raise IntegrityError("No users marked as teachers found in the system.") # Updated error message
+            random.shuffle(all_teachers)
+            print(f"Found {len(all_teachers)} teachers.")
 
-            if not available_teachers:
-                return Response({'error': 'No teachers found in the system.'}, status=status.HTTP_400_BAD_REQUEST)
-
-            # --- Clear Existing Schedule for this Semester ---
+            # 3. Clear existing surveillance schedule for the semester
+            print(f"Deleting existing surveillance entries for Semester {semester.id}...")
             deleted_count, _ = ExamSurveillance.objects.filter(exam__semester=semester).delete()
-            print(f"Deleted {deleted_count} existing surveillance assignments for semester {semester_id}.")
+            print(f"Deleted {deleted_count} existing entries.")
 
-            # --- Scheduling Logic ---
-            teacher_assignments = {} # Track teacher availability: {teacher_id: [ (start_time, end_time), ... ]}
-            schedule_results = []
-            teacher_index = 0
-            assignments_made = 0
+            # 4. Assignment Logic
+            new_surveillance_entries = []
+            surveillance_assignments_this_run = {t.id: {} for t in all_teachers}
 
-            for exam in exams_to_schedule:
-                exam_start = exam.exam_date
-                # Ensure exam.duration_minutes is not None, provide a default if necessary
-                duration_minutes = exam.duration_minutes if exam.duration_minutes is not None else 120 # Default to 120 mins
-                exam_end = exam_start + timedelta(minutes=duration_minutes)
-                assigned_teacher = None
-
-                # Try to find an available teacher
-                attempts = 0
-                while attempts < len(available_teachers):
-                    current_teacher = available_teachers[teacher_index]
-                    teacher_id = current_teacher.id
-                    is_available = True
-
-                    # Check for conflicts with this teacher's existing assignments in this run
-                    if teacher_id in teacher_assignments:
-                        for assigned_start, assigned_end in teacher_assignments[teacher_id]:
-                            # Check for overlap: (StartA < EndB) and (EndA > StartB)
-                            if exam_start < assigned_end and exam_end > assigned_start:
-                                is_available = False
-                                break # Conflict found
-
-                    if is_available:
-                        assigned_teacher = current_teacher
-                        # Record the assignment time slot for this teacher
-                        if teacher_id not in teacher_assignments:
-                            teacher_assignments[teacher_id] = []
-                        teacher_assignments[teacher_id].append((exam_start, exam_end))
-                        # Move to the next teacher for the next assignment
-                        teacher_index = (teacher_index + 1) % len(available_teachers)
-                        break # Teacher found and assigned
-
-                    # Move to the next teacher if the current one is busy
-                    teacher_index = (teacher_index + 1) % len(available_teachers)
-                    attempts += 1
-
-                # --- Create Surveillance Record --- 
-                # Use try-except for get_or_create or update_or_create for robustness if needed
-                surveillance = ExamSurveillance(exam=exam, teacher=assigned_teacher)
-                schedule_results.append(surveillance)
-                if assigned_teacher:
-                    assignments_made += 1
-                else:
-                    # Log or handle cases where no teacher could be assigned (e.g., more concurrent exams than teachers)
-                    print(f"Warning: Could not find an available teacher for exam {exam.id} on {exam.exam_date}")
-
-
-            # Bulk create the assignments
-            ExamSurveillance.objects.bulk_create(schedule_results)
-
-            # Fetch the created objects again to serialize them with related data
-            created_assignments = ExamSurveillance.objects.filter(exam__semester=semester).select_related(
-                'exam', 'teacher', 'exam__classroom', 'exam__module__base_module'
-            ).order_by('exam__exam_date')
+            print("Starting assignment loop...")
+            for exam in all_exams_in_semester:
+                print(f"\nProcessing Exam: {exam.id} ({exam.name}) on {exam.exam_date}")
+                exam_date = exam.exam_date.date()
+                exam_start_time = exam.exam_date.time()
+                exam_end_time = (exam.exam_date + timedelta(minutes=exam.duration_minutes or 0)).time()
                 
-            serializer = self.get_serializer(created_assignments, many=True)
-            return Response({
-                'message': f'Successfully generated surveillance schedule for {assignments_made} out of {len(exams_to_schedule)} exams.',
-                'schedule': serializer.data
-            }, status=status.HTTP_201_CREATED)
+                needed = SUPERVISORS_PER_EXAM
+                available_teachers_for_this_exam = []
+
+                # Find available teachers (User objects)
+                for teacher in all_teachers:
+                    # --- Check for Surveillance Conflict (within this run) --- 
+                    teacher_busy_surveillance = False
+                    if exam_date in surveillance_assignments_this_run[teacher.id]:
+                        for assigned_start_time in surveillance_assignments_this_run[teacher.id][exam_date]:
+                            if assigned_start_time == exam_start_time:
+                                teacher_busy_surveillance = True
+                                break 
+                    if teacher_busy_surveillance:
+                        continue
+                    
+                    # --- Check for Teaching Conflict --- 
+                    teaching_conflict = ScheduleEntry.objects.filter(
+                        teacher=teacher, # Use the User object directly
+                        semester=semester,
+                        day_of_week=exam.exam_date.isoweekday(),
+                        start_time__lt=exam_end_time,
+                        end_time__gt=exam_start_time
+                    ).exists()
+
+                    if teaching_conflict:
+                        continue
+                        
+                    available_teachers_for_this_exam.append(teacher)
+
+                # --- Assign Teachers --- 
+                print(f"  Found {len(available_teachers_for_this_exam)} available teachers.")
+                if len(available_teachers_for_this_exam) < needed:
+                    error_msg = f"Could not find enough available teachers ({len(available_teachers_for_this_exam)} found, {needed} needed) for Exam {exam.id} ({exam.name}) on {exam.exam_date}."
+                    print(f"ERROR: {error_msg}")
+                    raise IntegrityError(error_msg)
+                
+                assigned_teachers = random.sample(available_teachers_for_this_exam, needed)
+
+                for teacher in assigned_teachers:
+                    # Create entry using the User object for the teacher field
+                    surv_entry = ExamSurveillance(exam=exam, teacher=teacher)
+                    new_surveillance_entries.append(surv_entry)
+                    
+                    if exam_date not in surveillance_assignments_this_run[teacher.id]:
+                        surveillance_assignments_this_run[teacher.id][exam_date] = set()
+                    surveillance_assignments_this_run[teacher.id][exam_date].add(exam_start_time)
+                    
+                    # Use teacher.get_full_name() or adjust if your User model uses different fields
+                    print(f"  Assigned Teacher {teacher.id} ({teacher.get_full_name() if hasattr(teacher, 'get_full_name') else teacher.username}) to Exam {exam.id}")
+
+            # 5. Bulk Create if loop finished without error
+            if new_surveillance_entries:
+                ExamSurveillance.objects.bulk_create(new_surveillance_entries)
+                print(f"\nSuccessfully created {len(new_surveillance_entries)} surveillance assignments.")
+                return Response({'message': f'Successfully generated surveillance schedule for {len(new_surveillance_entries)} assignments in Semester {semester.name}.'}, status=status.HTTP_201_CREATED)
+            else:
+                 return Response({'message': 'No surveillance assignments needed or created.'}, status=status.HTTP_200_OK)
 
         except Semester.DoesNotExist:
             return Response({'error': f'Semester with id {semester_id} not found.'}, status=status.HTTP_404_NOT_FOUND)
+        except IntegrityError as e: 
+            print(f"!!! generate_exam_surveillance_schedule: TRANSACTION ROLLED BACK due to error: {str(e)}")
+            return Response({'error': f'Generation failed and rolled back: {str(e)}'}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
-            # Log the detailed error
-            print(f"!!! ERROR in generate_schedule: {str(e)}")
+            print(f"!!! generate_exam_surveillance_schedule: UNEXPECTED Error: {str(e)}")
             traceback.print_exc()
-            return Response({'error': f'An unexpected error occurred during schedule generation: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response({'error': f'An unexpected error occurred: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

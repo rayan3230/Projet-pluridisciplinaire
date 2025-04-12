@@ -20,6 +20,7 @@ router.register(r'exam-surveillance', views.ExamSurveillanceViewSet, basename='e
 urlpatterns = [
     path('', include(router.urls)),
     path('generate-exam-schedule/', views.generate_exam_schedule_view, name='generate-exam-schedule'),
+    path('generate-all-promos-exam-schedule/', views.generate_all_promos_exam_schedule_view, name='generate-all-promos-exam-schedule'),
     path('generate-class-schedule/', views.generate_class_schedule_view, name='generate-class-schedule'),
     path('export-schedule-pdf/', views.export_schedule_pdf, name='export-schedule-pdf'),
     path('export-schedule-excel/', views.export_schedule_excel, name='export-schedule-excel'),
