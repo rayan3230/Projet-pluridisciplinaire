@@ -4,7 +4,7 @@ from .models import (
     Classroom, Speciality, Promo, Section,
     BaseModule, VersionModule, Semester, Exam,
     TeacherModuleAssignment, ScheduleEntry, ExamPeriod,
-    SessionType, Location
+    SessionType, Location, ExamSurveillance
 )
 # Import UserSerializer from the correct app
 from users.serializers import UserSerializer
@@ -173,4 +173,25 @@ class ScheduleEntrySerializer(serializers.ModelSerializer):
             'id', 'section', 'semester', 'module', 'teacher', 'classroom',
             'day_of_week', 'start_time', 'end_time', 'entry_type',
             'section_id', 'semester_id', 'module_id', 'teacher_id', 'classroom_id'
-        ] 
+        ]
+
+class ExamSurveillanceSerializer(serializers.ModelSerializer):
+    exam = ExamSerializer(read_only=True)
+    teacher = UserSerializer(read_only=True)
+
+    exam_id = serializers.PrimaryKeyRelatedField(
+        queryset=Exam.objects.all(),
+        source='exam',
+        write_only=True
+    )
+    teacher_id = serializers.PrimaryKeyRelatedField(
+        queryset=User.objects.filter(is_teacher=True),
+        source='teacher',
+        write_only=True,
+        required=False,
+        allow_null=True
+    )
+
+    class Meta:
+        model = ExamSurveillance
+        fields = ['id', 'exam', 'teacher', 'exam_id', 'teacher_id'] 

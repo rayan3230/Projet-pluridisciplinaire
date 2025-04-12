@@ -24,6 +24,7 @@ import ExamDefinitionPage from '../pages/Admin/ExamDefinitionPage';
 import ScheduleGenerationPage from '../pages/Admin/ScheduleGenerationPage';
 import AdminTeacherScheduleViewerPage from '../pages/Admin/AdminTeacherScheduleViewerPage';
 import AdminPromoScheduleViewerPage from '../pages/Admin/AdminPromoScheduleViewerPage';
+import ExamSurveillanceSchedule from '../components/ExamSurveillanceSchedule';
 
 // Teacher Pages
 import TeacherDashboardPage from '../pages/Teacher/TeacherDashboardPage';
@@ -106,6 +107,7 @@ function AppRouter() {
             <Route path="schedule/generate" element={<ScheduleGenerationPage />} />
             <Route path="schedules/teachers" element={<AdminTeacherScheduleViewerPage />} />
             <Route path="schedules/promos" element={<AdminPromoScheduleViewerPage />} />
+            <Route path="surveillance" element={<ExamSurveillanceSchedule />} />
             <Route index element={<Navigate to="dashboard" replace />} />
           </Route>
         </Route>

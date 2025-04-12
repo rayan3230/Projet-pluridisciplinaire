@@ -170,4 +170,31 @@ class ScheduleEntry(models.Model):
         return f"{self.section} - {self.module} ({self.get_entry_type_display()}) with {self.teacher.full_name} on {day_map.get(self.day_of_week)} {self.start_time}-{self.end_time}{classroom_str}"
 
 
+# --- Exam Surveillance ---
+class ExamSurveillance(models.Model):
+    exam = models.OneToOneField(
+        Exam,
+        on_delete=models.CASCADE,
+        related_name='surveillance_assignment',
+        help_text="The exam being supervised."
+    )
+    teacher = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL, # Keep the record if the teacher is deleted, but set teacher to null
+        null=True,
+        blank=True,
+        related_name='surveillance_duties',
+        limit_choices_to={'is_teacher': True},
+        help_text="The teacher assigned to supervise this exam."
+    )
+
+    class Meta:
+        unique_together = ('exam', 'teacher') # A teacher supervises a specific exam only once
+        ordering = ['exam__exam_date', 'teacher']
+
+    def __str__(self):
+        teacher_name = self.teacher.full_name if self.teacher else "Unassigned"
+        return f"Surveillance for {self.exam} by {teacher_name}"
+
+
 

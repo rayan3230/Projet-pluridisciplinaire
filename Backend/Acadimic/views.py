@@ -1,21 +1,22 @@
 from django.shortcuts import render
 from rest_framework import viewsets, permissions, status
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view, permission_classes, action
 from rest_framework.response import Response
 from django.db import transaction, IntegrityError
 from datetime import timedelta, date, datetime, time
 from django.utils import timezone
+from django.contrib.auth import get_user_model
 from .models import (
     Classroom, Speciality, Promo, Section,
     BaseModule, VersionModule, Semester, Exam,
     TeacherModuleAssignment, ScheduleEntry, ExamPeriod,
-    SessionType, Location
+    SessionType, Location, ExamSurveillance
 )
 from .serializers import (
     ClassroomSerializer, SpecialitySerializer, PromoSerializer, SectionSerializer,
     BaseModuleSerializer, VersionModuleSerializer, SemesterSerializer, ExamSerializer,
     TeacherModuleAssignmentSerializer, ScheduleEntrySerializer, ExamPeriodSerializer,
-    LocationSerializer
+    LocationSerializer, ExamSurveillanceSerializer
 )
 import random
 import traceback # Import traceback module
@@ -30,6 +31,9 @@ from openpyxl.styles import Font, Alignment, PatternFill
 import io
 import os
 from django.conf import settings
+
+# Get the User model
+User = get_user_model()
 
 # Permissions: Default is IsAuthenticated. Consider IsAdminUser for stricter control.
 # from rest_framework.permissions import IsAdminUser, IsAuthenticated
@@ -183,7 +187,7 @@ def generate_exam_schedule_view(request):
         print(f"generate_exam_schedule_view: Deleted {deleted_periods} periods, {deleted_exams} exams.")
 
         # --- Fetch available classrooms --- 
-        available_classrooms = list(Classroom.objects.filter(type=SessionType.COURSE.name))
+        available_classrooms = list(Classroom.objects.filter(type=SessionType.COURSE.value))
         if not available_classrooms:
              print("generate_exam_schedule_view: ERROR - No classrooms of type 'COURS' exist.")
              raise IntegrityError("No classrooms of type 'COURS' exist in the system to schedule exams.")
@@ -914,3 +918,133 @@ def export_schedule_excel(request):
 
     except Exception as e:
         return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+# --- NEW VIEWSET for Exam Surveillance ---
+class ExamSurveillanceViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint for managing Exam Surveillance assignments.
+    Includes an action to automatically generate the surveillance schedule for a semester.
+    """
+    queryset = ExamSurveillance.objects.select_related('exam', 'teacher', 'exam__classroom', 'exam__module__base_module').all()
+    serializer_class = ExamSurveillanceSerializer
+    # permission_classes = [permissions.IsAdminUser] # Consider restricting access
+
+    def get_queryset(self):
+        """Optionally filter surveillance assignments by semester and/or teacher."""
+        queryset = super().get_queryset()
+        semester_id = self.request.query_params.get('semester_id')
+        teacher_id = self.request.query_params.get('teacher_id')
+
+        if semester_id:
+            queryset = queryset.filter(exam__semester_id=semester_id)
+        
+        if teacher_id:
+            queryset = queryset.filter(teacher_id=teacher_id)
+
+        # Order by exam date/time for logical display
+        return queryset.order_by('exam__exam_date')
+
+    @action(detail=False, methods=['post'], url_path='generate-schedule')
+    @transaction.atomic
+    def generate_schedule(self, request):
+        """
+        Generates the exam surveillance schedule for a given semester.
+        Assigns one available teacher per exam slot.
+        Expects 'semester_id' in the request data.
+        """
+        semester_id = request.data.get('semester_id')
+        if not semester_id:
+            return Response({'error': 'semester_id is required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            # --- Validate Semester ---
+            semester = Semester.objects.get(pk=semester_id)
+
+            # --- Get Data ---
+            exams_to_schedule = list(Exam.objects.filter(semester=semester).order_by('exam_date'))
+            available_teachers = list(User.objects.filter(is_teacher=True).order_by('id')) # Order for consistent assignment
+
+            if not exams_to_schedule:
+                return Response({'warning': 'No exams found for this semester. No schedule generated.'}, status=status.HTTP_200_OK)
+
+            if not available_teachers:
+                return Response({'error': 'No teachers found in the system.'}, status=status.HTTP_400_BAD_REQUEST)
+
+            # --- Clear Existing Schedule for this Semester ---
+            deleted_count, _ = ExamSurveillance.objects.filter(exam__semester=semester).delete()
+            print(f"Deleted {deleted_count} existing surveillance assignments for semester {semester_id}.")
+
+            # --- Scheduling Logic ---
+            teacher_assignments = {} # Track teacher availability: {teacher_id: [ (start_time, end_time), ... ]}
+            schedule_results = []
+            teacher_index = 0
+            assignments_made = 0
+
+            for exam in exams_to_schedule:
+                exam_start = exam.exam_date
+                # Ensure exam.duration_minutes is not None, provide a default if necessary
+                duration_minutes = exam.duration_minutes if exam.duration_minutes is not None else 120 # Default to 120 mins
+                exam_end = exam_start + timedelta(minutes=duration_minutes)
+                assigned_teacher = None
+
+                # Try to find an available teacher
+                attempts = 0
+                while attempts < len(available_teachers):
+                    current_teacher = available_teachers[teacher_index]
+                    teacher_id = current_teacher.id
+                    is_available = True
+
+                    # Check for conflicts with this teacher's existing assignments in this run
+                    if teacher_id in teacher_assignments:
+                        for assigned_start, assigned_end in teacher_assignments[teacher_id]:
+                            # Check for overlap: (StartA < EndB) and (EndA > StartB)
+                            if exam_start < assigned_end and exam_end > assigned_start:
+                                is_available = False
+                                break # Conflict found
+
+                    if is_available:
+                        assigned_teacher = current_teacher
+                        # Record the assignment time slot for this teacher
+                        if teacher_id not in teacher_assignments:
+                            teacher_assignments[teacher_id] = []
+                        teacher_assignments[teacher_id].append((exam_start, exam_end))
+                        # Move to the next teacher for the next assignment
+                        teacher_index = (teacher_index + 1) % len(available_teachers)
+                        break # Teacher found and assigned
+
+                    # Move to the next teacher if the current one is busy
+                    teacher_index = (teacher_index + 1) % len(available_teachers)
+                    attempts += 1
+
+                # --- Create Surveillance Record --- 
+                # Use try-except for get_or_create or update_or_create for robustness if needed
+                surveillance = ExamSurveillance(exam=exam, teacher=assigned_teacher)
+                schedule_results.append(surveillance)
+                if assigned_teacher:
+                    assignments_made += 1
+                else:
+                    # Log or handle cases where no teacher could be assigned (e.g., more concurrent exams than teachers)
+                    print(f"Warning: Could not find an available teacher for exam {exam.id} on {exam.exam_date}")
+
+
+            # Bulk create the assignments
+            ExamSurveillance.objects.bulk_create(schedule_results)
+
+            # Fetch the created objects again to serialize them with related data
+            created_assignments = ExamSurveillance.objects.filter(exam__semester=semester).select_related(
+                'exam', 'teacher', 'exam__classroom', 'exam__module__base_module'
+            ).order_by('exam__exam_date')
+                
+            serializer = self.get_serializer(created_assignments, many=True)
+            return Response({
+                'message': f'Successfully generated surveillance schedule for {assignments_made} out of {len(exams_to_schedule)} exams.',
+                'schedule': serializer.data
+            }, status=status.HTTP_201_CREATED)
+
+        except Semester.DoesNotExist:
+            return Response({'error': f'Semester with id {semester_id} not found.'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            # Log the detailed error
+            print(f"!!! ERROR in generate_schedule: {str(e)}")
+            traceback.print_exc()
+            return Response({'error': f'An unexpected error occurred during schedule generation: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

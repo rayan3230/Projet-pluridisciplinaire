@@ -15,6 +15,7 @@ router.register(r'exam-periods', views.ExamPeriodViewSet, basename='examperiod')
 router.register(r'assignments', views.TeacherModuleAssignmentViewSet, basename='teachermoduleassignment')
 router.register(r'schedule-entries', views.ScheduleEntryViewSet, basename='scheduleentry')
 router.register(r'locations', views.LocationViewSet, basename='location')
+router.register(r'exam-surveillance', views.ExamSurveillanceViewSet, basename='examsurveillance')
 
 urlpatterns = [
     path('', include(router.urls)),

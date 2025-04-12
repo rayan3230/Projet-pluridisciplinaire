@@ -55,10 +55,11 @@ function NavBar() {
                   <button className="dropbtn">Schedule Management</button>
                   <div className="dropdown-content">
                     <Link to="/admin/semesters">Semesters</Link>
-                    <Link to="/admin/exams">Exam Periods</Link>
-                    <Link to="/admin/schedule/generate">Schedule Generator</Link>
+                    <Link to="/admin/exams">Exam Definitions</Link>
+                    <Link to="/admin/schedule/generate">Class Schedule Generator</Link>
                     <Link to="/admin/schedules/promos">View Promo Schedules</Link>
                     <Link to="/admin/schedules/teachers">View Teacher Schedules</Link>
+                    <Link to="/admin/surveillance">Exam Surveillance</Link>
                   </div>
                 </li>
                 <li><Link to="/admin/assignments">Assign Teachers</Link></li>
