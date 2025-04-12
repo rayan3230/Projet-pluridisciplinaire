@@ -41,6 +41,7 @@ const Login = () => {
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
     const [showWelcome, setShowWelcome] = useState(true);
+    const [showTempHeader, setShowTempHeader] = useState(true);
 
     // --- LOGIN FORM HANDLER ---
     const handleLoginSubmit = async (event) => {
@@ -187,11 +188,11 @@ const Login = () => {
         handleLoginSubmit(event); // Call the existing login submission logic
     };
 
+    // Remove the typed.js effect temporarily to isolate the issue
     useEffect(() => {
-        // Hide welcome text after 3 seconds
         const timer = setTimeout(() => {
-            setShowWelcome(false);
-        }, 3000);
+            setShowTempHeader(false);
+        }, 1000); // Speed up to match the 1s animation
 
         return () => clearTimeout(timer);
     }, []);
@@ -241,153 +242,153 @@ const Login = () => {
        <img src={logo} alt="" id="circle1" className='circle' />
        <img src={logo} alt="" id="circle2" className='circle'/>
        
-       <h1 id='loginheader' className="welcome-text">Welcome to <span>Scope</span></h1>
+       {showTempHeader && (
+           <h1 className="temp-header">Student Driven <span>Solution</span></h1>
+       )}
 
        <span className="logologin" onClick={() => { setMode('login'); setMessage(""); }}>Scope</span>
        
-      <div className="content">
-        <p id='logindescription'>SCOPE allows professors to securely swap class slots with mutual approval, ensuring transparency, minimizing conflicts, and providing real-time updates.</p>
-        <div className="bottom">
-          {/* Mode-dependent UI starts here */}
-          {mode === 'login' && (
-            <div className="bottom">
-              <div className='left'>
-                <form className='left entrance-animation-more-delayed' onSubmit={handleSubmit}>
-                  <input type="text" name="email" placeholder="Scope  box iemail" value={formData.email} onChange={handleChange} className='textfield' required />
-                  <input type="password" name="password" placeholder="Password" value={formData.password} onChange={handleChange} className='textfield' required />
-                  <a href="" id='forgot'>Forgot Password ?</a>
-                  {/* Display error/message if any */}
-                  {error && <p style={{ color: 'red', textAlign: 'center', marginTop: '10px' }}>{error}</p>}
-                  {message && <p style={{ color: 'green', textAlign: 'center', marginTop: '10px' }}>{message}</p>}
-                  <button type="submit" disabled={isLoading} id='login'>
-                    {isLoading ? 'Logging in...' : 'Login'}
-                  </button>
-                </form>
-              </div>
+       <div className="content">
+         <h1 id="loginheader">Welcome to <span>Scope</span></h1>
+         <p id="logindescription">SCOPE allows professors to securely swap class slots with mutual approval, ensuring transparency, minimizing conflicts, and providing real-time updates.</p>
+         
+         <div className="bottom">
+           {/* Mode-dependent UI starts here */}
+           {mode === 'login' && (
+             <div className="bottom">
+               <div className='left'>
+                 <form className='left' onSubmit={handleSubmit}>
+                   <input type="text" name="email" placeholder="Scope box email" value={formData.email} onChange={handleChange} className='textfield' required />
+                   <input type="password" name="password" placeholder="Password" value={formData.password} onChange={handleChange} className='textfield' required />
+                   <a href="" id='forgot'>Forgot Password ?</a>
+                   {/* Display error/message if any */}
+                   {error && <p style={{ color: 'red', textAlign: 'center', marginTop: '10px' }}>{error}</p>}
+                   {message && <p style={{ color: 'green', textAlign: 'center', marginTop: '10px' }}>{message}</p>}
+                   <button type="submit" disabled={isLoading} id='login'>
+                     {isLoading ? 'Logging in...' : 'Login'}
+                   </button>
+                 </form>
+               </div>
 
-              <h1 id='devider' className="entrance-animation-more-delayed">/</h1>
+               <h1 id='devider'>/</h1>
 
-              <div className="right entrance-animation-more-delayed">
-                <button id='google'>Continue with Google</button>
-                <button id='contact'>Contact Us</button>
-                <button id='website'>Visit our website</button>
-              </div>
-            </div>
-          )}
+               <div className="right">
+                 <button id='google'>Continue with Google</button>
+                 <button id='contact'>Contact Us</button>
+                 <button id='website'>Visit our website</button>
+               </div>
+             </div>
+           )}
 
-          {/* Force Change Password Mode UI */} 
-          {mode === 'forceChangePassword' && (
-            <div className="bottom">
-              <div className="left">
-                <form className="left" onSubmit={handleChangePasswordSubmit}>
-                  <p id="resetheader" >
-                    Set a new password for your account
-                  </p>
-                  
-                  {/* New Password Field - styled like regular textfields */}
-                  <div style={{ position: 'relative', width: '100%' }}>
-                    <input
-                      type={showNewPassword ? 'text' : 'password'}
-                      id="newPassword"
-                      placeholder="New Password"
-                      className='textfield'
-                      value={newPassword}
-                      onChange={(e) => setNewPassword(e.target.value)}
-                      required
-                      disabled={isLoading}
-                    />
-                    <button 
-                      type="button" 
-                      onClick={() => setShowNewPassword(!showNewPassword)}
-                      style={{
-                        position: 'absolute',
-                        right: '10px',
-                        top: '50%',
-                        transform: 'translateY(-50%)',
-                        background: 'transparent',
-                        border: 'none',
-                        color: 'white',
-                        cursor: 'pointer',
-                        fontSize: '0.8em'
-                      }}
-                    >
-                      {showNewPassword ? 'Hide' : 'Show'}
-                    </button>
-                  </div>
-                  
-                  {/* Confirm New Password Field */}
-                  <div style={{ position: 'relative', width: '100%' }}>
-                    <input
-                      type={showConfirmPassword ? 'text' : 'password'}
-                      id="confirmPassword"
-                      placeholder="Confirm New Password"
-                      className='textfield'
-                      value={confirmPassword}
-                      onChange={(e) => setConfirmPassword(e.target.value)}
-                      required
-                      disabled={isLoading}
-                    />
-                    <button 
-                      type="button" 
-                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                      style={{
-                        position: 'absolute',
-                        right: '10px',
-                        top: '50%',
-                        transform: 'translateY(-50%)',
-                        background: 'transparent',
-                        border: 'none',
-                        color: 'white',
-                        cursor: 'pointer',
-                        fontSize: '0.8em'
-                      }}
-                    >
-                      {showConfirmPassword ? 'Hide' : 'Show'}
-                    </button>
-                  </div>
-                  
-                  {/* Password requirements hint */}
-                  <p style={{ color: '#aaa', fontFamily: 'lato, sans-serif', fontSize: '0.8em', margin: '0' }}>
-                    Password must be at least 8 characters long
-                  </p>
+           {/* Force Change Password Mode UI */} 
+           {mode === 'forceChangePassword' && (
+             <div className="bottom">
+               <div className="left">
+                 <form className="left" onSubmit={handleChangePasswordSubmit}>
+                   <p id="resetheader" >
+                     Set a new password for your account
+                   </p>
+                   
+                   {/* New Password Field - styled like regular textfields */}
+                   <div style={{ position: 'relative', width: '100%' }}>
+                     <input
+                       type={showNewPassword ? 'text' : 'password'}
+                       id="newPassword"
+                       placeholder="New Password"
+                       className='textfield'
+                       value={newPassword}
+                       onChange={(e) => setNewPassword(e.target.value)}
+                       required
+                       disabled={isLoading}
+                     />
+                     <button 
+                       type="button" 
+                       onClick={() => setShowNewPassword(!showNewPassword)}
+                       style={{
+                         position: 'absolute',
+                         right: '10px',
+                         top: '50%',
+                         transform: 'translateY(-50%)',
+                         background: 'transparent',
+                         border: 'none',
+                         color: 'white',
+                         cursor: 'pointer',
+                         fontSize: '0.8em'
+                       }}
+                     >
+                       {showNewPassword ? 'Hide' : 'Show'}
+                     </button>
+                   </div>
+                   
+                   {/* Confirm New Password Field */}
+                   <div style={{ position: 'relative', width: '100%' }}>
+                     <input
+                       type={showConfirmPassword ? 'text' : 'password'}
+                       id="confirmPassword"
+                       placeholder="Confirm New Password"
+                       className='textfield'
+                       value={confirmPassword}
+                       onChange={(e) => setConfirmPassword(e.target.value)}
+                       required
+                       disabled={isLoading}
+                     />
+                     <button 
+                       type="button" 
+                       onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                       style={{
+                         position: 'absolute',
+                         right: '10px',
+                         top: '50%',
+                         transform: 'translateY(-50%)',
+                         background: 'transparent',
+                         border: 'none',
+                         color: 'white',
+                         cursor: 'pointer',
+                         fontSize: '0.8em'
+                       }}
+                     >
+                       {showConfirmPassword ? 'Hide' : 'Show'}
+                     </button>
+                   </div>
+                   
+                   {/* Password requirements hint */}
+                   <p style={{ color: '#aaa', fontFamily: 'lato, sans-serif', fontSize: '0.8em', margin: '0' }}>
+                     Password must be at least 8 characters long
+                   </p>
 
-                  {/* Error and message display */}
-                  {error && <p style={{ color: 'red', textAlign: 'center', marginTop: '10px' }}>{error}</p>}
-                  {message && <p id="message">{message}</p>}
-                  
-                  {/* Submit button - same style as login button */}
-                  <button type="submit" id='login' disabled={isLoading}> 
-                    {isLoading ? 'Saving...' : 'Set New Password'}
-                  </button>
-                </form>
-              </div>
-              
-              <h1 id='devider'>/</h1>
-              
-              <div className="rightreset">
-                <div>
-                  <h3 style={{ marginBottom: '15px', color: '#00FFCC' }}>Why Change Your Password?</h3>
-                  <p style={{ fontSize: '0.9em', lineHeight: '1.5' }}>
-                    For security reasons, you need to set a new password on your first login. 
-                    Choose a strong password that you haven't used on other sites.
-                  </p>
-                  <p style={{ fontSize: '0.9em', marginTop: '15px', lineHeight: '1.5' }}>
-                    If you need any assistance, please contact the system administrator.
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-        <a href="" id='resetpass' className="entrance-animation-more-delayed">Reset Password</a>
+                   {/* Error and message display */}
+                   {error && <p style={{ color: 'red', textAlign: 'center', marginTop: '10px' }}>{error}</p>}
+                   {message && <p id="message">{message}</p>}
+                   
+                   {/* Submit button - same style as login button */}
+                   <button type="submit" id='login' disabled={isLoading}> 
+                     {isLoading ? 'Saving...' : 'Set New Password'}
+                   </button>
+                 </form>
+               </div>
+               
+               <h1 id='devider'>/</h1>
+               
+               <div className="rightreset">
+                 <div>
+                   <h3 style={{ marginBottom: '15px', color: '#00FFCC' }}>Why Change Your Password?</h3>
+                   <p style={{ fontSize: '0.9em', lineHeight: '1.5' }}>
+                     For security reasons, you need to set a new password on your first login. 
+                     Choose a strong password that you haven't used on other sites.
+                   </p>
+                   <p style={{ fontSize: '0.9em', marginTop: '15px', lineHeight: '1.5' }}>
+                     If you need any assistance, please contact the system administrator.
+                   </p>
+                 </div>
+               </div>
+             </div>
+           )}
+         </div>
+         <a href="" id='resetpass'>Reset Password</a>
+       </div>
+
+       <span className="rights">© 2025 Scope. All Rights Reserved.</span>
       </div>
-
-      <span className="rights">© 2025 Scope. All Rights Reserved.</span>
-      </div>
-
-
-
-
       </>
 }
 
