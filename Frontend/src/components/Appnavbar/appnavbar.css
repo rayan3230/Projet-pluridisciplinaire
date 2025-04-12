@@ -133,7 +133,7 @@ a{
 .nav-right {
     display: flex;
     align-items: center;
-    gap: 20px;
+    gap: 15px;
 }
 
 /* Specific styles for the profile button/icon */
@@ -184,4 +184,54 @@ a{
 .nav li.active a {
     color: #007AFF;
     font-weight: 600;
+}
+
+/* Generic icon button styles */
+.iconed button {
+    background: none;
+    border: none;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.iconed button:hover {
+    background-color: #f0f0f0;
+    cursor: pointer;
+}
+
+.iconed button img {
+    width: 20px;
+    height: 20px;
+}
+
+.profile-button img#profile-icon {
+    width: 35px;
+    height: 35px;
+}
+
+/* Active state for icon buttons */
+.iconed button.active {
+    background-color: #e0eafc;
+    box-shadow: 0 0 0 2px #007AFF;
+}
+
+/* Wrapper for positioning popups */
+.profile-wrapper,
+.help-wrapper {
+    position: relative;
+}
+
+/* Popup common styles */
+.profile-popup,
+.help-popup {
+    position: absolute;
+    top: calc(100% + 10px);
+    right: 0;
+    z-index: 1000;
 }

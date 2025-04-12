@@ -1,0 +1,51 @@
+/* Quick Help Card Styles - Adapted from Quick Profile */
+
+.quick-help-card {
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    padding: 20px;
+    width: 250px; /* Same width as Quick Profile */
+    font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+    color: #333;
+    border: 1px solid #eee;
+}
+
+.help-title {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 15px; /* Space below title */
+    color: #212529;
+    padding-left: 5px; /* Align with list items */
+}
+
+.help-actions {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.help-actions li {
+    display: flex;
+    align-items: center;
+    padding: 10px 5px;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: background-color 0.2s ease;
+    font-size: 14px;
+    color: #495057;
+}
+
+.help-actions li:hover {
+    background-color: #f8f9fa;
+}
+
+.help-actions svg {
+    margin-right: 12px;
+    color: #6c757d;
+    flex-shrink: 0;
+}
+
+.help-actions span {
+    flex-grow: 1;
+}
