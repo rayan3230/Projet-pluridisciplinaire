@@ -50,9 +50,17 @@ function NavBar() {
                     <Link to="/admin/version-modules">Version Modules</Link>
                   </div>
                 </li>
-                {/* TODO: Add links for Semesters, Exams, Assignments, Schedule Gen */}
+                <li className="dropdown">
+                  <button className="dropbtn">Schedule Management</button>
+                  <div className="dropdown-content">
+                    <Link to="/admin/semesters">Semesters</Link>
+                    <Link to="/admin/exams">Exam Periods</Link>
+                    <Link to="/admin/schedule/generate">Schedule Generator</Link>
+                    <Link to="/admin/schedules/promos">View Promo Schedules</Link>
+                    <Link to="/admin/schedules/teachers">View Teacher Schedules</Link>
+                  </div>
+                </li>
                 <li><Link to="/admin/assignments">Assign Teachers</Link></li>
-                {/* Add more admin links as needed */}
               </>
             )}
             {/* Teacher Specific Links */}
@@ -61,7 +69,6 @@ function NavBar() {
                 <li><Link to="/teacher/dashboard">Dashboard</Link></li>
                 <li><Link to="/teacher/preferences">Module Preferences</Link></li>
                 <li><Link to="/teacher/schedule">My Schedule</Link></li>
-                {/* Add more teacher links */}
               </>
             )}
             <li>

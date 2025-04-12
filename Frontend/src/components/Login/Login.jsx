@@ -51,7 +51,6 @@ const Login = () => {
       setError('');
       setInitialUserData(null); // Clear previous user data
       
-      // Adapt to use formData from the new state
       const loginPayload = {
           scope_email: formData.email, // Use formData.email
           password: formData.password    // Use formData.password
@@ -64,29 +63,24 @@ const Login = () => {
           console.log('Login response:', response.data);
           const userData = response.data.user;
 
-          // Call context login - primarily useful if not changing password immediately
-          login(userData);
-          
           if (userData?.needs_password_change) {
-              // --- Needs Password Change ---
               setMessage('Login successful! Please set your new password.');
-              // Store the temporary password that worked
-              setTempPassword(formData.password); // Use formData.password
-              // Store the received user data before changing mode
-              setInitialUserData(userData);
-              // Switch mode to show password change fields
+              setTempPassword(formData.password);
+              setInitialUserData(userData); // Store user data for later use
               setMode('forceChangePassword');
           } else {
-              // --- Login OK, No Change Needed ---
-              setMessage('Login successful!');
-              // Navigate based on role (context now has full user data)
-              if (userData?.is_admin) {
-                  navigate('/admin/dashboard', { replace: true });
-              } else if (userData?.is_teacher) {
-                  navigate('/teacher/dashboard', { replace: true });
-              } else {
-                  navigate('/', { replace: true }); // Fallback
-              }
+              login(userData); 
+              setMessage('Login successful! Redirecting...');
+              
+              setTimeout(() => {
+                  if (userData?.is_admin) {
+                      navigate('/admin/dashboard', { replace: true });
+                  } else if (userData?.is_teacher) {
+                      navigate('/teacher/dashboard', { replace: true });
+                  } else {
+                      navigate('/', { replace: true });
+                  }
+              }, 100); // Small delay (e.g., 100ms) to allow context update
           }
           
       } catch (err) {
@@ -132,22 +126,21 @@ const Login = () => {
 
         try {
             const payload = {
-                // Use the initial user data email
                 scope_email: initialUserData.scope_email,
                 current_password: tempPassword, 
                 new_password: newPassword
             };
-            await apiClient.post('/change-password/', payload, { baseURL: 'http://localhost:8000/'}); 
+            await apiClient.post('/users/change-password/', payload);
 
             setMessage('Password changed successfully! Redirecting...');
             console.log('Password change successful');
 
-            // Construct the updated user object using stored initial data
             const updatedUser = { 
-                ...initialUserData, // Spread initial data (id, name, roles etc.)
-                needsPasswordChange: false // Set the flag to false
+                ...initialUserData, 
+                needsPasswordChange: false 
             };
-            // Call the login function from context (obtained at top level)
+            
+            // Call context login HERE, AFTER password change is confirmed
             login(updatedUser); 
 
             // Redirect after delay
@@ -221,7 +214,6 @@ const Login = () => {
                    <input type="text" name="email" placeholder="Scope box email" value={formData.email} onChange={handleChange} className='textfield' required />
                    <input type="password" name="password" placeholder="Password" value={formData.password} onChange={handleChange} className='textfield' required />
                    <a href="" id='forgot'>Forgot Password ?</a>
-                   {/* Display error/message if any */}
                    {error && <p style={{ color: 'red', textAlign: 'center', marginTop: '10px' }}>{error}</p>}
                    {message && <p style={{ color: 'green', textAlign: 'center', marginTop: '10px' }}>{message}</p>}
                    <button type="submit" disabled={isLoading} id='login'>

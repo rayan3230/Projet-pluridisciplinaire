@@ -15,6 +15,24 @@ from django.conf import settings
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
+    # Add permission classes if needed, e.g., IsAdminUser
+    # permission_classes = [permissions.IsAdminUser]
+
+    def get_queryset(self):
+        """Optionally filter users, e.g., by is_teacher."""
+        queryset = User.objects.all()
+        is_teacher_param = self.request.query_params.get('is_teacher')
+
+        if is_teacher_param is not None:
+            # More robust check for truthiness
+            if isinstance(is_teacher_param, bool):
+                is_teacher = is_teacher_param
+            else: # Assume string otherwise
+                is_teacher = is_teacher_param.lower() in ['true', '1']
+                
+            queryset = queryset.filter(is_teacher=is_teacher)
+            
+        return queryset.order_by('full_name') # Order teachers by name
 
     def create(self, request, *args, **kwargs):
         # Extract data from request
@@ -133,7 +151,8 @@ class ChangePasswordSerializer(rest_serializers.Serializer):
 
 # View for Changing Password
 class ChangePasswordView(APIView):
-    # No authentication needed in this simplified setup
+    # Explicitly define allowed method, although POST should be default via post()
+    http_method_names = ['post', 'head', 'options'] 
 
     def post(self, request, *args, **kwargs):
         serializer = ChangePasswordSerializer(data=request.data)

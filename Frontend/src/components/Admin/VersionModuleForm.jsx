@@ -15,6 +15,7 @@ function VersionModuleForm({ onSubmitSuccess, initialData, onCancel }) {
   const [error, setError] = useState('');
   const [isLoadingBaseModules, setIsLoadingBaseModules] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [coefficient, setCoefficient] = useState(1.0);
   const isEditing = Boolean(initialData);
 
   // Fetch base modules for dropdown
@@ -23,8 +24,8 @@ function VersionModuleForm({ onSubmitSuccess, initialData, onCancel }) {
       setIsLoadingBaseModules(true);
       setError('');
       try {
-        const data = await getBaseModules();
-        setBaseModules(data);
+        const baseModuleData = await getBaseModules();
+        setBaseModules(baseModuleData);
       } catch (err) {
         console.error('Failed to fetch base modules:', err);
         setError('Could not load base modules. Please refresh.');
@@ -43,6 +44,7 @@ function VersionModuleForm({ onSubmitSuccess, initialData, onCancel }) {
       setCoursHours(initialData.cours_hours || 0);
       setTdHours(initialData.td_hours || 0);
       setTpHours(initialData.tp_hours || 0);
+      setCoefficient(initialData.coefficient || 1.0);
     } else {
       // Reset form for adding
       setVersionName('');
@@ -50,6 +52,7 @@ function VersionModuleForm({ onSubmitSuccess, initialData, onCancel }) {
       setCoursHours(0);
       setTdHours(0);
       setTpHours(0);
+      setCoefficient(1.0);
     }
   }, [initialData]);
 
@@ -62,11 +65,12 @@ function VersionModuleForm({ onSubmitSuccess, initialData, onCancel }) {
     }
     setIsSubmitting(true);
     const payload = {
-      version_name: versionName || null, // Handle optional field
+      version_name: versionName,
       base_module_id: baseModuleId,
       cours_hours: parseInt(coursHours, 10) || 0,
       td_hours: parseInt(tdHours, 10) || 0,
       tp_hours: parseInt(tpHours, 10) || 0,
+      coefficient: parseFloat(coefficient) || 1.0,
     };
 
     try {
@@ -167,6 +171,20 @@ function VersionModuleForm({ onSubmitSuccess, initialData, onCancel }) {
             disabled={isSubmitting}
           />
         </div>
+      </div>
+
+      <div className="form-group">
+        <label htmlFor="coefficient">Coefficient:</label>
+        <input
+          type="number"
+          id="coefficient"
+          value={coefficient}
+          onChange={(e) => setCoefficient(e.target.value)}
+          min="0"
+          step="0.1"
+          required
+          disabled={isSubmitting}
+        />
       </div>
 
       {error && <p className="admin-error">{error}</p>}

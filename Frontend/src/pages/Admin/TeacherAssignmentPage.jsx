@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { getTeachers, getAssignments, createAssignment } from '../../services/adminService';
+import React, { useState, useEffect, useCallback } from 'react';
+import { getTeachers, getAssignments, createAssignment, getUsers } from '../../services/adminService';
 import { getPromos } from '../../services/academicService';
 import { getVersionModules } from '../../services/moduleService';
-import { getUsers } from '../../services/adminService';
 
 function TeacherAssignmentPage() {
   // Form state
@@ -21,34 +20,34 @@ function TeacherAssignmentPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
 
-  // Fetch initial data
+  // Use useCallback to memoize fetchData
+  const fetchData = useCallback(async () => {
+    setIsLoadingData(true);
+    setError('');
+    try {
+      // Fetch teachers specifically
+      const [teachersData, modulesData, promosData, assignmentsData] = await Promise.all([
+        getUsers({ is_teacher: true }), // Pass filter param
+        getVersionModules(), 
+        getPromos(),
+        getAssignments() 
+      ]);
+      setTeachers(teachersData); // Directly set teachers
+      setModules(modulesData);
+      setPromos(promosData);
+      setAssignments(assignmentsData);
+    } catch (err) {
+      console.error('Failed to load data:', err);
+      setError('Could not load data needed for assignments. Please refresh.');
+    } finally {
+      setIsLoadingData(false);
+    }
+  }, []); // Empty dependency array means it's created once
+
+  // Fetch initial data on mount
   useEffect(() => {
-    // Fetch data, but filter teachers after getting them
-    const fetchData = async () => {
-      setIsLoadingData(true);
-      setError('');
-      try {
-        const [allUsersData, modulesData, promosData, assignmentsData] = await Promise.all([
-          getUsers(), // Fetch all users initially
-          getVersionModules(), 
-          getPromos(),
-          getAssignments() 
-        ]);
-        // Filter users to get only teachers
-        const teacherUsers = allUsersData.filter(user => user.is_teacher);
-        setTeachers(teacherUsers); 
-        setModules(modulesData);
-        setPromos(promosData);
-        setAssignments(assignmentsData);
-      } catch (err) {
-        console.error('Failed to load data:', err);
-        setError('Could not load data needed for assignments. Please refresh.');
-      } finally {
-        setIsLoadingData(false);
-      }
-    };
     fetchData();
-  }, []);
+  }, [fetchData]); // Depend on the memoized fetchData function
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -65,7 +64,8 @@ function TeacherAssignmentPage() {
         promo_id: selectedPromo,
       };
       await createAssignment(payload);
-      await fetchData(); // Re-fetch to ensure consistency
+      // Call the memoized fetchData to refresh the list
+      fetchData(); 
       // Reset form
       setSelectedTeacher('');
       setSelectedModule('');
@@ -98,10 +98,10 @@ function TeacherAssignmentPage() {
               disabled={isLoadingData || isSubmitting}
             >
               <option value="">-- Select Teacher --</option>
-              {/* The `teachers` state now only contains actual teachers */}
-              {teachers.map(t => (
-                // Display name and email (or just name)
-                <option key={t.id} value={t.id}>{t.first_name && t.last_name ? `${t.first_name} ${t.last_name}` : t.email}</option>
+              {/* Check if teachers array is populated before mapping */}
+              {teachers && teachers.map(t => (
+                // Use full_name if available
+                <option key={t.id} value={t.id}>{t.full_name || t.scope_email}</option>
               ))}
             </select>
           </div>
@@ -170,7 +170,7 @@ function TeacherAssignmentPage() {
               <tbody>
                 {assignments.map(a => (
                   <tr key={a.id}>
-                    <td>{a.teacher?.first_name && a.teacher?.last_name ? `${a.teacher.first_name} ${a.teacher.last_name}` : a.teacher?.email || 'N/A'}</td>
+                    <td>{a.teacher?.full_name || a.teacher?.scope_email || 'N/A'}</td>
                     <td>{a.module?.base_module?.name || 'N/A'}{a.module?.version_name ? ` - ${a.module.version_name}` : ''}</td>
                     <td>{a.promo?.name || 'N/A'} ({a.promo?.speciality?.name || 'N/A'})</td>
                     <td className="actions-cell">

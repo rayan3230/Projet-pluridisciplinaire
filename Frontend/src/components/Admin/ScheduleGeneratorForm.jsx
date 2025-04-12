@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { getPromos } from '../../services/academicService';
 import { getSemesters } from '../../services/semesterService';
-// Assuming you might need teacher assignments for generation
-// import { getAssignments } from '../../services/adminService'; 
 import { generateSchedule } from '../../services/scheduleService';
 
 // Basic styling
@@ -25,7 +23,6 @@ function ScheduleGeneratorForm({ onScheduleGenerated }) {
   const [selectedSemester, setSelectedSemester] = useState('');
   const [promos, setPromos] = useState([]);
   const [semesters, setSemesters] = useState([]);
-  // const [teacherAssignments, setTeacherAssignments] = useState({}); // State for assignments if needed
   
   const [error, setError] = useState('');
   const [isLoadingData, setIsLoadingData] = useState(false);
@@ -43,9 +40,6 @@ function ScheduleGeneratorForm({ onScheduleGenerated }) {
         ]);
         setPromos(promoData);
         setSemesters(semesterData);
-        // Mock data removed
-        // setPromos([{ id: 1, name: '1st year Informatique (Mock)' }]);
-        // setSemesters([{ id: 1, name: 'Semester 1 2024/2025 (Mock)' }]);
       } catch (err) {
         setError('Failed to load necessary data (promos/semesters).');
         console.error('Data fetch error:', err);
@@ -72,10 +66,8 @@ function ScheduleGeneratorForm({ onScheduleGenerated }) {
       const generationParams = {
         promo_id: selectedPromo,
         semester_id: selectedSemester,
-        // teacher_assignments: teacherAssignments, // Pass assignments if needed
       };
       const generatedSchedule = await generateSchedule(generationParams); // Use real API call
-      // console.log('Schedule generation triggered (mock)', generationParams); // Remove mock
       
       // Pass generated data/success signal to parent
       if (onScheduleGenerated) onScheduleGenerated(generatedSchedule); 

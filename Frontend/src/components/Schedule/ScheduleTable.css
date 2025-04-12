@@ -1,0 +1,81 @@
+/* Frontend/src/components/Schedule/ScheduleTable.css */
+.schedule-table-container {
+    margin-top: 20px;
+    overflow-x: auto; /* Allow horizontal scrolling on small screens */
+  }
+  
+  .schedule-table {
+    width: 100%;
+    border-collapse: collapse;
+    border: 1px solid #444; /* Darker border for dark theme */
+    table-layout: fixed; /* Prevent content from stretching columns */
+    font-size: 0.85rem; /* Slightly smaller font */
+  }
+  
+  .schedule-table th,
+  .schedule-table td {
+    border: 1px solid #444;
+    padding: 8px;
+    text-align: center;
+    vertical-align: top;
+    min-width: 100px; /* Ensure minimum width */
+    height: 80px; /* Fixed height for cells */
+  }
+  
+  .schedule-table thead th {
+    background-color: #2a2a2a; /* Darker header */
+    color: #e0e0e0;
+    position: sticky; /* Keep header visible on scroll */
+    top: 0;
+    z-index: 1;
+  }
+  
+  .schedule-table .time-slot-header {
+    background-color: #2a2a2a;
+    color: #e0e0e0;
+    font-weight: bold;
+    vertical-align: middle;
+    width: 100px; /* Fixed width for time column */
+  }
+  
+  .schedule-cell {
+    /* Base style for cells */
+  }
+  
+  .schedule-cell.has-entry {
+    background-color: #3a5a78; /* Example background for filled slots */
+    color: #fff;
+    vertical-align: middle; /* Center content vertically */
+  }
+  
+  .schedule-entry {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    font-size: 0.8rem; /* Smaller font inside cell */
+  }
+  
+  .schedule-entry span {
+    display: block;
+    margin-bottom: 2px;
+    line-height: 1.2;
+    word-break: break-word; /* Break long words */
+  }
+  
+  .entry-module {
+    font-weight: bold;
+  }
+  
+  .entry-teacher {
+    font-style: italic;
+  }
+  
+  .entry-classroom {
+    color: #bdbdbd; /* Lighter color for room */
+  }
+  .entry-section {
+   font-size: 0.7rem;
+   color: #aaa;
+  }

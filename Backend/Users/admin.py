@@ -4,11 +4,6 @@ from rest_framework import viewsets
 from .models import User
 from .serializers import UserSerializer
 
-# --- DRF ViewSet ---
-class UserViewSet(viewsets.ModelViewSet):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
-
 # --- Django Admin Configuration ---
 @admin.register(User)
 class UserAdmin(BaseUserAdmin):
@@ -22,7 +17,7 @@ class UserAdmin(BaseUserAdmin):
     # Define fieldsets for the admin add/change forms
     # Customize as needed to match your User model fields
     fieldsets = (
-        (None, {'fields': ('scope_email', 'password')}), # Password handled by UserAdmin
+        (None, {'fields': ('scope_email', 'password')}), # Password field is automatically handled by BaseUserAdmin
         ('Personal info', {'fields': ('full_name', 'personnel_email')}),
         ('Permissions', {'fields': ('is_active', 'is_staff', 'is_superuser', 'is_admin', 'is_teacher', 'needs_password_change', 'groups', 'user_permissions')}),
         ('Important dates', {'fields': ('last_login', 'date_joined')}),

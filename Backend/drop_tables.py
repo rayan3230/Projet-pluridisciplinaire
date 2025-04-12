@@ -8,7 +8,7 @@ django.setup()
 
 def drop_all_tables():
     with connection.cursor() as cursor:
-        # Disable foreign key checks
+        # Drop all tables in the public schema
         cursor.execute("""
             DO $$ DECLARE
                 r RECORD;

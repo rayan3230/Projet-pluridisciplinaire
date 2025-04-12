@@ -6,8 +6,6 @@ import {
 
 function BaseModuleForm({ onSubmitSuccess, initialData, onCancel }) {
   const [name, setName] = useState('');
-  const [code, setCode] = useState('');
-  const [coef, setCoef] = useState(1);
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const isEditing = Boolean(initialData);
@@ -16,13 +14,9 @@ function BaseModuleForm({ onSubmitSuccess, initialData, onCancel }) {
   useEffect(() => {
     if (initialData) {
       setName(initialData.name || '');
-      setCode(initialData.code || '');
-      setCoef(initialData.coef || 1);
     } else {
       // Reset form for adding
       setName('');
-      setCode('');
-      setCoef(1);
     }
   }, [initialData]);
 
@@ -30,7 +24,7 @@ function BaseModuleForm({ onSubmitSuccess, initialData, onCancel }) {
     e.preventDefault();
     setError('');
     setIsSubmitting(true);
-    const payload = { name, code, coef: parseFloat(coef) || 1.0 };
+    const payload = { name };
 
     try {
       if (isEditing) {
@@ -70,32 +64,6 @@ function BaseModuleForm({ onSubmitSuccess, initialData, onCancel }) {
           id="moduleName"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          required
-          disabled={isSubmitting}
-        />
-      </div>
-
-      <div className="form-group">
-        <label htmlFor="moduleCode">Code (e.g., ANAL):</label>
-        <input
-          type="text"
-          id="moduleCode"
-          value={code}
-          onChange={(e) => setCode(e.target.value)}
-          required
-          disabled={isSubmitting}
-        />
-      </div>
-
-      <div className="form-group">
-        <label htmlFor="moduleCoef">Coefficient:</label>
-        <input
-          type="number"
-          id="moduleCoef"
-          value={coef}
-          onChange={(e) => setCoef(e.target.value)}
-          min="0" 
-          step="0.5"
           required
           disabled={isSubmitting}
         />

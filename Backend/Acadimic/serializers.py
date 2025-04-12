@@ -3,29 +3,69 @@ from django.contrib.auth import get_user_model
 from .models import (
     Classroom, Speciality, Promo, Section,
     BaseModule, VersionModule, Semester, Exam,
-    TeacherModuleAssignment, ScheduleEntry
+    TeacherModuleAssignment, ScheduleEntry, ExamPeriod,
+    SessionType
 )
 # Import UserSerializer from the correct app
 from users.serializers import UserSerializer
 
 User = get_user_model()
 
+class BaseModuleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BaseModule
+        fields = ['id', 'name']
+
+# Define SemesterSerializer before VersionModuleSerializer if VersionModule uses it
+class SemesterSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Semester
+        fields = '__all__'
+
+class VersionModuleSerializer(serializers.ModelSerializer):
+    base_module = BaseModuleSerializer(read_only=True)
+    base_module_id = serializers.PrimaryKeyRelatedField(
+        queryset=BaseModule.objects.all(), source='base_module', write_only=True
+    )
+
+    class Meta:
+        model = VersionModule
+        fields = [
+            'id', 'base_module', 'base_module_id', 'version_name',
+            'coefficient', 'cours_hours', 'td_hours', 'tp_hours'
+        ]
+        extra_kwargs = {
+            'version_name': {'required': True}
+        }
+
+# Define SpecialitySerializer before PromoSerializer
 class SpecialitySerializer(serializers.ModelSerializer):
     class Meta:
         model = Speciality
         fields = '__all__'
 
 class PromoSerializer(serializers.ModelSerializer):
-    # Nested serializer for reading
     speciality = SpecialitySerializer(read_only=True)
-    # Writable field for creating/updating by ID
     speciality_id = serializers.PrimaryKeyRelatedField(
         queryset=Speciality.objects.all(), source='speciality', write_only=True
+    )
+    modules = VersionModuleSerializer(many=True, read_only=True)
+    module_ids = serializers.PrimaryKeyRelatedField(
+        queryset=VersionModule.objects.all(), source='modules', write_only=True, many=True, required=False
+    )
+    semester = SemesterSerializer(read_only=True, required=False)
+    semester_id = serializers.PrimaryKeyRelatedField(
+        queryset=Semester.objects.all(), source='semester', write_only=True, required=False, allow_null=True
     )
 
     class Meta:
         model = Promo
-        fields = ['id', 'name', 'speciality', 'speciality_id']
+        fields = [
+            'id', 'name', 'speciality', 'speciality_id',
+            'year_start', 'year_end',
+            'semester', 'semester_id',
+            'modules', 'module_ids'
+        ]
 
 class SectionSerializer(serializers.ModelSerializer):
     promo = PromoSerializer(read_only=True)
@@ -41,39 +81,35 @@ class SectionSerializer(serializers.ModelSerializer):
 class ClassroomSerializer(serializers.ModelSerializer):
     class Meta:
         model = Classroom
-        fields = '__all__'
+        fields = ['id', 'name', 'type', 'has_projector', 'computers_count']
 
+    def validate(self, data):
+        """Ensure computers_count is 0 if type is not TP."""
+        if data.get('type') != SessionType.TP.name and data.get('computers_count', 0) > 0:
+            # Instead of raising validation error, just force it to 0
+            data['computers_count'] = 0
+        return data
 
-class BaseModuleSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = BaseModule
-        fields = '__all__'
-
-class VersionModuleSerializer(serializers.ModelSerializer):
-    base_module = BaseModuleSerializer(read_only=True)
-    base_module_id = serializers.PrimaryKeyRelatedField(
-        queryset=BaseModule.objects.all(), source='base_module', write_only=True
-    )
-
-    class Meta:
-        model = VersionModule
-        fields = ['id', 'version_name', 'cours_hours', 'td_hours', 'tp_hours', 'base_module', 'base_module_id']
-
-class SemesterSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Semester
-        fields = '__all__'
 
 class ExamSerializer(serializers.ModelSerializer):
     module = VersionModuleSerializer(read_only=True)
     semester = SemesterSerializer(read_only=True)
-    module_id = serializers.PrimaryKeyRelatedField(queryset=VersionModule.objects.all(), source='module', write_only=True)
-    semester_id = serializers.PrimaryKeyRelatedField(queryset=Semester.objects.all(), source='semester', write_only=True)
+    classroom = ClassroomSerializer(read_only=True)
 
     class Meta:
         model = Exam
-        fields = ['id', 'name', 'exam_date', 'duration_minutes', 'module', 'semester', 'module_id', 'semester_id']
+        fields = [
+            'id', 'name', 'exam_date', 'duration_minutes', 
+            'module', 'semester', 'classroom',
+        ]
 
+class ExamPeriodSerializer(serializers.ModelSerializer):
+    semester = SemesterSerializer(read_only=True)
+    semester_id = serializers.PrimaryKeyRelatedField(queryset=Semester.objects.all(), source='semester', write_only=True)
+
+    class Meta:
+        model = ExamPeriod
+        fields = ['id', 'start_date', 'end_date', 'semester', 'semester_id']
 
 class TeacherModuleAssignmentSerializer(serializers.ModelSerializer):
     teacher = UserSerializer(read_only=True)

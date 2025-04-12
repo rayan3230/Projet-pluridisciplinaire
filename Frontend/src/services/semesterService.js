@@ -3,7 +3,7 @@ import apiClient from '../config/axiosConfig';
 // --- Semesters ---
 export const getSemesters = async () => {
   try {
-    const response = await apiClient.get('/api/semesters/');
+    const response = await apiClient.get('/semesters/');
     return response.data;
   } catch (error) {
     console.error('Get Semesters API error:', error.response || error.message);
@@ -14,14 +14,32 @@ export const getSemesters = async () => {
 export const createSemester = async (semesterData) => {
   // semesterData = { name, start_date, end_date }
   try {
-    const response = await apiClient.post('/api/semesters/', semesterData);
+    const response = await apiClient.post('/semesters/', semesterData);
     return response.data;
   } catch (error) {
     console.error('Create Semester API error:', error.response || error.message);
     throw error;
   }
 };
-// TODO: Add getSemester(id), updateSemester(id, data), deleteSemester(id)
+
+export const updateSemester = async (id, semesterData) => {
+  try {
+    const response = await apiClient.put(`/semesters/${id}/`, semesterData);
+    return response.data;
+  } catch (error) {
+    console.error('Update Semester API error:', error.response || error.message);
+    throw error;
+  }
+};
+
+export const deleteSemester = async (id) => {
+  try {
+    await apiClient.delete(`/semesters/${id}/`);
+  } catch (error) {
+    console.error('Delete Semester API error:', error.response || error.message);
+    throw error;
+  }
+};
 
 // --- Exams (assuming managed via a separate endpoint) ---
 export const getExams = async (semesterId = null, moduleId = null) => {
