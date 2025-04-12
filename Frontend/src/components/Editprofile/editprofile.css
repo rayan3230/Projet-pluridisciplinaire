@@ -1,0 +1,250 @@
+/* Base styles for overlay */
+.editprofile-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.4);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1050; /* Ensure it's above other content */
+}
+
+/* Container styles */
+.editprofile-container {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    width: 90%;
+    max-width: 500px; /* Limit maximum width */
+    overflow: hidden;
+    font-family: 'Lato', sans-serif;
+}
+
+/* Header styles */
+.editprofile-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    background-color: #f8f9fa; /* Light grey header */
+    border-bottom: 1px solid #dee2e6;
+}
+
+.editprofile-header h2 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+    color: #343a40;
+}
+
+.editprofile-header .close-button {
+    background: none;
+    border: none;
+    font-size: 20px;
+    color: #6c757d;
+    cursor: pointer;
+    padding: 0;
+    line-height: 1;
+}
+
+/* Body/Form styles */
+.editprofile-body {
+    padding: 25px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.form-group label {
+    font-size: 14px;
+    font-weight: 500;
+    color: #495057;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #ced4da;
+    border-radius: 6px;
+    font-size: 14px;
+    font-family: 'Lato', sans-serif;
+    color: #495057;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: #86b7fe;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, .25);
+}
+
+/* Assigned Modules Styles */
+.assigned-modules-section label {
+    margin-bottom: 8px; /* Space between label and tags */
+}
+
+.modules-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 15px; /* Space before add input */
+}
+
+.module-tag {
+    display: inline-flex;
+    align-items: center;
+    background-color: #e9ecef; /* Light grey tag */
+    color: #495057;
+    border-radius: 15px; /* Pill shape */
+    padding: 4px 8px 4px 12px;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.module-tag span {
+    margin-right: 6px;
+}
+
+.remove-module-btn {
+    background: none;
+    border: none;
+    padding: 0;
+    margin-left: 4px;
+    cursor: pointer;
+    color: #6c757d;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.remove-module-btn svg {
+    display: block; /* Prevent extra space */
+}
+
+.remove-module-btn:hover {
+    color: #dc3545; /* Red on hover */
+}
+
+.add-module-input-group {
+    display: flex;
+    gap: 8px;
+}
+
+/* Style both select and input (if needed later) similarly */
+.add-module-input-group select,
+.add-module-input-group input {
+    flex-grow: 1; 
+    /* Apply input styles to select */
+    padding: 10px 12px;
+    border: 1px solid #ced4da;
+    border-radius: 6px;
+    font-size: 14px;
+    font-family: 'Lato', sans-serif;
+    color: #495057;
+    background-color: white; /* Ensure white background */
+    cursor: pointer;
+}
+
+.add-module-input-group select:focus {
+    outline: none;
+    border-color: #86b7fe;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, .25);
+}
+
+.add-module-input-group select:disabled {
+    background-color: #e9ecef; /* Grey out when disabled */
+    cursor: not-allowed;
+}
+
+.add-module-btn {
+    background-color: #007AFF; /* Blue add button */
+    border: none;
+    color: white;
+    padding: 0 12px; /* Padding for icon */
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s ease-in-out;
+}
+
+.add-module-btn:hover {
+    background-color: #0056b3;
+}
+
+/* Footer styles */
+.editprofile-footer {
+    display: flex;
+    justify-content: space-between; /* Space out buttons */
+    align-items: center; /* Align items vertically */
+    gap: 10px;
+    padding: 15px 20px;
+    border-top: 1px solid #dee2e6;
+    background-color: #f8f9fa;
+}
+
+/* Restyle the reset button */
+.reset-password-button {
+    background-color: transparent; /* Make background transparent */
+    color: #6c757d; /* Grey text */
+    border: 1px solid #ced4da; /* Grey border */
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out, color 0.2s ease-in-out;
+}
+
+.reset-password-button:hover {
+    background-color: #e9ecef; /* Light grey bg on hover */
+    border-color: #adb5bd;
+    color: #495057;
+}
+
+/* Styles for cancel/save button group if needed */
+.editprofile-footer > div {
+    display: flex;
+    gap: 10px; /* Keep gap between cancel and save */
+}
+
+.editprofile-footer button {
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out, color 0.2s ease-in-out;
+}
+
+.cancel-button {
+    background-color: #f8f9fa;
+    color: #6c757d;
+    border: 1px solid #ced4da;
+}
+
+.cancel-button:hover {
+    background-color: #e9ecef;
+}
+
+.save-button {
+    background-color: #007AFF;
+    color: white;
+    border: 1px solid #007AFF;
+}
+
+.save-button:hover {
+    background-color: #0056b3;
+    border-color: #0056b3;
+}
+
+

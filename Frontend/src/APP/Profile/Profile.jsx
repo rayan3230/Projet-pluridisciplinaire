@@ -1,22 +1,34 @@
 import Adminnav from '../../components/Appnavbar/Appnavbar.jsx'
 import profile from '../../assets/profile.png';
 import './Profile.css';
+import Editprofile from '../../components/Editprofile/Editprofile.jsx';
 
 import { useState, useEffect } from 'react';
 
-function Profile({ Name, Email, Phone, Department, Year, Branch }) {
+// Placeholder list of all possible modules
+const allAvailableModules = ['Calculus I', 'Linear Algebra', 'Data Structures', 'Algorithms', 'Operating Systems', 'Database Management', 'Web Development', 'Software Engineering'];
+
+function Profile({ Name="Default Name", Email="default@example.com", Matricule="N/A", Department="N/A", AssignedCourses=['Calculus I'] }) {
     const [profileData, setProfileData] = useState({
         Name,
         Email,
-        Phone,
+        Matricule,
         Department,
-        Year,
-        Branch,
+        AssignedCourses,
     });
+    const [showEditModal, setShowEditModal] = useState(false);
 
     useEffect(() => {
-        setProfileData({ Name, Email, Phone, Department, Year, Branch });
-    }, [Name, Email, Phone, Department, Year, Branch]);
+        setProfileData({ Name, Email, Matricule, Department, AssignedCourses });
+    }, [Name, Email, Matricule, Department, AssignedCourses]);
+
+    const handleOpenEditModal = () => {
+        setShowEditModal(true);
+    };
+
+    const handleCloseEditModal = () => {
+        setShowEditModal(false);
+    };
 
     return (
         <>
@@ -40,16 +52,23 @@ function Profile({ Name, Email, Phone, Department, Year, Branch }) {
                         <p>Name: {profileData.Name}</p>
                         <p>Matricule: {profileData.Matricule}</p>
                         <p>Email: {profileData.Email}</p>
-                        <p>Department: {profileData.Department}</p>
-                        <p>Assigned Courses: {profileData.AssignedCourses}</p>
+                        <p>Assigned Courses: {Array.isArray(profileData.AssignedCourses) ? profileData.AssignedCourses.join(', ') : 'None'}</p>
                     </div>
                     <div className='buttons'>
-                        <button id="edit-profile-button">Edit Profile</button>
+                        <button id="edit-profile-button" onClick={handleOpenEditModal}>Edit Profile</button>
                         <button id="current-schedule-button">Current schedule</button>
                         <button id="delete-profile-button">Delete Profile</button>
                     </div>
                 </div>
             </div>
+
+            {showEditModal && (
+                <Editprofile 
+                    user={profileData} 
+                    onClose={handleCloseEditModal} 
+                    availableModules={allAvailableModules}
+                />
+            )}
         </>
     );
 }
