@@ -4,17 +4,31 @@
 @import url('https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap');
 
 :root {
-  --admin-bg-color: #000000;
-  --admin-text-color: #ffffff;
-  --admin-primary-color: #00FFCC; /* Accent color from login */
-  --admin-secondary-color: #0A2737; /* From login button gradient */
-  --admin-border-color: rgba(255, 255, 255, 0.2);
-  --admin-input-bg: #0C0C0C;
-  --admin-input-border: #ffffff;
-  --admin-hover-shadow: 0 0 10px rgba(0, 255, 204, 0.5);
+  --admin-bg-color: #f8f9fa; /* Light grey background */
+  --admin-text-color: #212529; /* Dark text */
+  --admin-primary-color: #007AFF; /* Blue accent */
+  --admin-secondary-color: #e9ecef; /* Lighter grey for hover/secondary */
+  --admin-border-color: #dee2e6; /* Light grey border */
+  --admin-input-bg: white; /* White input background */
+  --admin-input-border: #ced4da; /* Grey input border */
+  --admin-hover-shadow: 0 0 8px rgba(0, 122, 255, 0.2); /* Subtle blue shadow for focus/hover */
   --admin-font-body: 'Lato', sans-serif;
   --admin-font-heading: 'Montserrat', sans-serif;
   --admin-font-logo: 'Audiowide', sans-serif;
+  --admin-text-muted: #6c757d; /* Grey text for hints/placeholders */
+  --admin-text-dark-grey: #495057; /* Dark grey text */
+  --admin-button-text-color: white;
+  --admin-button-hover-bg: white;
+  --admin-button-hover-text-color: var(--admin-primary-color);
+  --admin-button-hover-border-color: var(--admin-primary-color);
+  --admin-danger-color: #dc3545; /* Standard danger red */
+  --admin-danger-hover-bg: #c82333;
+  --admin-secondary-button-bg: white;
+  --admin-secondary-button-text-color: var(--admin-text-dark-grey);
+  --admin-secondary-button-border-color: var(--admin-input-border);
+  --admin-secondary-button-hover-bg: var(--admin-secondary-color);
+  --admin-secondary-button-hover-text-color: var(--admin-primary-color);
+  --admin-secondary-button-hover-border-color: var(--admin-secondary-button-border-color);
 }
 
 body.admin-body {
@@ -33,9 +47,10 @@ body.admin-body {
 }
 
 .admin-navbar {
-  background-color: #1a1a1a; /* Slightly lighter than pure black */
+  background-color: white; /* White navbar */
   padding: 0.8rem 2rem;
   border-bottom: 1px solid var(--admin-border-color);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); /* Subtle shadow */
 }
 
 .admin-navbar .navbar-logo a span {
@@ -48,22 +63,24 @@ body.admin-body {
   font-weight: 400;
   padding: 0.6rem 1rem;
   transition: background-color 0.2s ease, color 0.2s ease;
+  color: var(--admin-text-dark-grey); /* Dark grey text for links */
+  border-radius: 4px; /* Add slight rounding */
 }
 
 .admin-navbar .navbar-links a:hover,
 .admin-navbar .navbar-links .dropbtn:hover {
-  background-color: var(--admin-secondary-color);
-  color: var(--admin-primary-color);
+  background-color: var(--admin-secondary-color); /* Lighter grey background on hover */
+  color: var(--admin-primary-color); /* Blue text on hover */
 }
 
 .admin-navbar .dropdown-content {
-  background-color: #1a1a1a;
+  background-color: white; /* White dropdown */
   border: 1px solid var(--admin-border-color);
-  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.5);
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.1); /* Slightly darker shadow */
 }
 
 .admin-navbar .dropdown-content a {
-  color: var(--admin-text-color);
+  color: var(--admin-text-dark-grey); /* Dark grey text */
   font-family: var(--admin-font-body);
 }
 
@@ -73,15 +90,21 @@ body.admin-body {
 }
 
 .admin-navbar .navbar-button.logout-button {
-  background-image: linear-gradient(to right, #012641 , #0A2737 , #064A4C , #026D61 );
+  /* Use primary blue button style */
+  background-image: none;
+  background-color: var(--admin-primary-color);
+  color: var(--admin-button-text-color);
   border: none;
   transition: all 0.3s ease-out;
 }
 
 .admin-navbar .navbar-button.logout-button:hover {
   background-image: none;
-  background-color: var(--admin-bg-color);
-  box-shadow: var(--admin-hover-shadow);
+  background-color: var(--admin-button-hover-bg);
+  color: var(--admin-button-hover-text-color);
+  border: 1px solid var(--admin-button-hover-border-color);
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.1); /* Match other button hover shadow */
+  transform: translateY(-2px); /* Match other button hover transform */
 }
 
 .admin-main-content {
@@ -95,7 +118,7 @@ body.admin-body {
 /* === Headings & Basic Elements === */
 h1, h2, h3 {
   font-family: var(--admin-font-heading);
-  color: var(--admin-primary-color);
+  color: var(--admin-text-color); /* Use default dark text for headings */
   font-weight: 700;
   margin-bottom: 1.5rem;
 }
@@ -104,6 +127,7 @@ h1 {
   font-size: 2.5em;
   border-bottom: 1px solid var(--admin-border-color);
   padding-bottom: 0.5rem;
+  color: var(--admin-primary-color); /* Keep h1 blue for emphasis */
 }
 
 h2 {
@@ -113,12 +137,13 @@ h2 {
 
 /* === Forms === */
 .admin-form {
-  background-color: rgba(26, 26, 26, 0.8); /* Semi-transparent dark */
+  background-color: white; /* White form background */
   border: 1px solid var(--admin-border-color);
   padding: 2rem;
   border-radius: 8px;
   margin-bottom: 2rem;
-  backdrop-filter: blur(5px); /* Optional blur effect */
+  backdrop-filter: none; /* Remove blur */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05); /* Subtle shadow */
 }
 
 .admin-form h2 {
@@ -133,7 +158,7 @@ h2 {
   display: block;
   margin-bottom: 0.5rem;
   font-weight: 400;
-  color: #ccc;
+  color: var(--admin-text-dark-grey); /* Use dark grey for labels */
 }
 
 .admin-form input[type="text"],
@@ -148,7 +173,7 @@ h2 {
   background-color: var(--admin-input-bg);
   border: 1px solid var(--admin-input-border);
   border-radius: 5px;
-  color: var(--admin-text-color);
+  color: var(--admin-text-color); /* Dark text in inputs */
   font-family: var(--admin-font-body);
   font-size: 1rem;
   box-sizing: border-box;
@@ -156,7 +181,7 @@ h2 {
 }
 
 .admin-form input::placeholder {
-  color: #888; 
+  color: var(--admin-text-muted); /* Use muted grey for placeholders */
 }
 
 .admin-form input:focus,
@@ -166,22 +191,26 @@ h2 {
   box-shadow: var(--admin-hover-shadow);
 }
 
+/* Ensure checkbox uses accent color */
 .admin-form input[type="checkbox"] {
     width: auto;
     margin-right: 0.5rem;
+    accent-color: var(--admin-primary-color); /* Style checkbox */
 }
 
 .admin-form button[type="submit"],
 .admin-button {
   border: none;
-  color: white;
+  color: var(--admin-button-text-color); /* White text */
   cursor: pointer;
   padding: 0.8rem 1.5rem;
   font-size: 1rem;
   font-family: var(--admin-font-body);
+  font-weight: 600; /* Match login button */
   border-radius: 5px;
   transition: all 0.3s ease-out;
-  background-image: linear-gradient(to right, #012641 , #0A2737 , #064A4C , #026D61 );
+  background-image: none; /* Remove gradient */
+  background-color: var(--admin-primary-color); /* Blue background */
   display: inline-block;
   margin-top: 0.5rem;
 }
@@ -189,19 +218,48 @@ h2 {
 .admin-form button[type="submit"]:hover,
 .admin-button:hover {
   background-image: none;
-  background-color: var(--admin-bg-color);
-  box-shadow: var(--admin-hover-shadow);
+  background-color: var(--admin-button-hover-bg); /* White background */
+  color: var(--admin-button-hover-text-color); /* Blue text */
+  border: 1px solid var(--admin-button-hover-border-color); /* Blue border */
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.1); /* Subtle black shadow */
   transform: translateY(-2px);
 }
 
 .admin-form button:disabled,
 .admin-button:disabled {
   background-image: none;
-  background-color: #555;
+  background-color: #adb5bd; /* Greyer disabled background */
+  color: #6c757d; /* Greyer disabled text */
   cursor: not-allowed;
   opacity: 0.7;
   box-shadow: none;
   transform: none;
+  border: none; /* Remove border for disabled state */
+}
+
+/* Style for Cancel/Secondary buttons */
+.admin-button.cancel-button {
+  background-image: none;
+  background-color: var(--admin-secondary-button-bg);
+  color: var(--admin-secondary-button-text-color);
+  border: 1px solid var(--admin-secondary-button-border-color);
+}
+
+.admin-button.cancel-button:hover {
+  background-color: var(--admin-secondary-button-hover-bg);
+  color: var(--admin-secondary-button-hover-text-color);
+  border-color: var(--admin-secondary-button-hover-border-color);
+  /* Keep hover shadow and transform consistent */
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+/* Form Notes */
+.form-note {
+  font-size: 0.9em;
+  color: var(--admin-text-muted);
+  margin-top: 1rem;
+  margin-bottom: 1rem;
 }
 
 /* === Lists === */
@@ -212,7 +270,7 @@ h2 {
 }
 
 .admin-list-item {
-  background-color: rgba(26, 26, 26, 0.6);
+  background-color: white; /* White list item background */
   border: 1px solid var(--admin-border-color);
   border-radius: 4px;
   padding: 1rem 1.5rem;
@@ -224,7 +282,7 @@ h2 {
 }
 
 .admin-list-item:hover {
-    background-color: rgba(40, 40, 40, 0.8);
+    background-color: var(--admin-secondary-color); /* Lighter grey on hover */
 }
 
 .admin-list-item span {
@@ -244,78 +302,123 @@ h2 {
 }
 
 .admin-list-item .edit-button {
-    background-color: var(--admin-secondary-color);
+    background-color: var(--admin-primary-color); /* Blue edit button */
+    color: var(--admin-button-text-color);
 }
+.admin-list-item .edit-button:hover {
+    background-color: var(--admin-button-hover-bg);
+    color: var(--admin-button-hover-text-color);
+    border: 1px solid var(--admin-button-hover-border-color);
+    box-shadow: 0 0 4px rgba(0, 0, 0, 0.1); /* Smaller shadow for list buttons */
+    transform: translateY(-1px);
+}
+
 .admin-list-item .delete-button {
-    background-color: #b02a37;
+    background-color: var(--admin-danger-color); /* Red delete button */
+    color: white;
+}
+.admin-list-item .delete-button:hover {
+    background-color: var(--admin-danger-hover-bg);
+    color: white;
+    border: 1px solid var(--admin-danger-hover-bg);
+    box-shadow: 0 0 4px rgba(0, 0, 0, 0.1);
+    transform: translateY(-1px);
 }
 
 /* === Utility === */
 .admin-error {
-    color: #ff4d4d;
-    background-color: rgba(255, 77, 77, 0.1);
-    border: 1px solid #ff4d4d;
-    padding: 0.8rem;
-    border-radius: 4px;
-    margin-bottom: 1rem;
+  color: var(--admin-danger-color); /* Use danger color for errors */
+  background-color: #f8d7da; /* Light red background */
+  border: 1px solid #f5c6cb; /* Reddish border */
+  padding: 0.75rem 1.25rem;
+  margin-bottom: 1rem;
+  border-radius: .25rem;
 }
 
 .admin-loading {
-    font-style: italic;
-    color: #ccc;
+  color: var(--admin-text-muted); /* Muted text for loading */
+  font-style: italic;
+  text-align: center;
+  padding: 1rem;
 }
 
 /* Table Scrolling - REMOVED for full page scroll */
 .admin-table-container {
-  /* max-height: 60vh; */ /* REMOVED */
-  /* overflow-y: auto; */ /* REMOVED */
-  margin-top: 1.5rem;
+  overflow-x: auto; /* Allow horizontal scroll on small screens */
+  background-color: white; /* White background for table container */
   border: 1px solid var(--admin-border-color);
-  border-radius: 6px;
-  background-color: rgba(26, 26, 26, 0.7); /* Match table background */
+  border-radius: 8px;
+  margin-top: 2rem;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
 }
 
-/* Remove margin-top from table itself when inside the container */
-.admin-table-container .admin-table {
-  margin-top: 0;
-  border: none; /* Border is handled by container */
-  border-radius: 0; /* Border radius is handled by container */
-  overflow: initial; /* Let container handle overflow */
+.admin-table-container .admin-table { /* Target direct child table */
+  width: 100%;
+  border-collapse: collapse;
+  color: var(--admin-text-color); /* Dark text */
 }
 
 .admin-table thead th {
-    position: sticky;
-    top: 0;
-    z-index: 1;
-    background-color: rgba(40, 40, 40, 0.95); /* Ensure header background is solid */
+  background-color: #f8f9fa; /* Light grey header */
+  border-bottom: 2px solid var(--admin-border-color);
+  padding: 0.75rem 1rem;
+  text-align: left;
+  font-weight: 600; /* Bolder header text */
+  color: var(--admin-text-dark-grey); /* Dark grey header text */
 }
 
-/* Ensure the container doesn't add extra borders if table has one */
 .admin-table-container > .admin-table {
-  border: none;
+  /* Remove conflicting styles if they exist */
 }
 
-/* Style the actions cell specifically */
 .admin-table td.actions-cell {
-  text-align: right; 
+  /* Styles for cell containing action buttons */
+  text-align: right;
 }
 
 .admin-table th,
 .admin-table td {
-  padding: 0.9rem 1.8rem; /* Increased horizontal padding */
-  text-align: left;
-  border-bottom: 1px solid var(--admin-border-color);
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--admin-border-color); /* Light border between rows */
+  vertical-align: middle;
 }
 
 .admin-table td .action-buttons {
   display: flex;
   gap: 0.5rem;
   justify-content: flex-end; /* Align buttons to the right */
-  margin-left: 1rem; /* Add margin to push buttons away from previous column */
 }
 
 .admin-table td .action-buttons button {
-  /* ... existing code ... */
+  /* Use styles similar to list buttons */
+  padding: 0.4rem 0.8rem;
+  font-size: 0.9rem;
+  background-image: none;
+  border: none;
+  color: white;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+.admin-table td .action-buttons .edit-button {
+   background-color: var(--admin-primary-color);
+}
+.admin-table td .action-buttons .delete-button {
+   background-color: var(--admin-danger-color);
+}
+.admin-table td .action-buttons .edit-button:hover {
+   background-color: var(--admin-button-hover-bg); /* Use variable */
+   color: var(--admin-button-hover-text-color);
+   border: 1px solid var(--admin-button-hover-border-color);
+   box-shadow: 0 0 4px rgba(0, 0, 0, 0.1);
+   transform: translateY(-1px);
+}
+.admin-table td .action-buttons .delete-button:hover {
+   background-color: var(--admin-danger-hover-bg);
+   color: white;
+   border: 1px solid var(--admin-danger-hover-bg);
+   box-shadow: 0 0 4px rgba(0, 0, 0, 0.1);
+   transform: translateY(-1px);
 }
 
 /* Specific styles for Teacher Assignment Page */

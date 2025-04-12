@@ -170,7 +170,7 @@ const Login = () => {
         return () => clearTimeout(timer);
     }, []);
 
-    /* // Temporarily comment out Typed.js effect
+    // Temporarily comment out Typed.js effect
     useEffect(() => {
       const script = document.createElement('script');
       script.src = "https://unpkg.com/typed.js@2.1.0/dist/typed.umd.js";
@@ -207,7 +207,7 @@ const Login = () => {
         document.body.removeChild(script);
       };
     }, []);
-    */
+    
 
     return <>
       <div className="containerlogin">
