@@ -9,11 +9,11 @@
     align-items: center;
     padding: 10px 20px;
     background-color: #FFFFFF;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); /* Subtle shadow */
-    width: 100%; /* Use 100% instead of 100vw */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    width: 100%;
     height: 70px;
-    padding-left: 5%; /* Use percentage for padding */
-    padding-right: 5%; /* Use percentage for padding */
+    padding-left: 5%;
+    padding-right: 5%;
     position: fixed;
     top: 0;
     left: 0;
@@ -25,7 +25,7 @@
     display: flex;
     align-items: center;
     width: 100%;
-    justify-content: space-between; /* Distribute space */
+    justify-content: space-between;
 }
 
 
@@ -80,12 +80,12 @@ a{
 
 .indicator {
     position: absolute;
-    bottom: -2px; /* Position below the nav items */
-    height: 2px; /* Thickness of the indicator line */
-    background-color: #007AFF; /* Color of the indicator */
-    transition: left 0.3s ease, width 0.3s ease; /* Smooth transitions */
-    left: var(--indicator-left, 0); /* Use CSS variable for left position */
-    width: var(--indicator-width, 0); /* Use CSS variable for width */
+    bottom: -2px;
+    height: 2px;
+    background-color: #007AFF;
+    transition: left 0.3s ease, width 0.3s ease;
+    left: var(--indicator-left, 0);
+    width: var(--indicator-width, 0);
 }
 
 #profile{
@@ -102,23 +102,23 @@ a{
     justify-content: center;
     align-items: center;
     transition: all 0.3s ease;
-    background-color: transparent; /* Ensure transparent default background */
+    background-color: transparent;
 }
 
 .iconed button:hover{
-    background-color: #f0f0f0; /* Light grey background on hover */
+    background-color: #f0f0f0;
     cursor: pointer;
-    transform: scale(1.1); /* Slight scale effect */
+    transform: scale(1.1);
 }
 
 .iconed{
     display: flex;
     align-items: center;
-    gap: 25px; /* Adjusted gap */
+    gap: 25px;
 }
 
 .iconed img {
-    width: 20px; /* Consistent icon size */
+    width: 20px;
     height: 20px;
 }
 
@@ -126,22 +126,22 @@ a{
 .nav-left {
     display: flex;
     align-items: center;
-    gap: 40px; /* Adjust gap between logo and nav */
+    gap: 40px;
 }
 
 /* Styles for the right group (icons + profile) */
 .nav-right {
     display: flex;
     align-items: center;
-    gap: 20px; /* Adjust gap if login button is added */
+    gap: 20px;
 }
 
 /* Specific styles for the profile button/icon */
 #profile-icon {
-    width: 35px; /* Slightly larger profile icon */
+    width: 35px;
     height: 35px;
     border-radius: 50%;
-    border: 1px solid #ddd; /* Optional border */
+    border: 1px solid #ddd;
 }
 
 .profile-button {
@@ -151,14 +151,14 @@ a{
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 50%; /* Make the button circular */
-    width: 40px; /* Button size slightly larger than icon */
+    border-radius: 50%;
+    width: 40px;
     height: 40px;
     transition: background-color 0.3s ease;
 }
 
 .profile-button:hover {
-    background-color: #f0f0f0; /* Same hover as other icons */
+    background-color: #f0f0f0;
     cursor: pointer;
 }
 
@@ -170,7 +170,7 @@ a{
 
 /* Styles for the nav container itself */
 .nav {
-    position: relative; /* Needed for absolute positioning of indicator */
+    position: relative;
 }
 
 #navlist{
@@ -178,10 +178,10 @@ a{
 }
 
 .nav li a:hover {
-    color: #007AFF; /* Add hover effect to links */
+    color: #007AFF;
 }
 
 .nav li.active a {
-    color: #007AFF; /* Style for the active link */
+    color: #007AFF;
     font-weight: 600;
 }

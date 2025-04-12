@@ -14,12 +14,12 @@ function Appnavbar(){
     const [activeLink, setActiveLink] = useState("home");
             const navRef = useRef(null);
             const indicatorRef = useRef(null);
-          
+
             const handleLinkClick = (link, index) => {
               setActiveLink(link);
               updateIndicatorPosition(index);
             };
-          
+
             const updateIndicatorPosition = (index) => {
               if (navRef.current) {
                 const navItems = navRef.current.querySelectorAll("li");
@@ -35,26 +35,25 @@ function Appnavbar(){
                 }
               }
             };
-          
+
             useEffect(() => {
               const initialIndex = ["home", "Pending Requests", "Incoming Requests", "Time Swap"].indexOf(activeLink);
               updateIndicatorPosition(initialIndex);
-          
+
               const handleResize = () => {
                 const currentIndex = ["home", "Pending Requests", "Incoming Requests", "Time Swap"].indexOf(activeLink);
                 updateIndicatorPosition(currentIndex);
               };
-          
+
               window.addEventListener('resize', handleResize);
               return () => {
                 window.removeEventListener('resize', handleResize);
               };
             }, [activeLink]);
-          
+
             return (
               <div className="navbar">
                 <div className="container">
-                    {/* Group Logo and Nav Links */}
                     <div className="nav-left">
                         <button className="website">
                             <img src={logo} alt="scope logo" className="logo" />
@@ -78,7 +77,6 @@ function Appnavbar(){
                         </div>
                     </div>
 
-                    {/* Group Icons and Profile */}
                     <div className="nav-right">
                         <div className="iconed">
                             <button>
