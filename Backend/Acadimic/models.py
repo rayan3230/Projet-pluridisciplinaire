@@ -13,12 +13,11 @@ class Classroom(models.Model) :
         max_length=10,
         choices=[(tag.name, tag.value) for tag in SessionType]  # Use Enum values as choices
     )
-    capacity = models.IntegerField(default=0)
     has_projector = models.BooleanField(default=False)
     computers_count = models.IntegerField(default=0)
 
     def __str__(self):
-        return f"{self.name} ({self.get_type_display()})"
+        return f"{self.name} ({self.type})"
 
 # --- Academic Structure ---
 class Speciality(models.Model):
@@ -30,6 +29,10 @@ class Speciality(models.Model):
 class Promo(models.Model):
     name = models.CharField(max_length=100)
     speciality = models.ForeignKey(Speciality, on_delete=models.CASCADE, related_name='promos')
+    year_start = models.PositiveIntegerField()
+    year_end = models.PositiveIntegerField()
+    modules = models.ManyToManyField('VersionModule', related_name='promos', blank=True)
+    semester = models.ForeignKey('Semester', on_delete=models.SET_NULL, related_name='promos', null=True, blank=True)
 
     class Meta:
         unique_together = ('name', 'speciality') # Ensure promo name is unique within a speciality
@@ -51,32 +54,29 @@ class Section(models.Model):
 # --- Modules ---
 class BaseModule(models.Model):
     name = models.CharField(max_length=100, unique=True)
-    code = models.CharField(max_length=10, unique=True) # e.g., ANAL, PROG
-    coef = models.FloatField(default=1.0)
 
     def __str__(self):
-        return f"{self.name} ({self.code})"
+        return self.name
 
 class VersionModule(models.Model):
     base_module = models.ForeignKey(BaseModule, on_delete=models.CASCADE, related_name='versions')
-    version_name = models.CharField(max_length=50, blank=True, null=True) # e.g., "1", "Advanced"
+    version_name = models.CharField(max_length=50) # e.g., "2023-2024", "Spring Variant"
+    coefficient = models.FloatField(default=1.0)
     cours_hours = models.PositiveIntegerField(default=0)
     td_hours = models.PositiveIntegerField(default=0)
     tp_hours = models.PositiveIntegerField(default=0)
-    # Add other fields specific to a version if needed
+
+    class Meta:
+        unique_together = ('base_module', 'version_name')
 
     def __str__(self):
-        # Use version name if available, otherwise just base module name
-        version_suffix = f" - {self.version_name}" if self.version_name else ""
-        return f"{self.base_module.name}{version_suffix}"
+        return f"{self.base_module.name} ({self.version_name})"
 
 # --- Semesters & Exams ---
 class Semester(models.Model):
     name = models.CharField(max_length=50) # e.g., "Semester 1", "Autumn 2024"
     start_date = models.DateField()
     end_date = models.DateField()
-    # Potentially link to Promo if semesters are specific per promo/year
-    # promo = models.ForeignKey(Promo, on_delete=models.CASCADE, related_name='semesters', null=True, blank=True)
 
     def __str__(self):
         return self.name
@@ -87,9 +87,18 @@ class Exam(models.Model):
     module = models.ForeignKey(VersionModule, on_delete=models.CASCADE, related_name='exams')
     exam_date = models.DateTimeField()
     duration_minutes = models.PositiveIntegerField(default=120)
+    classroom = models.ForeignKey(Classroom, on_delete=models.SET_NULL, null=True, blank=True, related_name='exams')
 
     def __str__(self):
         return f"{self.name} - {self.module} ({self.semester})"
+
+class ExamPeriod(models.Model):
+    semester = models.ForeignKey(Semester, on_delete=models.CASCADE, related_name='exam_periods')
+    start_date = models.DateField()
+    end_date = models.DateField()
+
+    def __str__(self):
+        return f"Exam Period - {self.semester} ({self.start_date} to {self.end_date})"
 
 
 # --- Teachers & Assignments ---
@@ -97,7 +106,6 @@ class TeacherModuleAssignment(models.Model):
     teacher = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='module_assignments', limit_choices_to={'is_teacher': True})
     module = models.ForeignKey(VersionModule, on_delete=models.CASCADE, related_name='assignments')
     promo = models.ForeignKey(Promo, on_delete=models.CASCADE, related_name='teacher_assignments') # Assign teacher to module FOR a specific promo
-    # semester = models.ForeignKey(Semester, on_delete=models.CASCADE, related_name='teacher_assignments') # Optional: Assign per semester
 
     class Meta:
         unique_together = ('teacher', 'module', 'promo') # Ensure a teacher is assigned only once to a module per promo

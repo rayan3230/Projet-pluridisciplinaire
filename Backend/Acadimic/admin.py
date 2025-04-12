@@ -9,7 +9,7 @@ from .models import (
 
 @admin.register(Classroom)
 class ClassroomAdmin(admin.ModelAdmin):
-    list_display = ('name', 'type', 'capacity', 'has_projector', 'computers_count')
+    list_display = ('name', 'type', 'has_projector', 'computers_count')
     list_filter = ('type', 'has_projector')
     search_fields = ('name',)
 
@@ -20,9 +20,10 @@ class SpecialityAdmin(admin.ModelAdmin):
 
 @admin.register(Promo)
 class PromoAdmin(admin.ModelAdmin):
-    list_display = ('name', 'speciality')
-    list_filter = ('speciality',)
+    list_display = ('name', 'speciality', 'year_start', 'year_end', 'semester')
+    list_filter = ('speciality', 'year_start', 'semester')
     search_fields = ('name', 'speciality__name')
+    filter_horizontal = ('modules',)
 
 @admin.register(Section)
 class SectionAdmin(admin.ModelAdmin):
@@ -32,14 +33,17 @@ class SectionAdmin(admin.ModelAdmin):
 
 @admin.register(BaseModule)
 class BaseModuleAdmin(admin.ModelAdmin):
-    list_display = ('name', 'code', 'coef')
-    search_fields = ('name', 'code')
+    list_display = ('name',)
+    search_fields = ('name',)
 
 @admin.register(VersionModule)
 class VersionModuleAdmin(admin.ModelAdmin):
-    list_display = ('__str__', 'base_module', 'cours_hours', 'td_hours', 'tp_hours')
+    list_display = (
+        'base_module', 'version_name', 
+        'coefficient', 'cours_hours', 'td_hours', 'tp_hours'
+    )
     list_filter = ('base_module',)
-    search_fields = ('base_module__name', 'base_module__code', 'version_name')
+    search_fields = ('base_module__name', 'version_name')
 
 @admin.register(Semester)
 class SemesterAdmin(admin.ModelAdmin):

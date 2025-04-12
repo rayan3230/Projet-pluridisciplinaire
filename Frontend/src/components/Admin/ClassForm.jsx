@@ -7,10 +7,11 @@ import {
 
 function ClassForm({ onSubmitSuccess, initialData, onCancel }) {
   const [name, setName] = useState(''); 
-  const [classType, setClassType] = useState('Cours'); // Cours, TD, TP
-  const [capacity, setCapacity] = useState(30); // Added capacity field
+  // Use backend choices (COURS, TD, TP)
+  const [classType, setClassType] = useState('COURS'); 
+  // const [capacity, setCapacity] = useState(30); // Removed
   const [hasProjector, setHasProjector] = useState(false);
-  const [computersCount, setComputersCount] = useState(0); // Renamed from tpComputers
+  const [computersCount, setComputersCount] = useState(0);
   
   // Removed hardcoded sectionId - this likely needs to be passed as a prop
   // or selected within a parent component.
@@ -24,15 +25,16 @@ function ClassForm({ onSubmitSuccess, initialData, onCancel }) {
   useEffect(() => {
     if (initialData) {
       setName(initialData.name || '');
-      setClassType(initialData.type || 'Cours');
-      setCapacity(initialData.capacity || 0);
+      // Use backend value for type
+      setClassType(initialData.type || 'COURS'); 
+      // setCapacity(initialData.capacity || 0); // Removed
       setHasProjector(initialData.has_projector || false);
       setComputersCount(initialData.computers_count || 0);
     } else {
       // Reset form for adding
       setName('');
-      setClassType('Cours');
-      setCapacity(30);
+      setClassType('COURS');
+      // setCapacity(30); // Removed
       setHasProjector(false);
       setComputersCount(0);
     }
@@ -45,10 +47,11 @@ function ClassForm({ onSubmitSuccess, initialData, onCancel }) {
 
     const payload = {
       name,
-      type: classType,
-      capacity: parseInt(capacity, 10) || 0,
+      type: classType, // Sends COURS, TD, or TP
+      // capacity: parseInt(capacity, 10) || 0, // Removed
       has_projector: hasProjector,
-      computers_count: parseInt(computersCount, 10) || 0
+      // Conditionally send computers_count or let backend handle it
+      computers_count: classType === 'TP' ? (parseInt(computersCount, 10) || 0) : 0 
     };
 
     try {
@@ -103,28 +106,22 @@ function ClassForm({ onSubmitSuccess, initialData, onCancel }) {
           <label htmlFor="classType">Type:</label>
           <select
             id="classType"
-            value={classType}
+            value={classType} // Value is now COURS, TD, TP
             onChange={(e) => setClassType(e.target.value)}
             required
             disabled={isSubmitting}
           >
-            <option value="Cours">Cours</option>
+            {/* Use backend choices as value */}
+            <option value="COURS">Cours</option>
             <option value="TD">TD</option>
             <option value="TP">TP</option>
           </select>
         </div>
-        <div className="form-group form-group-half">
+        {/* Remove Capacity Input */}
+        {/* <div className="form-group form-group-half">
            <label htmlFor="capacity">Capacity:</label>
-            <input
-              type="number"
-              id="capacity"
-              value={capacity}
-              onChange={(e) => setCapacity(e.target.value)}
-              min="0"
-              required
-              disabled={isSubmitting}
-            />
-        </div>
+           <input ... />
+        </div> */}
       </div>
 
        <div className="form-row">
@@ -138,18 +135,20 @@ function ClassForm({ onSubmitSuccess, initialData, onCancel }) {
             />
             <label htmlFor="hasProjector">Has Projector?</label>
         </div>
+         {/* Conditionally show Computers Count */}
+         {classType === 'TP' && (
          <div className="form-group form-group-half">
-           <label htmlFor="computersCount">Computers Count:</label>
+             <label htmlFor="computersCount">Computers Count (for TP):</label>
             <input
               type="number"
               id="computersCount"
               value={computersCount}
               onChange={(e) => setComputersCount(e.target.value)}
               min="0"
-              required
               disabled={isSubmitting}
             />
         </div>
+         )}
       </div>
 
       {error && <p className="admin-error">{error}</p>}

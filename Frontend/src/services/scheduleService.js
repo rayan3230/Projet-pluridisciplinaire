@@ -2,11 +2,9 @@ import apiClient from '../config/axiosConfig';
 
 // --- Schedule Generation ---
 export const generateSchedule = async (generationParams) => {
-  // generationParams = { promo_id, semester_id, teacher_assignments (optional, TBD) }
+  // generationParams = { promo_id, semester_id, teacher_assignments (optional) }
   try {
-    // This needs a dedicated backend view, not just a standard ViewSet POST
-    const response = await apiClient.post('/api/generate-schedule/', generationParams); 
-    // Response might include the generated schedule entries or just a success/task ID
+    const response = await apiClient.post('/api/schedule/generate/', generationParams);
     return response.data;
   } catch (error) {
     console.error('Generate Schedule API error:', error.response || error.message);
@@ -14,11 +12,11 @@ export const generateSchedule = async (generationParams) => {
   }
 };
 
-// Function to get existing schedule entries (uses standard ViewSet endpoint)
+// Function to fetch schedule entries with filters
 export const getScheduleEntries = async (filters = {}) => {
-  // filters: { section_id, teacher_id, semester_id, promo_id, etc. }
+  // filters can include promo_id, semester_id, section_id, teacher_id etc.
   try {
-    const response = await apiClient.get('/api/schedule-entries/', { params: filters });
+    const response = await apiClient.get('/schedule-entries/', { params: filters });
     return response.data;
   } catch (error) {
     console.error('Get Schedule Entries API error:', error.response || error.message);
@@ -26,15 +24,36 @@ export const getScheduleEntries = async (filters = {}) => {
   }
 };
 
-// --- Schedule Viewing ---
+// Function to get schedule for a specific section
 export const getSectionSchedule = async (sectionId) => {
   try {
-    const response = await apiClient.get(`/schedule/section/${sectionId}/`);
-    return response.data; // Expected format: array of schedule events
+    const response = await apiClient.get(`/api/schedule/section/${sectionId}/`);
+    return response.data;
   } catch (error) {
-    console.error(`Get Section ${sectionId} Schedule API error:`, error.response || error.message);
+    console.error('Get Section Schedule API error:', error.response || error.message);
     throw error;
   }
 };
 
 // Note: Teacher schedule is likely in teacherService.js 
+
+// Function to trigger schedule generation
+export const generateClassSchedule = async (promoId, semesterId) => {
+  try {
+    // The path matches the one added in Acadimic/urls.py
+    const response = await apiClient.post('/generate-class-schedule/', { 
+      promo_id: promoId, 
+      semester_id: semesterId 
+    });
+    return response.data; // Should contain success message or error details
+  } catch (error) {
+    console.error('Generate Class Schedule API error:', error.response || error.message);
+    // Rethrow the error so the component can catch it and display messages
+    throw error; 
+  }
+};
+
+// Placeholder for generating exam schedule (if separate)
+export const generateExamSchedule = async (/* params */) => {
+  // ... implementation ...
+}; 

@@ -67,9 +67,6 @@ class User(AbstractUser):
     def __str__(self):
         return self.scope_email
 
-    # Add method to regenerate API key if needed (e.g., on password change? Optional)
-    # def regenerate_api_key(self):
-    #     self.api_key = uuid.uuid4()
-    #     self.save(update_fields=['api_key'])
 
-    
+
+

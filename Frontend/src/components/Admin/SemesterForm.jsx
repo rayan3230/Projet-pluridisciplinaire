@@ -1,20 +1,28 @@
-import React, { useState } from 'react';
-import { createSemester } from '../../services/semesterService';
+import React, { useState, useEffect } from 'react';
+import { createSemester, updateSemester } from '../../services/semesterService';
 
-function SemesterForm({ onSubmitSuccess }) {
+function SemesterForm({ semester, onSubmitSuccess, onCancel }) {
   const [name, setName] = useState('');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
+  useEffect(() => {
+    if (semester) {
+      setName(semester.name);
+      setStartDate(semester.start_date);
+      setEndDate(semester.end_date);
+    }
+  }, [semester]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
 
     if (!name || !startDate || !endDate) {
-        setError('Please fill in all fields.');
-        return;
+      setError('Please fill in all fields.');
+      return;
     }
     if (new Date(startDate) >= new Date(endDate)) {
       setError('End date must be after start date.');
@@ -24,14 +32,18 @@ function SemesterForm({ onSubmitSuccess }) {
     setIsLoading(true);
     try {
       const payload = { name, start_date: startDate, end_date: endDate };
-      await createSemester(payload);
+      if (semester) {
+        await updateSemester(semester.id, payload);
+      } else {
+        await createSemester(payload);
+      }
       setName('');
       setStartDate('');
       setEndDate('');
       if (onSubmitSuccess) onSubmitSuccess();
     } catch (err) {
-      console.error('Semester creation failed:', err);
-      const errorMsg = err.response?.data?.detail || 'Failed to create semester.';
+      console.error('Semester operation failed:', err);
+      const errorMsg = err.response?.data?.detail || `Failed to ${semester ? 'update' : 'create'} semester.`;
       setError(errorMsg);
     } finally {
       setIsLoading(false);
@@ -40,7 +52,9 @@ function SemesterForm({ onSubmitSuccess }) {
 
   return (
     <form onSubmit={handleSubmit} style={{ border: '1px solid #ccc', padding: '1rem', marginTop: '1rem', borderRadius: '5px', backgroundColor: '#f9f9f9' }}>
-      <h2 style={{ marginBottom: '1rem', fontSize: '1.2em' }}>Create New Semester</h2>
+      <h2 style={{ marginBottom: '1rem', fontSize: '1.2em' }}>
+        {semester ? 'Edit Semester' : 'Create New Semester'}
+      </h2>
       
       <div style={{ marginBottom: '1rem' }}>
         <label htmlFor="semesterName" style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>Semester Name:</label>
@@ -85,20 +99,41 @@ function SemesterForm({ onSubmitSuccess }) {
 
       {error && <p style={{ color: 'red', marginBottom: '1rem' }}>{error}</p>}
       
-      <button 
-        type="submit" 
-        disabled={isLoading}
-        style={{
-          padding: '10px 15px', 
-          backgroundColor: isLoading ? '#ccc' : '#007bff', 
-          color: 'white', 
-          border: 'none', 
-          borderRadius: '3px', 
-          cursor: isLoading ? 'not-allowed' : 'pointer'
-        }}
-      >
-        {isLoading ? 'Creating...' : 'Create Semester'}
-      </button>
+      <div style={{ display: 'flex', gap: '1rem' }}>
+        <button 
+          type="submit" 
+          disabled={isLoading}
+          style={{
+            padding: '10px 15px', 
+            backgroundColor: isLoading ? '#ccc' : '#007bff', 
+            color: 'white', 
+            border: 'none', 
+            borderRadius: '3px', 
+            cursor: isLoading ? 'not-allowed' : 'pointer',
+            flex: 1
+          }}
+        >
+          {isLoading ? 'Saving...' : (semester ? 'Update Semester' : 'Create Semester')}
+        </button>
+        {onCancel && (
+          <button
+            type="button"
+            onClick={onCancel}
+            disabled={isLoading}
+            style={{
+              padding: '10px 15px',
+              backgroundColor: '#6c757d',
+              color: 'white',
+              border: 'none',
+              borderRadius: '3px',
+              cursor: 'pointer',
+              flex: 1
+            }}
+          >
+            Cancel
+          </button>
+        )}
+      </div>
     </form>
   );
 }

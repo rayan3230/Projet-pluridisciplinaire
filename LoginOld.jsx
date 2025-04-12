@@ -1,83 +1,75 @@
 import './Login.css'
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom';
 import apiClient from '../../config/axiosConfig';
 import { useAuth } from '../../context/AuthContext';
-import logo from '../../assets/Group 1.png';
+import logo from '../../assets/circle.png';
 import topright from '../../assets/topright.png';
 import bottomleft from '../../assets/bottomleft.png';
 import bottomright from '../../assets/bottomright.png';
 import google from '../../assets/google.png';
-//import bottomright2 from './assets/Vector 2.png';
 
 const Login = () => {
     const navigate = useNavigate();
     const { login } = useAuth();
 
-    // Component Mode: 'login' or 'forceChangePassword'
-    const [mode, setMode] = useState('login');
-
-    // State for login form
-    const [loginFormData, setLoginFormData] = useState({
-        scope_email: '',
-        password: '' // This will hold the temporary password initially
+    const [formData, setFormData] = useState({
+        email: '',
+        password: ''
     });
 
-    // State for force change password form
-    const [tempPassword, setTempPassword] = useState(''); // To store the successful temp password
+    const [mode, setMode] = useState('login');
+
+    const [tempPassword, setTempPassword] = useState('');
     const [newPassword, setNewPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
 
-    // General UI state
     const [message, setMessage] = useState('');
-    const [error, setError] = useState(''); // Specific error state
+    const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
 
-    // State to store user data after initial successful login
     const [initialUserData, setInitialUserData] = useState(null);
 
-    // State for password visibility
-    const [showPassword, setShowPassword] = useState(false);
     const [showNewPassword, setShowNewPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-    // --- LOGIN FORM HANDLER ---
+    const [showWelcome, setShowWelcome] = useState(true);
+    const [showTempHeader, setShowTempHeader] = useState(true);
+
     const handleLoginSubmit = async (event) => {
       event.preventDefault();
       setIsLoading(true);
       setMessage('');
       setError('');
-      setInitialUserData(null); // Clear previous user data
+      setInitialUserData(null);
       
+      const loginPayload = {
+          scope_email: formData.email,
+          password: formData.password    
+      };
+
       try {
-          console.log('Attempting login with:', loginFormData);
-          const response = await apiClient.post('/auth/login/', loginFormData);
+          console.log('Attempting login with:', loginPayload);
+          const response = await apiClient.post('/users/auth/login/', loginPayload);
           
           console.log('Login response:', response.data);
           const userData = response.data.user;
 
-          // Call context login - primarily useful if not changing password immediately
           login(userData);
           
           if (userData?.needs_password_change) {
-              // --- Needs Password Change ---
               setMessage('Login successful! Please set your new password.');
-              // Store the temporary password that worked
-              setTempPassword(loginFormData.password);
-              // Store the received user data before changing mode
+              setTempPassword(formData.password);
               setInitialUserData(userData);
-              // Switch mode to show password change fields
               setMode('forceChangePassword');
           } else {
-              // --- Login OK, No Change Needed ---
               setMessage('Login successful!');
-              // Navigate based on role (context now has full user data)
               if (userData?.is_admin) {
                   navigate('/admin/dashboard', { replace: true });
               } else if (userData?.is_teacher) {
                   navigate('/teacher/dashboard', { replace: true });
               } else {
-                  navigate('/', { replace: true }); // Fallback
+                  navigate('/', { replace: true }); 
               }
           }
           
@@ -88,14 +80,13 @@ const Login = () => {
               status: err.response?.status
           });
           const errorDetail = err.response?.data?.detail || err.response?.data?.message || 'Failed to sign in. Please check your credentials.';
-          setError(errorDetail); // Use setError state
-          setMessage(''); // Clear general message
+          setError(errorDetail);
+          setMessage('');
       } finally {
           setIsLoading(false);
       }
     };
   
-    // --- CHANGE PASSWORD FORM HANDLER ---
     const handleChangePasswordSubmit = async (event) => {
         event.preventDefault();
         setIsLoading(true);
@@ -114,37 +105,31 @@ const Login = () => {
             return;
         }
 
-        // Check if we have the initial user data needed
         if (!initialUserData) {
             setError('User data lost. Please try logging in again.');
-            setMode('login'); // Go back to login mode
+            setMode('login');
             setIsLoading(false);
             return;
         }
 
         try {
             const payload = {
-                // Use the initial user data email
-                scope_email: initialUserData.scope_email, 
+                scope_email: initialUserData.scope_email,
                 current_password: tempPassword, 
                 new_password: newPassword
             };
-            await apiClient.post('/change-password/', payload, { baseURL: 'http://localhost:8000/'}); 
+            await apiClient.post('/users/change-password/', payload);
 
             setMessage('Password changed successfully! Redirecting...');
             console.log('Password change successful');
 
-            // Construct the updated user object using stored initial data
             const updatedUser = { 
-                ...initialUserData, // Spread initial data (id, name, roles etc.)
-                needsPasswordChange: false // Set the flag to false
+                ...initialUserData, 
+                needsPasswordChange: false 
             };
-            // Call the login function from context (obtained at top level)
             login(updatedUser); 
 
-            // Redirect after delay
             setTimeout(() => {
-                // Use updatedUser data directly for navigation check
                 if (updatedUser?.is_admin) {
                     navigate('/admin/dashboard', { replace: true });
                 } else if (updatedUser?.is_teacher) {
@@ -161,200 +146,192 @@ const Login = () => {
             } else {
                  setError(err.response?.data?.detail || 'Password change failed. Please try again.');
             }
-            // Keep user in password change mode on failure
         } finally {
             setIsLoading(false);
         }
     };
 
-    // --- Input Change Handlers ---
-    const handleLoginChange = (e) => {
-      setLoginFormData({
-          ...loginFormData,
+    const handleChange = (e) => {
+      setFormData({
+          ...formData,
           [e.target.name]: e.target.value
       });
     };
 
+    const handleSubmit = (event) => {
+        handleLoginSubmit(event);
+    };
+
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setShowTempHeader(false);
+        }, 1000);
+
+        return () => clearTimeout(timer);
+    }, []);
+
+    useEffect(() => {
+      const script = document.createElement('script');
+      script.src = "https://unpkg.com/typed.js@2.1.0/dist/typed.umd.js";
+      script.async = true;
+      
+      script.onload = () => {
+        const Typed = window.Typed;
+        if (Typed && !window.typedInstance) {
+          const staticText = "Welcome to ";
+          document.getElementById('loginheader').innerHTML = 
+            `${staticText}<span id="scope"></span>`;
+          
+          window.typedInstance = new Typed('#scope', {
+            strings: ['Scope', 'The Future', 'Ease'],
+            typeSpeed: 100,
+            backSpeed: 50,
+            loop: true,
+            showCursor: true,
+            cursorChar: '|',
+            smartBackspace: true,
+            startDelay: 300,
+            backDelay: 1500
+          });
+        }
+      };
+    
+      document.body.appendChild(script);
+    
+      return () => {
+        if (window.typedInstance) {
+          window.typedInstance.destroy();
+          delete window.typedInstance;
+        }
+        document.body.removeChild(script);
+      };
+    }, []);
+    
+
+
     return <>
-      <div className="container">
+      <div className="containerlogin">
+       <div id="circle1" className='circle'></div>
+       <div id="circle2" className='circle'></div>
        
-        <div id="left">
-          <div>
-              <img id="logo" src={logo} alt="Logo" />
-          </div>
-          
-              <img id="topright" src={topright} alt="" />
-              <img id="bottomleft" src={bottomleft} alt="" />
-              <img id="bottomright" src={bottomright} alt="" />
-        </div>
-        <div id="right">
-          <h1 id='welcome'>Welcome to Scope</h1>
-          <p id='description'>SCOPE allows professors to securely swap class slots with mutual approval, ensuring transparency, minimizing conflicts, and providing real-time updates.</p>
-          
-          <button type="button" id='google'>
-            <img src={google} alt="google logo" />
-            <span>Continue with google</span>
-          </button>
+       {showTempHeader && (
+           <h1 className="temp-header">Student Driven <span>Solution</span></h1>
+       )}
 
-          {/* Mode-dependent UI */}
-          {mode === 'login' && (
-            <>
-              <form onSubmit={handleLoginSubmit}>
-                <input 
-                  type="email" 
-                  name='scope_email' 
-                  placeholder="Enter Scope Email..." 
-                  value={loginFormData.scope_email} 
-                  onChange={handleLoginChange}
-                  required
-                  disabled={isLoading}
-                />
-                {/* Password input container */}
-                <div className='password-container' style={{ position: 'relative', marginBottom: '15px' }}> 
-                  <input 
-                    type="password" 
-                    name='password'
-                    placeholder="Enter Password..." 
-                    value={loginFormData.password}
-                    onChange={handleLoginChange}
-                    required
-                    disabled={isLoading}
-                    style={{ boxSizing: 'border-box' }} 
-                  />
-                </div>
-                {/* Forgot Password Link (moved outside password-container) */} 
-                <p>
-                    <a href="#" className="textbut">Forgot Password?</a>
-                </p>
-                
-                {error && <p style={{ color: 'red', textAlign: 'center', marginTop: '10px' }}>{error}</p>}
-                {message && <p style={{ color: 'green', textAlign: 'center', marginTop: '10px' }}>{message}</p>}
-                
-                <button type="submit" id='submit' disabled={isLoading}>
-                  {isLoading ? 'Logging in...' : 'Login'}
-                </button>
-                <p >
-                Can't sign in? Try <a href="#" className="textbut">resetting your password</a> or <a href="#" className="textbut">contact us</a> for assistance.
-                </p>
-              </form>
-            </>
-          )}
+       <span className="logologin" onClick={() => { setMode('login'); setMessage(""); }}>Scope</span>
+       
+       <div className="content">
+         <h1 id="loginheader">Welcome to <span>Scope</span></h1>
+         <p id="logindescription">SCOPE allows professors to securely swap class slots with mutual approval, ensuring transparency, minimizing conflicts, and providing real-time updates.</p>
+         
+         <div className="bottom">
+           {mode === 'login' && (
+             <div className="bottom">
+               <div className='left'>
+                 <form className='left' onSubmit={handleSubmit}>
+                   <input type="text" name="email" placeholder="Scope box email" value={formData.email} onChange={handleChange} className='textfield' required />
+                   <input type="password" name="password" placeholder="Password" value={formData.password} onChange={handleChange} className='textfield' required />
+                   <p className="login-hint">Please use your assigned Scope email and password.</p>
+                   
+                   {error && <p className="error-message">{error}</p>}
+                   {message && <p className="success-message">{message}</p>}
+                   <button type="submit" disabled={isLoading} id='login'>
+                     {isLoading ? 'Logging in...' : 'Login'}
+                   </button>
+                 </form>
+               </div>
 
-          {mode === 'forceChangePassword' && (
-            <>
-              <h2>Set Your New Password</h2>
-              <p>Please choose a new password for your account ({loginFormData.scope_email}).</p>
-              <form onSubmit={handleChangePasswordSubmit}>
-                <div className='password-container' style={{ position: 'relative', marginBottom: '15px' }}>
-                    <label htmlFor="newPassword" style={{ display: 'block', marginBottom: '5px' }}>New Password:</label>
-                    <input
-                        type={showNewPassword ? 'text' : 'password'}
-                        id="newPassword"
-                        value={newPassword}
-                        onChange={(e) => setNewPassword(e.target.value)}
-                        required
-                        disabled={isLoading}
-                        style={{ paddingRight: '80px', boxSizing: 'border-box', width: '100%' }}
-                    />
-                    <div style={{ 
-                      position: 'absolute', 
-                      right: '10px', 
-                      top: 'calc(50% + 10px)', 
-                      transform: 'translateY(-50%)', 
-                      display: 'flex', 
-                      alignItems: 'center',
-                      gap: '5px',
-                      background: 'rgba(255, 255, 255, 0.9)',
-                      padding: '2px 8px',
-                      borderRadius: '4px',
-                      cursor: 'pointer'
-                    }}>
-                        <input 
-                            type="checkbox" 
-                            id="showNewPasswordCheck" 
-                            checked={showNewPassword} 
-                            onChange={() => setShowNewPassword(!showNewPassword)} 
-                            disabled={isLoading}
-                            style={{ 
-                              margin: 0,
-                              cursor: 'pointer',
-                              accentColor: '#4CAF50'
-                            }}
-                        />
-                        <label 
-                          htmlFor="showNewPasswordCheck" 
-                          style={{ 
-                            fontSize: '0.9em',
-                            color: '#666',
-                            cursor: 'pointer',
-                            userSelect: 'none'
-                          }}
-                        >
-                          Show
-                        </label>
-                    </div>
+               <h1 id='devider'>/</h1>
+
+               <div className="right">
+                 <button id='contact'>Contact Us</button>
+                 <button id='website'>Visit our website</button>
+               </div>
+             </div>
+           )}
+
+           {mode === 'forceChangePassword' && (
+             <div className="bottom">
+               <div className="left">
+                 <form className="left" onSubmit={handleChangePasswordSubmit}>
+                   <p id="resetheader" >
+                     Set a new password for your account
+                   </p>
+                   
+                   <div className="password-input-container">
+                     <input
+                       type={showNewPassword ? 'text' : 'password'}
+                       id="newPassword"
+                       placeholder="New Password"
+                       className='textfield'
+                       value={newPassword}
+                       onChange={(e) => setNewPassword(e.target.value)}
+                       required
+                       disabled={isLoading}
+                     />
+                     <button 
+                       type="button"
+                       onClick={() => setShowNewPassword(!showNewPassword)}
+                       className="password-toggle-btn"
+                     >
+                       {showNewPassword ? 'Hide' : 'Show'}
+                     </button>
+                   </div>
+                   
+                   <div className="password-input-container">
+                     <input
+                       type={showConfirmPassword ? 'text' : 'password'}
+                       id="confirmPassword"
+                       placeholder="Confirm New Password"
+                       className='textfield'
+                       value={confirmPassword}
+                       onChange={(e) => setConfirmPassword(e.target.value)}
+                       required
+                       disabled={isLoading}
+                     />
+                     <button 
+                       type="button"
+                       onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                       className="password-toggle-btn"
+                     >
+                       {showConfirmPassword ? 'Hide' : 'Show'}
+                     </button>
+                   </div>
+                   
+                   <p className="password-hint">
+                     Password must be at least 8 characters long
+                   </p>
+
+                   {error && <p className="error-message">{error}</p>}
+                   {message && <p className="success-message">{message}</p>}
+                   
+                   <button type="submit" id='login' disabled={isLoading}> 
+                     {isLoading ? 'Saving...' : 'Set New Password'}
+                   </button>
+                 </form>
+               </div>
+               
+               <h1 id='devider'>/</h1>
+               
+               <div className="rightreset">
+                 <div>
+                   <h3 className="reset-info-title">Why Change Your Password?</h3>
+                   <p className="reset-info-text">
+                     For security reasons, you need to set a new password on your first login. 
+                     Choose a strong password that you haven't used on other sites.
+                   </p>
+                   <p className="reset-info-text">
+                     If you need any assistance, please contact the system administrator.
+                   </p>
                  </div>
-                 <div className='password-container' style={{ position: 'relative', marginBottom: '15px' }}>
-                    <label htmlFor="confirmPassword" style={{ display: 'block', marginBottom: '5px' }}>Confirm New Password:</label>
-                    <input
-                        type={showConfirmPassword ? 'text' : 'password'}
-                        id="confirmPassword"
-                        value={confirmPassword}
-                        onChange={(e) => setConfirmPassword(e.target.value)}
-                        required
-                        disabled={isLoading}
-                        style={{ paddingRight: '80px', boxSizing: 'border-box', width: '100%' }}
-                    />
-                    <div style={{ 
-                      position: 'absolute', 
-                      right: '10px', 
-                      top: 'calc(50% + 10px)', 
-                      transform: 'translateY(-50%)', 
-                      display: 'flex', 
-                      alignItems: 'center',
-                      gap: '5px',
-                      background: 'rgba(255, 255, 255, 0.9)',
-                      padding: '2px 8px',
-                      borderRadius: '4px',
-                      cursor: 'pointer'
-                    }}>
-                        <input 
-                            type="checkbox" 
-                            id="showConfirmPasswordCheck" 
-                            checked={showConfirmPassword} 
-                            onChange={() => setShowConfirmPassword(!showConfirmPassword)} 
-                            disabled={isLoading}
-                            style={{ 
-                              margin: 0,
-                              cursor: 'pointer',
-                              accentColor: '#4CAF50'
-                            }}
-                        />
-                        <label 
-                          htmlFor="showConfirmPasswordCheck" 
-                          style={{ 
-                            fontSize: '0.9em',
-                            color: '#666',
-                            cursor: 'pointer',
-                            userSelect: 'none'
-                          }}
-                        >
-                          Show
-                        </label>
-                    </div>
-                 </div>
-                 
-                {error && <p style={{ color: 'red', textAlign: 'center', marginTop: '10px' }}>{error}</p>}
-                {message && <p style={{ color: 'green', textAlign: 'center', marginTop: '10px' }}>{message}</p>}
-                
-                <button type="submit" id='submit-new-password' disabled={isLoading}>
-                    {isLoading ? 'Saving...' : 'Set New Password'}
-                </button>
-              </form>
-            </>
-          )}
+               </div>
+             </div>
+           )}
+         </div>
+         <a href="" id='resetpass'>Reset Password</a>
+       </div>
 
-        </div>
+       <span className="rights">© 2025 Scope. All Rights Reserved.</span>
       </div>
       </>
 }

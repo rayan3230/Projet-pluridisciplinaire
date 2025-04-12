@@ -1,0 +1,114 @@
+.semester-list-container {
+  background-color: #1e1e1e;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.semester-list-container h2 {
+  margin-top: 0;
+  color: #e0e0e0;
+  font-size: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.semester-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.semester-item {
+  padding: 1rem;
+  border-bottom: 1px solid #333;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: background-color 0.2s;
+}
+
+.semester-item:last-child {
+  border-bottom: none;
+}
+
+.semester-item:hover {
+  background-color: #252525;
+}
+
+.semester-item.selected {
+  background-color: rgba(0, 179, 255, 0.15);
+  border-left: 3px solid #00b3ff;
+}
+
+.semester-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.semester-name {
+  font-weight: 500;
+  color: #e0e0e0;
+  font-size: 1.1rem;
+}
+
+.semester-dates {
+  color: #9e9e9e;
+  font-size: 0.9rem;
+}
+
+.no-data {
+  text-align: center;
+  color: #9e9e9e;
+  font-style: italic;
+  padding: 1rem 0;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.edit-button {
+  background-color: #ffab00;
+  color: #121212;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.edit-button:hover {
+  background-color: #e09600;
+}
+
+.delete-button {
+  background-color: #ff3d00;
+  color: #e0e0e0;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.delete-button:hover {
+  background-color: #dd3500;
+}
+
+@media (max-width: 768px) {
+  .semester-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  
+  .action-buttons {
+    width: 100%;
+    justify-content: flex-end;
+  }
+} 
