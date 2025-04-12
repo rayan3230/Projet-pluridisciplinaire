@@ -1,0 +1,82 @@
+/* Overall page container */
+.page-container {
+    /* Assuming Appnavbar has a fixed height, e.g., 70px */
+    padding-top: 70px; 
+}
+
+/* Main layout for the page */
+.incoming-requests-page {
+    display: flex;
+    background-color: #f8f9fa; /* Light grey background for the page */
+    min-height: calc(100vh - 70px); /* Full height minus navbar */
+}
+
+/* Filter Sidebar */
+.filter-sidebar {
+    padding: 20px;
+    background-color: #ffffff; /* White sidebar */
+    height: calc(100vh - 70px); /* Match page height */
+    overflow-y: auto; /* Scroll if filters exceed height */
+    position: sticky; /* Keep filters visible on scroll */
+    top: 70px; /* Position below navbar */
+    border-right: 1px solid #dee2e6;
+}
+
+/* Main Content Area */
+.requests-main-content {
+    flex-grow: 1; /* Take remaining width */
+    padding: 20px 30px;
+    overflow-y: auto; /* Scroll if requests exceed height */
+}
+
+/* Search Bar */
+.search-bar-container {
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: flex-end; /* Align search to the right */
+}
+
+.search-input-wrapper {
+    position: relative;
+    width: 100%;
+    max-width: 350px; /* Max width for search bar */
+}
+
+.search-input {
+    width: 100%;
+    padding: 8px 35px 8px 15px; /* Padding for text and icon */
+    border: 1px solid #ced4da;
+    border-radius: 6px;
+    font-size: 14px;
+    font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: #86b7fe;
+    box-shadow: 0 0 0 0.15rem rgba(0, 123, 255, .25);
+}
+
+.search-icon {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #6c757d;
+    pointer-events: none;
+}
+
+/* Requests List */
+.requests-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px; /* Consistent gap from request-card */
+}
+
+/* Placeholder for empty spaces */
+.request-placeholder {
+    background-color: #e9ecef; /* Lighter grey */
+    border-radius: 8px;
+    height: 80px; /* Example height, match request card */
+    opacity: 0.5;
+}
