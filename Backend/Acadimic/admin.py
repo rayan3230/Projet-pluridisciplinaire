@@ -14,15 +14,9 @@ class LocationAdmin(admin.ModelAdmin):
 
 @admin.register(Classroom)
 class ClassroomAdmin(admin.ModelAdmin):
-<<<<<<< Updated upstream
-    #list_display = ('name', 'type', 'has_projector', 'computers_count')
-    list_filter = ('type', 'has_projector')
-    search_fields = ('name',)
-=======
-    list_display = ('name', 'type', 'has_projector', 'location')
+    list_display = ('name', 'type', 'has_projector', 'computers_count', 'location')
     list_filter = ('location', 'type', 'has_projector')
     search_fields = ('name', 'location__name')
->>>>>>> Stashed changes
 
 @admin.register(Speciality)
 class SpecialityAdmin(admin.ModelAdmin):

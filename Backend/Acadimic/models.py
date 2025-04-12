@@ -1,28 +1,7 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.conf import settings # Import settings to reference the custom User model
-from django.utils.translation import gettext_lazy as _
 
-<<<<<<< Updated upstream
-class SessionType(models.TextChoices):
-    COURSE = 'COURS', _('Course')
-    TD = 'TD', _('Tutorial Session')
-    TP = 'TP', _('Practical Session')
-    EXAM = 'EXAM', _('Exam')
-
-class Classroom(models.Model):
-    name = models.CharField(max_length=50)
-    type = models.CharField(
-        max_length=10,
-        choices=SessionType.choices,
-        default=SessionType.COURSE
-    )
-    has_projector = models.BooleanField(default=False)
-    computers_count = models.IntegerField(default=0)
-
-    def __str__(self):
-        return f"{self.name} ({self.get_type_display()})"
-=======
 # <<< NEW MODEL >>>
 class Location(models.Model):
     name = models.CharField(max_length=100, unique=True, help_text="Name of the location (e.g., Building A, Science Faculty, Amphi B)")
@@ -48,6 +27,7 @@ class Classroom(models.Model) :
         default=SessionType.COURSE # Optional: Provide a default
     )
     has_projector = models.BooleanField(default=False)
+    computers_count = models.IntegerField(default=0) # Added back
     # Add association to Location
     location = models.ForeignKey(
         Location, 
@@ -57,13 +37,13 @@ class Classroom(models.Model) :
         related_name='classrooms', 
         help_text="Optional location where the classroom is situated."
     )
+    # Note: computers_count field is missing in this version, might need re-adding
 
     def __str__(self):
         return f"{self.name} ({self.get_type_display()})"
     
     class Meta:
         ordering = ['name']
->>>>>>> Stashed changes
 
 # --- Academic Structure ---
 class Speciality(models.Model):

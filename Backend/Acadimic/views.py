@@ -333,29 +333,17 @@ def generate_class_schedule_view(request):
             # Pre-categorize classrooms by type
             print("generate_class_schedule_view: Categorizing classrooms...")
             classrooms_by_type = {
-<<<<<<< Updated upstream
                 SessionType.COURSE.value: [c for c in all_classrooms if c.type == SessionType.COURSE.value],
                 SessionType.TD.value:    [c for c in all_classrooms if c.type == SessionType.TD.value],
                 SessionType.TP.value:    [c for c in all_classrooms if c.type == SessionType.TP.value],
-=======
-                SessionType.COURSE.name: [c for c in all_classrooms if c.type == SessionType.COURSE.value],
-                SessionType.TD.name: [c for c in all_classrooms if c.type == SessionType.TD.value],
-                SessionType.TP.name: [c for c in all_classrooms if c.type == SessionType.TP.value],
->>>>>>> Stashed changes
             }
             # Use .value for accessing the dictionary keys as well
             print(f"generate_class_schedule_view: COURS rooms: {[c.name for c in classrooms_by_type.get(SessionType.COURSE.value, [])]}")
             print(f"generate_class_schedule_view: TD rooms: {[c.name for c in classrooms_by_type.get(SessionType.TD.value, [])]}")
             print(f"generate_class_schedule_view: TP rooms: {[c.name for c in classrooms_by_type.get(SessionType.TP.value, [])]}")
             # Allow COURS/TD rooms to be used interchangeably if needed?
-<<<<<<< Updated upstream
             # Use .get with default empty list to avoid KeyError if no rooms of a type exist
             flexible_classrooms = classrooms_by_type.get(SessionType.COURSE.value, []) + classrooms_by_type.get(SessionType.TD.value, [])
-=======
-            # Note: The keys of classrooms_by_type are still .name ('COURSE', 'TD', 'TP')
-            # The lookups later in the code use .name, so this part is okay.
-            flexible_classrooms = classrooms_by_type[SessionType.COURSE.name] + classrooms_by_type[SessionType.TD.name]
->>>>>>> Stashed changes
             random.shuffle(flexible_classrooms)
             # Also use .get for TP rooms
             tp_classrooms = classrooms_by_type.get(SessionType.TP.value, [])
@@ -386,15 +374,9 @@ def generate_class_schedule_view(request):
                     
                     # Calculate slots needed based on hours and duration
                     slots_to_schedule = [
-<<<<<<< Updated upstream
                         (SessionType.COURSE.value, (module.cours_hours * 60 + SLOT_DURATION_MINUTES - 1) // SLOT_DURATION_MINUTES if module.cours_hours > 0 else 0),
                         (SessionType.TD.value,    (module.td_hours * 60 + SLOT_DURATION_MINUTES - 1) // SLOT_DURATION_MINUTES if module.td_hours > 0 else 0),
                         (SessionType.TP.value,    (module.tp_hours * 60 + SLOT_DURATION_MINUTES - 1) // SLOT_DURATION_MINUTES if module.tp_hours > 0 else 0),
-=======
-                        (SessionType.COURSE.name, (module.cours_hours * 60 + SLOT_DURATION_MINUTES - 1) // SLOT_DURATION_MINUTES),
-                        (SessionType.TD.name, (module.td_hours * 60 + SLOT_DURATION_MINUTES - 1) // SLOT_DURATION_MINUTES),
-                        (SessionType.TP.name, (module.tp_hours * 60 + SLOT_DURATION_MINUTES - 1) // SLOT_DURATION_MINUTES),
->>>>>>> Stashed changes
                     ]
 
                     print(f"  Module: {module} - Teacher: {teacher.full_name} - Needs: {slots_to_schedule}")
@@ -408,23 +390,10 @@ def generate_class_schedule_view(request):
                         slots_placed = 0
                         
                         # --- Select CORRECT classroom pool based on session type --- 
-<<<<<<< Updated upstream
                         # Use .get for safety
                         possible_classroom_pool = classrooms_by_type.get(session_type, [])
                         print(f"      Selected {session_type} classroom pool (size: {len(possible_classroom_pool)})")
                        
-=======
-                        if session_type == SessionType.TP.name:
-                            possible_classroom_pool = classrooms_by_type[SessionType.TP.name]
-                        elif session_type == SessionType.TD.name:
-                            possible_classroom_pool = classrooms_by_type[SessionType.TD.name]
-                        elif session_type == SessionType.COURSE.name:
-                            possible_classroom_pool = classrooms_by_type[SessionType.COURSE.name]
-                        else:
-                            # Should not happen with current SessionType enum
-                            possible_classroom_pool = [] 
-                        
->>>>>>> Stashed changes
                         # Shuffle the chosen pool for randomness within the correct type
                         random.shuffle(possible_classroom_pool)
                         
