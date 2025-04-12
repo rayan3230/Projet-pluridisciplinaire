@@ -53,6 +53,29 @@ class ExamViewSet(viewsets.ModelViewSet):
     queryset = Exam.objects.all()
     serializer_class = ExamSerializer
 
+    def get_queryset(self):
+        """Optionally filter exams by semester."""
+        try:
+            print("ExamViewSet: Fetching exams...")
+            queryset = Exam.objects.select_related(
+                'semester', 'module', 'module__base_module', 'classroom'
+            ).all()
+            
+            semester_id = self.request.query_params.get('semester_id')
+            print(f"ExamViewSet: Filtering by semester_id={semester_id}")
+            if semester_id:
+                queryset = queryset.filter(semester_id=semester_id)
+            
+            print(f"ExamViewSet: Found {queryset.count()} exams. Ordering...")
+            ordered_queryset = queryset.order_by('exam_date')
+            print("ExamViewSet: Returning queryset.")
+            return ordered_queryset
+        except Exception as e:
+            print(f"!!! ERROR in ExamViewSet.get_queryset: {str(e)}")
+            import traceback
+            traceback.print_exc() # Print the full traceback to console
+            return Exam.objects.none()  # Return empty queryset on error
+
 class ExamPeriodViewSet(viewsets.ModelViewSet):
     queryset = ExamPeriod.objects.all()
     serializer_class = ExamPeriodSerializer
@@ -116,131 +139,138 @@ SLOT_DURATION_MINUTES = 90 # Assuming 1.5 hour slots
 # --- Function-Based View for Schedule Generation ---
 
 @api_view(['POST'])
+@transaction.atomic # Ensure atomicity
 def generate_exam_schedule_view(request):
-    promo_id = request.data.get('promo_id')
-    if not promo_id:
-        return Response({'error': 'promo_id is required.'}, status=status.HTTP_400_BAD_REQUEST)
-
     try:
-        # --- Wrap EVERYTHING in a transaction --- 
-        with transaction.atomic(): 
-            promo = Promo.objects.select_related('semester').prefetch_related('modules').get(pk=promo_id)
-            semester = promo.semester
-            if not semester:
-                return Response({'error': 'The selected promo does not have an assigned semester.'}, status=status.HTTP_400_BAD_REQUEST)
+        print("--- generate_exam_schedule_view: START ---")
+        promo_id = request.data.get('promo_id')
+        print(f"generate_exam_schedule_view: Received promo_id={promo_id}")
+        if not promo_id:
+            return Response({'error': 'promo_id is required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # --- Wrap EVERYTHING in a transaction (already done by decorator) --- 
+        promo = Promo.objects.select_related('semester').prefetch_related('modules').get(pk=promo_id)
+        print(f"generate_exam_schedule_view: Found promo: {promo}")
+        semester = promo.semester
+        if not semester:
+            print("generate_exam_schedule_view: ERROR - Promo has no assigned semester.")
+            return Response({'error': 'The selected promo does not have an assigned semester.'}, status=status.HTTP_400_BAD_REQUEST)
+        print(f"generate_exam_schedule_view: Found semester: {semester}")
+        
+        modules = promo.modules.all()
+        if not modules:
+            print("generate_exam_schedule_view: ERROR - No modules assigned to promo.")
+            return Response({'error': 'No modules assigned to the selected promo.'}, status=status.HTTP_404_NOT_FOUND)
+        print(f"generate_exam_schedule_view: Found {modules.count()} modules.")
+
+        # --- Delete existing schedule first (within the transaction) --- 
+        print("generate_exam_schedule_view: Deleting existing exam periods and exams...")
+        deleted_periods, _ = ExamPeriod.objects.filter(semester=semester).delete()
+        deleted_exams, _ = Exam.objects.filter(semester=semester).delete()
+        print(f"generate_exam_schedule_view: Deleted {deleted_periods} periods, {deleted_exams} exams.")
+
+        # --- Fetch available classrooms --- 
+        available_classrooms = list(Classroom.objects.filter(type=SessionType.COURSE.name))
+        if not available_classrooms:
+             print("generate_exam_schedule_view: ERROR - No classrooms of type 'COURS' exist.")
+             raise IntegrityError("No classrooms of type 'COURS' exist in the system to schedule exams.")
+        print(f"generate_exam_schedule_view: Found {len(available_classrooms)} classrooms of type 'COURS'.")
+
+        period_start_date = semester.end_date + timedelta(days=7)
+        while period_start_date.weekday() == 4: # Skip Friday
+            period_start_date += timedelta(days=1)
+        print(f"generate_exam_schedule_view: Exam period start date: {period_start_date}")
+        
+        current_exam_date = period_start_date
+        created_exams = []
+        period_end_date = period_start_date
+        last_assigned_classroom_index = -1 # Track last used index
+
+        # --- Loop through modules to schedule --- 
+        print("generate_exam_schedule_view: Starting module loop...")
+        for module_index, module in enumerate(modules):
+            print(f"generate_exam_schedule_view: Processing module {module_index + 1}/{len(modules)}: {module}")
             
-            modules = promo.modules.all()
-            if not modules:
-                return Response({'error': 'No modules assigned to the selected promo.'}, status=status.HTTP_404_NOT_FOUND)
-
-            # --- Delete existing schedule first (within the transaction) --- 
-            ExamPeriod.objects.filter(semester=semester).delete()
-            Exam.objects.filter(semester=semester).delete()
-
-            # --- Fetch available classrooms --- 
-            available_classrooms = list(Classroom.objects.all())
-            if not available_classrooms:
-                 # If no classrooms exist at all, maybe raise error immediately
-                 raise IntegrityError("No classrooms exist in the system to schedule exams.")
-
-            period_start_date = semester.end_date + timedelta(days=7)
-            # Adjust start date if Friday
-            while period_start_date.weekday() == 4:
-                period_start_date += timedelta(days=1)
+            # Ensure current_exam_date is not a Friday 
+            while current_exam_date.weekday() == 4:
+                current_exam_date += timedelta(days=1)
             
-            current_exam_date = period_start_date
-            created_exams = []
-            period_end_date = period_start_date
-            last_assigned_classroom_index = -1 # Track last used index
+            duration = timedelta(minutes=120) # Default duration
+            exam_start_datetime = datetime.combine(current_exam_date, time(12, 0)) # Start at noon
+            exam_end_datetime = exam_start_datetime + duration
+            print(f"generate_exam_schedule_view: Proposed exam time: {exam_start_datetime} - {exam_end_datetime}")
 
-            # --- Loop through modules to schedule --- 
-            for module in modules:
-                # Ensure current_exam_date is not a Friday 
-                while current_exam_date.weekday() == 4:
-                    current_exam_date += timedelta(days=1)
+            # --- Find an available classroom --- 
+            assigned_classroom = None
+            start_index = (last_assigned_classroom_index + 1) % len(available_classrooms)
+            
+            print(f"generate_exam_schedule_view: Searching for classroom starting from index {start_index}")
+            for i in range(len(available_classrooms)):
+                current_check_index = (start_index + i) % len(available_classrooms)
+                potential_classroom = available_classrooms[current_check_index]
+                print(f"generate_exam_schedule_view: Checking classroom {potential_classroom.name} (index {current_check_index})")
                 
-                # Calculate exam start and end times (assuming noon start, default duration)
-                duration = timedelta(minutes=120) # Default duration
-                exam_start_datetime = datetime.combine(current_exam_date, datetime.min.time()) + timedelta(hours=12) 
-                exam_end_datetime = exam_start_datetime + duration
-
-                # --- Find an available classroom --- 
-                assigned_classroom = None
-                found_classroom = False
-                # Try all classrooms, starting after the last one used
-                start_index = (last_assigned_classroom_index + 1) % len(available_classrooms)
-                checked_indices = 0
-                current_check_index = start_index
-
-                while checked_indices < len(available_classrooms):
-                    potential_classroom = available_classrooms[current_check_index]
-                    
-                    # Check for conflicts for this classroom at this time
-                    conflicting_exams = Exam.objects.filter(
-                        classroom=potential_classroom,
-                        # Check for overlap: (ExistingStart < NewEnd) and (ExistingEnd > NewStart)
-                        exam_date__lt=exam_end_datetime, 
-                        exam_date__gte=exam_start_datetime - duration # Check end time based on exam_date + duration
-                        # A more precise check would calculate the end time for each existing exam
-                        # This simpler check assumes fixed duration for now
-                        # NOTE: Assumes all exams have the same fixed duration for this conflict check.
-                    ).exists()
-                    
-                    if not conflicting_exams:
-                        assigned_classroom = potential_classroom
-                        last_assigned_classroom_index = current_check_index # Remember index used
-                        found_classroom = True
-                        break # Found a free room
-                    
-                    # Move to the next classroom index (wrap around)
-                    current_check_index = (current_check_index + 1) % len(available_classrooms)
-                    checked_indices += 1
-
-                # --- If no classroom found, abort --- 
-                if not found_classroom:
-                    raise IntegrityError(f"No available classroom found for module '{module.base_module.name} ({module.version_name})' on {current_exam_date.strftime('%Y-%m-%d')}.")
-
-                # --- Create Exam --- 
-                exam = Exam.objects.create(
-                    name=f"Exam - {module.base_module.name}",
-                    semester=semester, 
-                    module=module,
-                    exam_date=exam_start_datetime, # Use the calculated datetime
-                    duration_minutes=duration.seconds // 60, # Store duration used
-                    classroom=assigned_classroom 
-                )
-                created_exams.append(exam)
-                period_end_date = current_exam_date # Update potential end date
-
-                # Advance date for the next exam (exam day + 1 gap day = 2 days)
-                current_exam_date += timedelta(days=2)
-
-            # --- Create Exam Period (only if loop completes) --- 
-            exam_period = ExamPeriod.objects.create(
-                semester=semester,
-                start_date=period_start_date,
-                end_date=period_end_date
-            )
+                # Check for conflicts for this classroom at this time
+                # A simpler check: does any exam *start* in this classroom on this day?
+                # Assumes one exam per day per classroom for simplicity in generation.
+                conflicting_exams = Exam.objects.filter(
+                    classroom=potential_classroom,
+                    exam_date__date=current_exam_date
+                ).exists()
+                
+                if not conflicting_exams:
+                    assigned_classroom = potential_classroom
+                    last_assigned_classroom_index = current_check_index
+                    print(f"generate_exam_schedule_view: Found available classroom: {assigned_classroom.name}")
+                    break # Found a classroom
+                else:
+                    print(f"generate_exam_schedule_view: Classroom {potential_classroom.name} is busy on {current_exam_date}.")
             
-            # --- Serialize and Return Success Response (outside the inner loop) --- 
-            exam_period_serializer = ExamPeriodSerializer(exam_period)
-            exam_serializer = ExamSerializer(created_exams, many=True)
-    
-            return Response({
-                'message': 'Exam schedule generated successfully.',
-                'exam_period': exam_period_serializer.data,
-                'exams': exam_serializer.data
-            }, status=status.HTTP_201_CREATED)
+            if not assigned_classroom:
+                # If no classroom found after checking all, move to the next day and retry
+                print("generate_exam_schedule_view: No classroom available for this module today. Moving to next day.")
+                current_exam_date += timedelta(days=1)
+                continue # Retry scheduling this module on the new day
 
-    # --- Exception Handling --- 
+            # --- Create the Exam --- 
+            exam = Exam.objects.create(
+                name=f"Exam - {module.base_module.name}",
+                semester=semester,
+                module=module,
+                exam_date=exam_start_datetime,
+                duration_minutes=duration.total_seconds() // 60,
+                classroom=assigned_classroom
+            )
+            created_exams.append(exam)
+            print(f"generate_exam_schedule_view: Created exam: {exam}")
+            
+            # --- Update scheduling variables --- 
+            period_end_date = max(period_end_date, current_exam_date) 
+            current_exam_date += timedelta(days=1) # Move to the next day for the next module
+
+        # --- Create ExamPeriod --- 
+        print(f"generate_exam_schedule_view: Creating ExamPeriod from {period_start_date} to {period_end_date}")
+        ExamPeriod.objects.create(
+            semester=semester,
+            start_date=period_start_date,
+            end_date=period_end_date
+        )
+        print("generate_exam_schedule_view: Exam schedule generation successful.")
+        return Response({'message': 'Exam schedule generated successfully.'}, status=status.HTTP_201_CREATED)
+
     except Promo.DoesNotExist:
+        print("!!! ERROR in generate_exam_schedule_view: Promo not found.")
         return Response({'error': 'Promo not found.'}, status=status.HTTP_404_NOT_FOUND)
-    except IntegrityError as e: # Catch IntegrityError (e.g., from classroom conflict or explicit raise)
-        # Rollback already happened due to transaction.atomic()
-        return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+    except IntegrityError as e:
+        print(f"!!! ERROR in generate_exam_schedule_view (Integrity): {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return Response({'error': f'Database integrity error: {str(e)}'}, status=status.HTTP_400_BAD_REQUEST)
     except Exception as e:
-        # General error (could be database issue, etc.)
-        return Response({'error': f'An unexpected error occurred during schedule generation.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        print(f"!!! ERROR in generate_exam_schedule_view (General): {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 # --- Class Schedule Generation View --- 
 @api_view(['POST'])
@@ -288,15 +318,23 @@ def generate_class_schedule_view(request):
             booked_slots = {} # Key: (day_of_week, start_time), Value: {'teachers': set(), 'sections': set(), 'classrooms': set()}
 
             # Pre-categorize classrooms by type
+            print("generate_class_schedule_view: Categorizing classrooms...")
             classrooms_by_type = {
-                SessionType.COURS.name: [c for c in all_classrooms if c.type == SessionType.COURS.name],
-                SessionType.TD.name: [c for c in all_classrooms if c.type == SessionType.TD.name],
-                SessionType.TP.name: [c for c in all_classrooms if c.type == SessionType.TP.name],
+                SessionType.COURSE.value: [c for c in all_classrooms if c.type == SessionType.COURSE.value],
+                SessionType.TD.value:    [c for c in all_classrooms if c.type == SessionType.TD.value],
+                SessionType.TP.value:    [c for c in all_classrooms if c.type == SessionType.TP.value],
             }
+            # Use .value for accessing the dictionary keys as well
+            print(f"generate_class_schedule_view: COURS rooms: {[c.name for c in classrooms_by_type.get(SessionType.COURSE.value, [])]}")
+            print(f"generate_class_schedule_view: TD rooms: {[c.name for c in classrooms_by_type.get(SessionType.TD.value, [])]}")
+            print(f"generate_class_schedule_view: TP rooms: {[c.name for c in classrooms_by_type.get(SessionType.TP.value, [])]}")
             # Allow COURS/TD rooms to be used interchangeably if needed?
-            flexible_classrooms = classrooms_by_type[SessionType.COURS.name] + classrooms_by_type[SessionType.TD.name]
+            # Use .get with default empty list to avoid KeyError if no rooms of a type exist
+            flexible_classrooms = classrooms_by_type.get(SessionType.COURSE.value, []) + classrooms_by_type.get(SessionType.TD.value, [])
             random.shuffle(flexible_classrooms)
-            random.shuffle(classrooms_by_type[SessionType.TP.name])
+            # Also use .get for TP rooms
+            tp_classrooms = classrooms_by_type.get(SessionType.TP.value, [])
+            random.shuffle(tp_classrooms)
 
             # --- Create and Shuffle All Possible Slots --- 
             all_possible_slots = []
@@ -321,10 +359,11 @@ def generate_class_schedule_view(request):
                         unscheduled_sessions.append(f"Section '{section.name}', Module '{module}': No teacher assigned.")
                         continue 
                     
+                    # Calculate slots needed based on hours and duration
                     slots_to_schedule = [
-                        (SessionType.COURS.name, (module.cours_hours * 60 + SLOT_DURATION_MINUTES - 1) // SLOT_DURATION_MINUTES),
-                        (SessionType.TD.name, (module.td_hours * 60 + SLOT_DURATION_MINUTES - 1) // SLOT_DURATION_MINUTES),
-                        (SessionType.TP.name, (module.tp_hours * 60 + SLOT_DURATION_MINUTES - 1) // SLOT_DURATION_MINUTES),
+                        (SessionType.COURSE.value, (module.cours_hours * 60 + SLOT_DURATION_MINUTES - 1) // SLOT_DURATION_MINUTES if module.cours_hours > 0 else 0),
+                        (SessionType.TD.value,    (module.td_hours * 60 + SLOT_DURATION_MINUTES - 1) // SLOT_DURATION_MINUTES if module.td_hours > 0 else 0),
+                        (SessionType.TP.value,    (module.tp_hours * 60 + SLOT_DURATION_MINUTES - 1) // SLOT_DURATION_MINUTES if module.tp_hours > 0 else 0),
                     ]
 
                     print(f"  Module: {module} - Teacher: {teacher.full_name} - Needs: {slots_to_schedule}")
@@ -333,26 +372,22 @@ def generate_class_schedule_view(request):
                         if count <= 0:
                             continue
                         
+                        print(f"    Attempting to schedule {count} slots of type {session_type}...")
+                        
                         slots_placed = 0
                         
                         # --- Select CORRECT classroom pool based on session type --- 
-                        if session_type == SessionType.TP.name:
-                            possible_classroom_pool = classrooms_by_type[SessionType.TP.name]
-                        elif session_type == SessionType.TD.name:
-                            possible_classroom_pool = classrooms_by_type[SessionType.TD.name]
-                        elif session_type == SessionType.COURS.name:
-                            possible_classroom_pool = classrooms_by_type[SessionType.COURS.name]
-                        else:
-                            # Should not happen with current SessionType enum
-                            possible_classroom_pool = [] 
-                        
+                        # Use .get for safety
+                        possible_classroom_pool = classrooms_by_type.get(session_type, [])
+                        print(f"      Selected {session_type} classroom pool (size: {len(possible_classroom_pool)})")
+                       
                         # Shuffle the chosen pool for randomness within the correct type
                         random.shuffle(possible_classroom_pool)
                         
                         if not possible_classroom_pool:
                              unscheduled_sessions.append(f"Section '{section.name}', Module '{module}', Type '{session_type}': No suitable classrooms of type '{session_type}' exist.")
                              continue # Cannot schedule without correct room type
-
+                        
                         # --- Iterate through SHUFFLED slots --- 
                         for slot_info in all_possible_slots:
                             if slots_placed >= count: break # Got enough for this type
@@ -387,7 +422,7 @@ def generate_class_schedule_view(request):
                                 section=section, semester=semester, module=module,
                                 teacher=teacher, classroom=assigned_classroom,
                                 day_of_week=day, start_time=start_time, end_time=end_time,
-                                entry_type=session_type
+                                entry_type=session_type # Use the value ('COURS', 'TD', 'TP') directly
                             )
                             entry.save()
                             created_schedule_entries.append(entry)

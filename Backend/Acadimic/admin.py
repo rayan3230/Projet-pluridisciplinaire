@@ -9,7 +9,7 @@ from .models import (
 
 @admin.register(Classroom)
 class ClassroomAdmin(admin.ModelAdmin):
-    list_display = ('name', 'type', 'has_projector', 'computers_count')
+    #list_display = ('name', 'type', 'has_projector', 'computers_count')
     list_filter = ('type', 'has_projector')
     search_fields = ('name',)
 

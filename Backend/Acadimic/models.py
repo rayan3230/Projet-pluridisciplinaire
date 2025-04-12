@@ -1,23 +1,25 @@
 from django.db import models
-from enum import Enum 
+from django.utils.translation import gettext_lazy as _
 from django.conf import settings # Import settings to reference the custom User model
 
-class SessionType(Enum):
-    COURS = 'Cours'
-    TD = 'TD'
-    TP = 'TP'
+class SessionType(models.TextChoices):
+    COURSE = 'COURS', _('Course')
+    TD = 'TD', _('Tutorial Session')
+    TP = 'TP', _('Practical Session')
+    EXAM = 'EXAM', _('Exam')
 
-class Classroom(models.Model) :
+class Classroom(models.Model):
     name = models.CharField(max_length=50)
     type = models.CharField(
         max_length=10,
-        choices=[(tag.name, tag.value) for tag in SessionType]  # Use Enum values as choices
+        choices=SessionType.choices,
+        default=SessionType.COURSE
     )
     has_projector = models.BooleanField(default=False)
     computers_count = models.IntegerField(default=0)
 
     def __str__(self):
-        return f"{self.name} ({self.type})"
+        return f"{self.name} ({self.get_type_display()})"
 
 # --- Academic Structure ---
 class Speciality(models.Model):
@@ -126,7 +128,8 @@ class ScheduleEntry(models.Model):
     end_time = models.TimeField()
     entry_type = models.CharField(
         max_length=10,
-        choices=[(tag.name, tag.value) for tag in SessionType] # Cours, TD, TP
+        choices=SessionType.choices,
+        default=SessionType.COURSE
     )
     # Add a unique constraint to prevent conflicts
     class Meta:
