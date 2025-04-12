@@ -1,0 +1,147 @@
+/* pendingreq.css - Matching Incomingrequ.css */
+
+/* Incoming Request Card Styles */
+.request-card {
+    display: flex;
+    align-items: center; /* Align items vertically center */
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    padding: 16px 20px; /* Slightly more padding */
+    font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+    width: 100%; 
+    height: 80px; /* Added height to match placeholder */
+    max-width: 1100px; /* Increased max-width */
+    margin-bottom: 15px; 
+    gap: 20px; /* Adjust gap */
+    border-left: 4px solid #007AFF; /* Blue accent border like Incoming */
+}
+
+/* Requester Info */
+.requester-info {
+    display: flex;
+    align-items: flex-start; /* Align requester info to top */
+    min-width: 100px; /* Adjust width */
+}
+
+.requester-info.expanded-requester {
+    /* Specific styles if needed when expanded and no image */
+}
+
+.profile-image {
+    width: 50px;
+    height: 50px;
+    border-radius: 6px; /* Rounded corners */
+    object-fit: cover;
+    border: 1px solid #eee;
+}
+
+.requester-details {
+    display: flex;
+    flex-direction: column;
+}
+
+.teacher-name {
+    font-size: 15px;
+    font-weight: 600;
+    color: #007AFF; /* Blue name */
+}
+
+.teacher-id {
+    font-size: 13px;
+    color: #6c757d; /* Grey ID */
+}
+
+/* New Wrapper for Content Alignment */
+.request-content-wrapper {
+    display: flex;
+    align-items: center; /* Vertically center slots and icon */
+    flex-grow: 1; /* Take available space */
+    gap: 20px; /* Keep the gap consistent */
+}
+
+/* Expanded Slot Info Container */
+.slot-info-expanded {
+    display: flex;
+    flex-direction: column;
+    gap: 6px; /* Space between main slot and extra details */
+    flex-basis: 0; /* Allow equal shrinking/growing */
+    flex-grow: 1;  /* Allow equal growing */
+}
+
+/* Slot Label */
+.slot-label {
+    font-size: 11px; /* Smaller label */
+    font-weight: 600;
+    color: #adb5bd; /* Lighter grey */
+    text-transform: uppercase;
+}
+
+/* Slot Details */
+.slot-details {
+    font-size: 14px;
+    color: #333;
+    text-align: left; /* Align left */
+}
+
+/* Extra Details Section */
+.extra-details {
+    display: flex;
+    gap: 15px; /* Space between detail items */
+    font-size: 12px;
+    color: #6c757d;
+}
+
+.detail-item {
+    /* Specific styles per item if needed */
+}
+
+/* Swap Icon */
+.swap-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 15px; /* Adjust padding */
+}
+
+/* Action Buttons */
+.action-buttons {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: auto; /* Push buttons to the right */
+}
+
+.action-button {
+    background: none;
+    border: none;
+    padding: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    transition: background-color 0.2s ease, color 0.2s ease;
+    color: #555; /* Default icon color */
+}
+
+.action-button:hover {
+    background-color: #f0f0f0;
+    color: #000;
+}
+
+/* Specific Hovers for PendingReq Actions */
+.message-button:hover {
+    color: #0d6efd; /* Blue */
+    background-color: #cfe2ff;
+}
+
+.edit-button:hover {
+    color: #ffc107; /* Amber/Yellow */
+    background-color: #fff3cd;
+}
+
+.delete-button:hover {
+    color: #dc3545; /* Red */
+    background-color: #f8d7da;
+}

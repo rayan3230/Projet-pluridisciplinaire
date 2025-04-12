@@ -1,16 +1,16 @@
 .schedule-container {
     background: white;
-    border-radius: 16px;
-    padding: 24px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    margin: 24px;
+    border-radius: 12px;
+    padding: 15px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin: 15px;
 }
 
 .schedule-header {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    margin-bottom: 24px;
+    margin-bottom: 15px;
 }
 
 .schedule-header-info {
@@ -20,19 +20,19 @@
 
 .schedule-header-info h3 {
     color: #2d3748;
-    font-size: 1.5rem;
-    margin-bottom: 8px;
+    font-size: 1.3rem;
+    margin-bottom: 6px;
 }
 
 .schedule-header-info h4 {
     color: #4a5568;
-    font-size: 1.25rem;
-    margin-bottom: 16px;
+    font-size: 1.1rem;
+    margin-bottom: 10px;
 }
 
 .schedule-subheader {
     color: #718096;
-    font-size: 1rem;
+    font-size: 0.9rem;
 }
 
 .schedule-subheader p {
@@ -47,13 +47,13 @@
 }
 
 .time-slots {
-    min-width: 120px;
+    min-width: 90px;
     background: #f7fafc;
     border-right: 1px solid #e2e8f0;
 }
 
 .time-slot-header {
-    height: 50px;
+    height: 35px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -61,19 +61,20 @@
     border-bottom: 1px solid #e2e8f0;
     font-weight: 600;
     color: #4a5568;
+    font-size: 0.8rem;
 }
 
 .time-slot {
-    height: 100px;
+    height: 70px;
     display: flex;
     align-items: center;
     justify-content: center;
     border-bottom: 1px solid #e2e8f0;
-    padding: 8px;
+    padding: 5px;
 }
 
 .time-text {
-    font-size: 0.875rem;
+    font-size: 0.75rem;
     color: #4a5568;
     text-align: center;
 }
@@ -91,7 +92,7 @@
 }
 
 .day-header {
-    height: 50px;
+    height: 35px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -100,6 +101,7 @@
     font-weight: 600;
     color: #4a5568;
     position: relative;
+    font-size: 0.8rem;
 }
 
 .day-text {
@@ -134,10 +136,10 @@
 }
 
 .schedule-cell {
-    height: 100px;
+    height: 70px;
     border-bottom: 1px solid #e2e8f0;
     border-right: 1px solid #e2e8f0;
-    padding: 8px;
+    padding: 5px;
     transition: all 0.3s ease;
     cursor: pointer;
     position: relative;
@@ -171,9 +173,9 @@
     flex-direction: column;
     justify-content: space-between;
     background: white;
-    border-radius: 6px;
-    padding: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    border-radius: 4px;
+    padding: 5px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
     transition: all 0.3s ease;
 }
 
@@ -185,37 +187,37 @@
 .course-name {
     font-weight: 600;
     color: #2d3748;
-    font-size: 0.875rem;
-    margin-bottom: 4px;
+    font-size: 0.75rem;
+    margin-bottom: 2px;
 }
 
 .course-details {
     display: flex;
-    gap: 8px;
-    font-size: 0.75rem;
+    gap: 4px;
+    font-size: 0.65rem;
     color: #718096;
 }
 
 .course-type {
     background: #ebf8ff;
     color: #3182ce;
-    padding: 2px 6px;
-    border-radius: 4px;
+    padding: 1px 4px;
+    border-radius: 3px;
     font-weight: 500;
 }
 
 .course-room {
     background: #f0fff4;
     color: #48bb78;
-    padding: 2px 6px;
-    border-radius: 4px;
+    padding: 1px 4px;
+    border-radius: 3px;
     font-weight: 500;
 }
 
 .course-professor {
-    font-size: 0.75rem;
+    font-size: 0.65rem;
     color: #718096;
-    margin-top: 4px;
+    margin-top: 2px;
 }
 
 /* Responsive adjustments */
@@ -411,4 +413,86 @@
         opacity: 1;
         transform: translateY(0);
     }
+}
+
+/* TeacherSchedule.css - Updated Styles */
+
+.teacher-schedule-card {
+    background-color: #fff; /* White background like textfield */
+    border-radius: 8px; /* Consistent radius */
+    padding: 20px; /* Adjusted padding */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+    border: 1px solid #e0e0e0; /* Lighter border, similar to textfield */
+    font-family: 'Lato', sans-serif;
+    color: #212529;
+}
+
+.teacher-schedule-card .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 15px;
+    border-bottom: 1px solid #eee; /* Keep header separator */
+    padding-bottom: 10px;
+}
+
+.teacher-schedule-card .schedule-info {
+    flex-grow: 1;
+}
+
+.teacher-schedule-card .schedule-date {
+    font-size: 0.85em;
+    color: #6c757d; /* Grey text like description/placeholder */
+    margin-bottom: 5px;
+    font-family: 'Lato', sans-serif;
+}
+
+.teacher-schedule-card .schedule-title {
+    margin: 0;
+    font-size: 1.4em; /* Adjusted size */
+    font-weight: 600; /* Bolder like header */
+    font-family: 'Montserrat', sans-serif;
+    color: #212529;
+}
+
+/* Apply primary blue button style */
+.teacher-schedule-card .export-button {
+    padding: 8px 15px;
+    background-color: #007AFF; /* Blue background */
+    color: white; /* White text */
+    border: none; /* Explicitly set border to none */
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.9em;
+    font-family: 'Lato', sans-serif;
+    font-weight: 600;
+    transition: all 0.2s ease-out;
+    white-space: nowrap;
+    display: inline-flex; /* Align icon and text */
+    align-items: center;
+    gap: 6px; /* Space between icon and text */
+}
+
+.teacher-schedule-card .export-button:hover {
+    background-color: #0056b3; /* Darker blue on hover */
+    color: white; /* Keep text white */
+    transform: translateY(-1px);
+}
+
+/* Style for the icon within the button */
+.teacher-schedule-card .export-button svg {
+    color: white; /* Make icon white */
+    transition: color 0.2s ease-out;
+}
+
+/* Keep schedule content basic for now */
+.teacher-schedule-card .schedule-content {
+    min-height: 100px;
+    border: 1px dashed #ccc;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #999;
+    margin-top: 15px;
+    font-size: 0.9em;
 } 

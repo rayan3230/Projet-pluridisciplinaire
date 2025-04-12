@@ -1,220 +1,75 @@
 import React, { useState } from 'react';
-import pendingrequest from './pendingrequests.css';
+import AppNavbar from '../../../components/Appnavbar/AppNavbar.jsx';
+import Filter from '../../../components/Filter/Filter.jsx';
+import Pendingreq from '../../../components/Pendingreq/Pendingreq.jsx';
+import './pendingrequests.css';
 
-const PendingRequests = () => {
-  const [filters, setFilters] = useState({
-    node: false,
-    inPerson: false,
-    online: false,
-    timeSlots: Array(5).fill(false),
-    classTypes: {
-      cour: false,
-      td: false,
-      tp: false
-    }
-  });
+const SearchIcon = ({ className }) => (
+    <svg 
+        width="16" 
+        height="16" 
+        viewBox="0 0 24 24" 
+        fill="none" 
+        stroke="currentColor" 
+        strokeWidth="2" 
+        strokeLinecap="round" 
+        strokeLinejoin="round" 
+        className={className}
+    >
+        <circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+    </svg>
+);
 
-  const handleFilterChange = (filterName) => {
-    setFilters(prev => ({
-      ...prev,
-      [filterName]: !prev[filterName]
-    }));
-  };
+function PendingRequestsPage() {
+    const [sortBy, setSortBy] = useState('date-desc');
 
-  const handleTimeSlotChange = (index) => {
-    const newTimeSlots = [...filters.timeSlots];
-    newTimeSlots[index] = !newTimeSlots[index];
-    setFilters(prev => ({
-      ...prev,
-      timeSlots: newTimeSlots
-    }));
-  };
+    const handleSortChange = (event) => {
+        setSortBy(event.target.value);
+        console.log("Sort by:", event.target.value);
+    };
 
-  const handleClassTypeChange = (type) => {
-    setFilters(prev => ({
-      ...prev,
-      classTypes: {
-        ...prev.classTypes,
-        [type]: !prev.classTypes[type]
-      }
-    }));
-  };
+    const dummyRequests = [
+        { id: 1, teacherName: "Teacher A", teacherId: "DR.123", originalSlot: "Mon 10:00 - 11:30 | Algo", requestedSlot: "Wed 13:00 - 14:30 | Algo", sentDate: "01/04/2024", projector: true, computers: false, reqProjector: true, reqComputers: false },
+        { id: 2, teacherName: "Teacher B", teacherId: "DR.456", originalSlot: "Tue 14:00 - 15:30 | Web", requestedSlot: "Fri 08:00 - 09:30 | Web", sentDate: "02/04/2024", projector: false, computers: true, reqProjector: false, reqComputers: true },
+        { id: 3, teacherName: "Teacher C", teacherId: "DR.789", originalSlot: "Sun 08:00 - 09:30 | OS", requestedSlot: "Thu 11:20 - 12:50 | OS", sentDate: "03/04/2024", projector: true, computers: true, reqProjector: true, reqComputers: true },
+    ];
 
-  const resetFilters = () => {
-    setFilters({
-      node: false,
-      inPerson: false,
-      online: false,
-      timeSlots: Array(5).fill(false),
-      classTypes: {
-        cour: false,
-        td: false,
-        tp: false
-      }
-    });
-  };
-
-  const pendingRequests = [
-    {
-      id: 1,
-      teacher: "Teacher 3",
-      department: "DRAI",
-      currentSlot: "Sunday 8:00 - 9:30 | Course 145 T",
-      requestedSlot: "Monday 8:00 - 9:30 | Course 313 T",
-      status: "Pending"
-    },
-    {
-      id: 2,
-      teacher: "Teacher 3",
-      department: "DRAI",
-      currentSlot: "Sunday 8:00 - 9:30 | Course 145 T",
-      requestedSlot: "Monday 8:00 - 9:30 | Course 313 T",
-      status: "Pending"
-    },
-    {
-      id: 3,
-      teacher: "Teacher 3",
-      department: "DRAI",
-      currentSlot: "Sunday 8:00 - 9:30 | Course 145 T",
-      requestedSlot: "Monday 8:00 - 9:30 | Course 313 T",
-      status: "Pending"
-    },
-    {
-      id: 4,
-      teacher: "Teacher 3",
-      department: "DRAI",
-      currentSlot: "Sunday 8:00 - 9:30 | Course 145 T",
-      requestedSlot: "Monday 8:00 - 9:30 | Course 313 T",
-      status: "Pending"
-    }
-  ];
-
-  return (
-    <div className="pending-requests-container">
-      <div className="sidebar">
-        <h1>Scope</h1>
-        <nav>
-          <a href="#">Home</a>
-          <a href="#" className="active">Pending Requests</a>
-          <a href="#">Incoming Requests</a>
-          <a href="#">Time Swap</a>
-        </nav>
-      </div>
-
-      <div className="main-content">
-        <div className="filters-section">
-          <div className="filters-header">
-            <h2>Filters</h2>
-            <button onClick={resetFilters} className="reset-btn">Reset</button>
-          </div>
-
-          <div className="filter-group">
-            <label>
-              <input 
-                type="checkbox" 
-                checked={filters.node} 
-                onChange={() => handleFilterChange('node')} 
-              />
-              Node
-            </label>
-            <label>
-              <input 
-                type="checkbox" 
-                checked={filters.inPerson} 
-                onChange={() => handleFilterChange('inPerson')} 
-              />
-              In-Person
-            </label>
-            <label>
-              <input 
-                type="checkbox" 
-                checked={filters.online} 
-                onChange={() => handleFilterChange('online')} 
-              />
-              Online
-            </label>
-          </div>
-
-          <div className="filter-subsection">
-            <h3>Time Slot</h3>
-            {filters.timeSlots.map((checked, index) => (
-              <label key={index}>
-                <input 
-                  type="checkbox" 
-                  checked={checked} 
-                  onChange={() => handleTimeSlotChange(index)} 
-                />
-                8:00 - 9:30
-              </label>
-            ))}
-          </div>
-
-          <div className="filter-subsection">
-            <h3>Class type</h3>
-            <label>
-              <input 
-                type="checkbox" 
-                checked={filters.classTypes.cour} 
-                onChange={() => handleClassTypeChange('cour')} 
-              />
-              Cour
-            </label>
-            <label>
-              <input 
-                type="checkbox" 
-                checked={filters.classTypes.td} 
-                onChange={() => handleClassTypeChange('td')} 
-              />
-              TD
-            </label>
-            <label>
-              <input 
-                type="checkbox" 
-                checked={filters.classTypes.tp} 
-                onChange={() => handleClassTypeChange('tp')} 
-              />
-              TP
-            </label>
-          </div>
-
-          <div className="filter-subsection">
-            <h3>Location</h3>
-            <input 
-              type="text" 
-              placeholder="New Request → Search for request..." 
-              className="search-input"
-            />
-          </div>
-        </div>
-
-        <div className="requests-list">
-          {pendingRequests.map(request => (
-            <div key={request.id} className="request-card">
-              <div className="request-header">
-                <span className="teacher-name">{request.teacher}</span>
-                <span className="department">{request.department}</span>
-              </div>
-              <div className="time-slots">
-                <div className="time-slot current">
-                  {request.currentSlot}
+    return (
+        <div className="page-container">
+            <AppNavbar />
+            <div className="content-grid">
+                <div className="filter-column">
+                    <Filter />
                 </div>
-                <div className="time-slot requested">
-                  {request.requestedSlot}
+
+                <div className="main-column">
+                    <div className="main-column-header">
+                        <div className="sort-dropdown-container">
+                            <label htmlFor="sort-select" className="sort-label">Sort by:</label>
+                            <select id="sort-select" className="sort-select" value={sortBy} onChange={handleSortChange}>
+                                <option value="date-desc">Newest First</option>
+                                <option value="date-asc">Oldest First</option>
+                                <option value="teacher-asc">Teacher Name (A-Z)</option>
+                            </select>
+                        </div>
+                        <div className="search-bar-container">
+                            <input type="text" placeholder="Search for request..." className="search-input" />
+                            <SearchIcon className="search-icon" />
+                        </div>
+                    </div>
+
+                    <div className="requests-list-container">
+                        {dummyRequests.map(request => (
+                            <Pendingreq key={request.id} requestData={request} />
+                        ))}
+                        {dummyRequests.length === 0 && (
+                            <p className="no-requests-message">No pending requests found.</p>
+                        )}
+                    </div>
                 </div>
-              </div>
-              <div className="request-status">
-                {request.status}
-              </div>
-              <div className="request-actions">
-                <button className="btn approve">Approve</button>
-                <button className="btn reject">Reject</button>
-              </div>
             </div>
-          ))}
         </div>
-      </div>
-    </div>
-  );
-};
+    );
+}
 
-export default PendingRequests;
+export default PendingRequestsPage;

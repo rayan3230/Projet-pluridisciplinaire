@@ -8,7 +8,7 @@ const defaultScheduleData = {
     header: {
         university: "University of Science and Technology Houari Boumediene",
         department: "Vice-rectorate in charge of graduation, the continuing education et degrees",
-        scheduleInfo: "Schedules of 2nd year ING.INFO -- Section: B",
+        scheduleInfo: "",
         academicYear: "2023/2024",
         semester: "Semester 2",
     },

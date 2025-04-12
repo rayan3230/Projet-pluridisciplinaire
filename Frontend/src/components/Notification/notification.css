@@ -1,0 +1,226 @@
+/* notification.css */
+
+.notification-popup {
+    width: 380px; /* Adjust width as needed */
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+    border: 1px solid #eee;
+    font-family: 'Lato', sans-serif;
+    color: #333;
+    overflow: hidden; /* Hide overflowing content */
+    display: flex;
+    flex-direction: column;
+    /* Position fixed/absolute if it's a dropdown */
+    /* position: absolute; 
+       top: 60px; /* Example positioning below navbar */
+       /* right: 20px; */
+       /* z-index: 1000; */
+}
+
+.notification-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid #eee;
+}
+
+.notification-header h2 {
+    margin: 0;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1.3em;
+    font-weight: 600;
+    color: #212529;
+}
+
+.notification-tabs {
+    display: flex;
+    border-bottom: 1px solid #eee;
+    padding: 0 10px; /* Padding around tabs */
+}
+
+.tab-item {
+    padding: 12px 16px;
+    border: none;
+    background: none;
+    cursor: pointer;
+    font-family: 'Lato', sans-serif;
+    font-size: 0.95em;
+    color: #6c757d; /* Grey inactive tab */
+    position: relative;
+    border-bottom: 2px solid transparent; /* Placeholder for active indicator */
+    transition: color 0.2s ease, border-color 0.2s ease;
+}
+
+.tab-item:hover {
+    color: #007AFF;
+}
+
+.tab-item.active {
+    color: #212529; /* Dark active tab */
+    font-weight: 600;
+    border-bottom-color: #007AFF; /* Blue underline */
+}
+
+.notification-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    max-height: 400px; /* Limit height and allow scrolling */
+    overflow-y: auto;
+}
+
+/* Custom Scrollbar (optional) */
+.notification-list::-webkit-scrollbar {
+  width: 5px;
+}
+.notification-list::-webkit-scrollbar-track {
+  background: #f1f1f1; 
+}
+.notification-list::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 3px; 
+}
+.notification-list::-webkit-scrollbar-thumb:hover {
+  background: #aaa; 
+}
+
+.notification-item {
+    display: flex;
+    align-items: flex-start; /* Align items to top */
+    padding: 15px 20px;
+    border-bottom: 1px solid #f0f0f0; /* Lighter separator */
+    gap: 15px;
+}
+
+.notification-item.unread {
+    background-color: #f8f9fa; /* Slightly different background for unread */
+}
+
+.notification-item:last-child {
+    border-bottom: none;
+}
+
+.notification-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 600;
+    font-size: 1em;
+    flex-shrink: 0;
+}
+
+.notification-content {
+    flex-grow: 1;
+}
+
+.notification-text {
+    font-size: 0.95em;
+    color: #333;
+    margin-bottom: 5px;
+    line-height: 1.4;
+}
+
+.notification-text strong {
+    font-weight: 600;
+    color: #212529;
+}
+
+.notification-text .status-icon {
+    margin-left: 6px;
+    display: inline-flex; /* Align icon better */
+    vertical-align: middle;
+}
+
+.notification-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.8em;
+    color: #6c757d;
+    margin-bottom: 8px; /* Space before actions */
+}
+
+.notification-meta .timestamp::after {
+    content: '•'; /* Separator dot */
+    margin-left: 8px;
+    color: #adb5bd;
+}
+
+.notification-tag {
+    background-color: #eee;
+    color: #555;
+    padding: 3px 8px;
+    border-radius: 12px; /* Pill shape */
+    font-size: 0.75em;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.tag-requests {
+    background-color: #cfe2ff; /* Blue */
+    color: #0d6efd;
+}
+
+.tag-schedule {
+    background-color: #e2e3e5; /* Grey */
+    color: #495057;
+}
+
+.tag-profile {
+    background-color: #f8d7da; /* Light Red/Pink */
+    color: #842029;
+}
+
+.tag-pending {
+    background-color: #fff3cd; /* Yellow */
+    color: #664d03;
+}
+
+.notification-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.approve-button,
+.decline-button {
+    padding: 5px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.85em;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.approve-button {
+    background-color: #212529; /* Dark */
+    color: white;
+    border: 1px solid #212529;
+}
+
+.approve-button:hover {
+    background-color: #444;
+    border-color: #444;
+}
+
+.decline-button {
+    background-color: white;
+    color: #495057;
+    border: 1px solid #ced4da;
+}
+
+.decline-button:hover {
+    background-color: #f8f9fa;
+    border-color: #adb5bd;
+}
+
+.no-notifications {
+    text-align: center;
+    color: #6c757d;
+    padding: 20px;
+    font-style: italic;
+}

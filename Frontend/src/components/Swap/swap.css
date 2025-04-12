@@ -1,0 +1,91 @@
+/* swap.css */
+
+.swap-card {
+    display: flex;
+    align-items: center; /* Align items vertically */
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    padding: 12px 20px; /* Adjust padding */
+    font-family: 'Lato', sans-serif; /* Use consistent font */
+    width: 100%; 
+    max-width: 1100px; /* Or adjust as needed */
+    margin-bottom: 15px; 
+    gap: 25px; /* Adjust gap between sections */
+    border: 1px solid #e0e0e0; /* Add subtle border */
+}
+
+/* Teacher Info Section */
+.swap-teacher-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 150px; /* Give it some minimum width */
+}
+
+.swap-teacher-image {
+    width: 45px; /* Adjust size */
+    height: 45px;
+    border-radius: 6px; /* Rounded corners */
+    object-fit: cover;
+    border: 1px solid #eee;
+}
+
+.swap-teacher-details {
+    display: flex;
+    flex-direction: column;
+}
+
+.swap-teacher-name {
+    font-size: 1em;
+    font-weight: 600;
+    color: #007AFF; /* Blue name */
+}
+
+.swap-teacher-id {
+    font-size: 0.85em;
+    color: #6c757d; /* Grey ID */
+}
+
+/* Slot Info Section */
+.swap-slot-info {
+    font-size: 0.95em;
+    color: #333;
+    flex-grow: 1; /* Allow slot info to take space */
+    text-align: left;
+}
+
+/* Extra Details Section */
+.swap-extra-details {
+    display: flex;
+    gap: 20px; /* Space between detail items */
+    font-size: 0.85em;
+    color: #6c757d;
+    white-space: nowrap; /* Prevent wrapping */
+}
+
+.swap-extra-details .detail-item {
+    /* Specific styles per item if needed */
+}
+
+/* Action Button Section */
+.swap-action {
+    margin-left: auto; /* Push button to the right */
+}
+
+.make-request-button {
+    background-color: #007AFF; /* Blue */
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 10px 20px;
+    font-family: 'Lato', sans-serif;
+    font-weight: 600;
+    font-size: 0.9em;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.make-request-button:hover {
+    background-color: #0056b3; /* Darker blue */
+} 
