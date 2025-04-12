@@ -22,7 +22,7 @@ function Profile({ Name, Email, Phone, Department, Year, Branch }) {
         <>
             <Adminnav />
             <div className='containerprofile'>
-                <div className='left'>
+                <div className='leftprofile'>
                     <img src={profile} alt="Profile" id='profile' />
                     <div className="name">
                         <h1>{profileData.Name}</h1>
@@ -34,7 +34,7 @@ function Profile({ Name, Email, Phone, Department, Year, Branch }) {
                         <button id="remove-image-button">Remove image</button>
                     </div>
                 </div>
-                <div className='right'>
+                <div className='rightprofile'>
                 <h1>Personal Information</h1>
                     <div className='information'>
                         <p>Name: {profileData.Name}</p>

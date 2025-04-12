@@ -12,9 +12,8 @@ import icon4 from '../../assets/navicons/icon4.svg';
 
 function Appnavbar(){
     const [activeLink, setActiveLink] = useState("home");
-            const [indicatorPosition, setIndicatorPosition] = useState(0);
-            const [indicatorwidth, setindicatorwidth] = useState(50);
             const navRef = useRef(null);
+            const indicatorRef = useRef(null);
           
             const handleLinkClick = (link, index) => {
               setActiveLink(link);
@@ -26,9 +25,13 @@ function Appnavbar(){
                 const navItems = navRef.current.querySelectorAll("li");
                 if (navItems[index]) {
                   const item = navItems[index];
-                  const rect = item.getBoundingClientRect();
-                  setIndicatorPosition(rect.left);
-                  setindicatorwidth(rect.width ); 
+                  const leftPos = item.offsetLeft;
+                  const itemWidth = item.offsetWidth;
+
+                  if (indicatorRef.current) {
+                    indicatorRef.current.style.setProperty('--indicator-left', `${leftPos}px`);
+                    indicatorRef.current.style.setProperty('--indicator-width', `${itemWidth}px`);
+                  }
                 }
               }
             };
@@ -51,45 +54,51 @@ function Appnavbar(){
             return (
               <div className="navbar">
                 <div className="container">
-                    <button className="website">
-                        <img src={logo} alt="scope logo" className="logo" />
-                    </button>
-                
-          
-                <div className="nav" ref={navRef}>
-                  <ul id="navlist">
-                    {["home", "Pending Requests", "Incoming Requests", "Time Swap"].map((link, index) => (
-                      <li
-                        key={link}
-                        className={activeLink === link ? "active" : ""}
-                        onClick={() => handleLinkClick(link, index)}
-                      >
-                        <a href={`#${link}`}>{link.charAt(0).toUpperCase() + link.slice(1)}</a>
-                      </li>
-                    ))}
-                  </ul>
-                  <div
-                    className="indicator"
-                    style={{ left: `${indicatorPosition}px`, width: `${indicatorwidth}px` }}
-                  ></div>
-                </div>
-                    
-                    <div className="iconed">
-                        <button>
-                          <img src={icon1} alt="profile inside div1" />
+                    {/* Group Logo and Nav Links */}
+                    <div className="nav-left">
+                        <button className="website">
+                            <img src={logo} alt="scope logo" className="logo" />
                         </button>
-                        <button>
-                          <img src={icon2} alt="profile inside div2" />
-                        </button>
-                        <button>
-                          <img src={icon3} alt="profile inside div3" />
-                        </button>
-                        <button>
-                          <img src={icon4} alt="profile inside div4" />
-                        </button>
+                        <div className="nav" ref={navRef}>
+                            <ul id="navlist">
+                                {["home", "Pending Requests", "Incoming Requests", "Time Swap"].map((link, index) => (
+                                  <li
+                                    key={link}
+                                    className={activeLink === link ? "active" : ""}
+                                    onClick={() => handleLinkClick(link, index)}
+                                  >
+                                    <a href={`#${link}`}>{link.charAt(0).toUpperCase() + link.slice(1)}</a>
+                                  </li>
+                                ))}
+                            </ul>
+                            <div
+                              className="indicator"
+                              ref={indicatorRef}
+                            ></div>
+                        </div>
                     </div>
-                <button id="login">Login</button>
-              </div>
+
+                    {/* Group Icons and Profile */}
+                    <div className="nav-right">
+                        <div className="iconed">
+                            <button>
+                                <img src={icon1} alt="Notifications" />
+                            </button>
+                            <button>
+                                <img src={icon2} alt="Messages" />
+                            </button>
+                            <button>
+                                <img src={icon3} alt="Settings" />
+                            </button>
+                            <button>
+                                <img src={icon4} alt="Help" />
+                            </button>
+                            <button className="profile-button">
+                                <img src={profile} alt="User Profile" id="profile-icon" />
+                            </button>
+                        </div>
+                    </div>
+                </div>
               </div>
             );
             }

@@ -9,11 +9,11 @@
     align-items: center;
     padding: 10px 20px;
     background-color: #FFFFFF;
-    box-shadow: 0 4px 4px rgba(0, 0, 0, 0.1);
-    width: 100vw;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); /* Subtle shadow */
+    width: 100%; /* Use 100% instead of 100vw */
     height: 70px;
-    padding-left: 94px;
-    padding-right: 94px;
+    padding-left: 5%; /* Use percentage for padding */
+    padding-right: 5%; /* Use percentage for padding */
     position: fixed;
     top: 0;
     left: 0;
@@ -25,12 +25,16 @@
     display: flex;
     align-items: center;
     width: 100%;
+    justify-content: space-between; /* Distribute space */
 }
 
 
 .logo{
     width: 110px !important;
     height: 35px !important;
+    padding: 0;
+    gap: 40px;
+    font-size: 0.9em;
 }
 
 #login{
@@ -42,15 +46,14 @@
     border-radius: 5px;
     font-family: 'lato', sans-serif;
     font-weight: 300;
-    transition: ease-in-out 0.3s;
-    transition: all 0.3s ease-in-out; /* More standard syntax */
-    margin-left: auto;
+    transition: all 0.3s ease-in-out;
 }
 
 #login:hover{
     background-color: #007AFF;
     color: #FFFFFF;
     cursor: pointer;
+    padding: 0;
 }
 
 #navlist{
@@ -65,26 +68,30 @@
     padding: 0;
     gap: 40px;
     font-size: 0.9em;
-    margin-bottom: 2px;
-    margin-left: 100px;
 }
+
+
 
 a{
     color: #000000;
     text-decoration: none;
+    transition: left 0.3s ease;
 }
 
 .indicator {
     position: absolute;
-    border:1px solid #007AFF ;
-    transition: left 0.3s ease;
+    bottom: -2px; /* Position below the nav items */
+    height: 2px; /* Thickness of the indicator line */
+    background-color: #007AFF; /* Color of the indicator */
+    transition: left 0.3s ease, width 0.3s ease; /* Smooth transitions */
+    left: var(--indicator-left, 0); /* Use CSS variable for left position */
+    width: var(--indicator-width, 0); /* Use CSS variable for width */
 }
 
 #profile{
     width: 30px;
     height: 30px;
     border-radius: 50%;
-
 }
 
 .iconed button{
@@ -95,23 +102,86 @@ a{
     justify-content: center;
     align-items: center;
     transition: all 0.3s ease;
+    background-color: transparent; /* Ensure transparent default background */
 }
 
 .iconed button:hover{
-    background-color: #007AFF;
-    color: #FFFFFF;
+    background-color: #f0f0f0; /* Light grey background on hover */
     cursor: pointer;
+    transform: scale(1.1); /* Slight scale effect */
 }
 
 .iconed{
     display: flex;
     align-items: center;
-    gap: 20px;
-    margin-left: 260px;
+    gap: 25px; /* Adjusted gap */
+}
+
+.iconed img {
+    width: 20px; /* Consistent icon size */
+    height: 20px;
+}
+
+/* Styles for the left group (logo + nav) */
+.nav-left {
+    display: flex;
+    align-items: center;
+    gap: 40px; /* Adjust gap between logo and nav */
+}
+
+/* Styles for the right group (icons + profile) */
+.nav-right {
+    display: flex;
+    align-items: center;
+    gap: 20px; /* Adjust gap if login button is added */
+}
+
+/* Specific styles for the profile button/icon */
+#profile-icon {
+    width: 35px; /* Slightly larger profile icon */
+    height: 35px;
+    border-radius: 50%;
+    border: 1px solid #ddd; /* Optional border */
+}
+
+.profile-button {
+    background: none;
+    border: none;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%; /* Make the button circular */
+    width: 40px; /* Button size slightly larger than icon */
+    height: 40px;
+    transition: background-color 0.3s ease;
+}
+
+.profile-button:hover {
+    background-color: #f0f0f0; /* Same hover as other icons */
+    cursor: pointer;
 }
 
 .navbar button{
     background: none;
     border: none;
     cursor: pointer;
+}
+
+/* Styles for the nav container itself */
+.nav {
+    position: relative; /* Needed for absolute positioning of indicator */
+}
+
+#navlist{
+    text-decoration: none;
+}
+
+.nav li a:hover {
+    color: #007AFF; /* Add hover effect to links */
+}
+
+.nav li.active a {
+    color: #007AFF; /* Style for the active link */
+    font-weight: 600;
 }

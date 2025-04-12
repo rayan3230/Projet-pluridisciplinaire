@@ -210,7 +210,7 @@ const Login = () => {
             `${staticText}<span id="scope"></span>`;
           
           window.typedInstance = new Typed('#scope', {
-            strings: ['Scope', 'The future', 'Ease'],
+            strings: ['Scope', 'The Future', 'Ease'],
             typeSpeed: 100,
             backSpeed: 50,
             loop: true,
