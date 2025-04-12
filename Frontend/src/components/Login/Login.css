@@ -15,8 +15,7 @@ body{
 .containerlogin{
   width: 100vw;
   height: 100vh;
-  background-color: black;
-  /*filter: hue-rotate(50deg);*/
+  background-color: #f8f9fa; /* Light grey background */
 }
 
 .content{
@@ -26,7 +25,7 @@ body{
   align-items: center;
   width: 100vw;
   height: 100vh;
-  color: white;
+  color: #212529; /* Dark text color */
   flex-direction: column;
   z-index: 1;
   opacity: 0;
@@ -58,25 +57,19 @@ body{
 
 
 .textfield{
-  border: 1px solid white;
-  background-color:#0C0C0C ;
+  border: 1px solid #ced4da; /* Grey border */
+  background-color: white; /* White background */
   width: 450px;
   height: 50px;
   padding: 10px;
   font-family: 'lato', sans-serif;
-  color: white;
-  font-weight: 500;
+  color: #495057; /* Dark grey text */
+  font-weight: 400;
+  border-radius: 5px; /* Added border-radius */
 }
 
 .textfield::placeholder {
-  color: white;
-}
-
-#forgot{
-  text-decoration: none;
-  color: white;
-  font-family: 'lato', sans-serif;
-  font-size: 0.8em;
+  color: #6c757d; /* Grey placeholder text */
 }
 
 #login{
@@ -86,18 +79,18 @@ body{
   width: 450px;
   height: 50px;
   transition: all 0.3s ease-out;
-  border-radius: 10px;
+  border-radius: 5px;
   transition: all 0.1s ease-out;
-  background-image: linear-gradient(to right, #012641 , #0A2737 , #064A4C , #026D61 );
+  background-color: #007AFF; /* Blue background */
+  font-family: 'lato', sans-serif; /* Ensure font */
+  font-size: 1em;
+  font-weight: 600;
 }
 
 #login:hover {
-  color: white;
-  background-image: none;
-  background-color: black;
-  box-shadow: 
-    0 0 15px rgba(0, 255, 204, 0.7), /* Green shadow */
-    0 0 30px rgba(0, 131, 255, 0.5);  /* Blue shadow */
+  color: #007AFF; /* Blue text on hover */
+  background-color: white; /* White background on hover */
+  border: 1px solid #007AFF; /* Blue border on hover */
   transform: translateY(-2px);
 }
 
@@ -111,7 +104,7 @@ body{
 
 #loginheader{
   font-family: "Montserrat", sans-serif;
-  color: white;
+  color: #212529; /* Dark text */
   font-size: 3.5em;
   font-weight: bold;
   margin-bottom: 20px;
@@ -120,9 +113,9 @@ body{
 
 #logindescription{
   font-family: "lato", sans-serif;
-  color: white;
+  color: #6c757d; /* Grey text */
   font-size: 0.9em;
-  font-weight: 100;
+  font-weight: 400; /* Regular weight for description */
   line-height: 1.5em;
   width:700px ;
   text-align: center;
@@ -132,7 +125,7 @@ body{
 .logologin{
   position: absolute;
   font-family: "Audiowide", sans-serif;
-  color: white;
+  color: #007AFF; /* Blue logo text */
   font-size: 1.3em;
   top: 60px;
   left: 80px;
@@ -142,49 +135,38 @@ body{
 }
 
 #circle1{
-  filter: blur(90px);
+  background-color: #cfe2ff; /* Light blue */
+  opacity: 0.15;
   right: -200px;
   top: -100px;
 }
 
 #circle2{
-  filter: blur(100px);
+  background-color: #d1e7dd; /* Light green */
+  opacity: 0.15;
   left: -200px;
   bottom: -200px;
 }
 
 #scope{
-  color: #00FFCC;
-}
-
-#google{
-  border: 1px solid white;
-  background-color: #000000;
-  color: white;
-  border-radius: 5px;
-  cursor: pointer;
-  width: 450px;
-  height: 50px;
-  transition: all 0.3s ease-in-out ;
-
+  color: #007AFF; /* Blue accent */
 }
 
 #contact{
-  border: 1px solid white;
-  background-color: #000000;
-  color: white;
+  border: 1px solid #ced4da; /* Grey border */
+  background-color: white; /* White background */
+  color: #495057; /* Dark grey text */
   border-radius: 5px;
   cursor: pointer;
   width: 450px;
   height: 50px;
   transition: all 0.3s ease-in-out ;
-
 }
 
 #website{
-  border: 1px solid white;
-  background-color: #000000;
-  color: white;
+  border: 1px solid #ced4da; /* Grey border */
+  background-color: white; /* White background */
+  color: #495057; /* Dark grey text */
   border-radius: 5px;
   cursor: pointer;
   width: 450px;
@@ -193,39 +175,24 @@ body{
 }
 
 #website:hover {
-  color: white;
-  background-image: none;
-  background-color: black;
-  box-shadow: 
-    0 0 10px rgba(255, 255, 255, 0.7); /* Green shadow */
-  transform: translateY(-2px);
-  transform: scale(1.02);
+  color: #007AFF; /* Blue text on hover */
+  background-color: #e9ecef; /* Lighter grey background */
+  border-color: #adb5bd; /* Darker grey border */
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.1); /* Subtle black shadow */
+  transform: translateY(-2px) scale(1.02);
 }
 
 #contact:hover {
-  color: white;
-  background-image: none;
-  background-color: black;
-  box-shadow: 
-    0 0 10px rgba(255, 255, 255, 0.7); /* Green shadow */
-  transform: translateY(-2px);
-  transform: scale(1.02);
+  color: #007AFF; /* Blue text on hover */
+  background-color: #e9ecef; /* Lighter grey background */
+  border-color: #adb5bd; /* Darker grey border */
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.1); /* Subtle black shadow */
+  transform: translateY(-2px) scale(1.02);
 }
-
-#google:hover {
-  color: white;
-  background-image: none;
-  background-color: black;
-  box-shadow: 
-    0 0 10px rgba(255, 255, 255, 0.7); /* Green shadow */
-  transform: translateY(-2px);
-  transform: scale(1.02);
-}
-
 
 #devider{
   font-size: 3em;
-  color: white;
+  color: #dee2e6; /* Light grey divider */
   text-decoration: none;
   border :none;
 }
@@ -233,7 +200,7 @@ body{
 
 #resetpass{
   margin-top: 70px;
-  color: white;
+  color: #007AFF; /* Blue link */
   font-family: 'lato', sans-serif;
   font-size: 1em;
   text-decoration: underline;
@@ -242,7 +209,7 @@ body{
 
 .rights{
   font-family: 'lato', sans-serif;
-  color: white;
+  color: #6c757d; /* Grey text */
   font-size: 0.8em;
   bottom: 20px;
   position: absolute;
@@ -253,13 +220,13 @@ body{
 
 
 .rightreset{
-  color: white;
+  color: #212529; /* Dark text */
   font-family: lato, sans-serif;
   padding: 20px;
-  background-color: rgba(0, 0, 0, 0.26);
-  backdrop-filter: blur(50px);
+  background-color: #e9ecef; /* Light grey background */
+  backdrop-filter: blur(50px); /* Keeping blur for effect, adjust if needed */
   border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid #dee2e6; /* Grey border */
   max-width: 450px;
 }
 
@@ -273,15 +240,12 @@ body{
 
 #resetheader{
   font-size: 1.5em;
-  color: white;
+  color: #212529; /* Dark text */
   font-family: 'Montserrat', sans-serif;
   margin-bottom: 15px;
   text-align: center;
 }
 
-/* Completely rebuilt animation */
-
-/* Animation for the temp header - from center to top */
 @keyframes moveUpAndFade {
   0% {
     top: 50%;
@@ -310,7 +274,7 @@ body{
   }
 }
 
-/* Fade in animation */
+
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -320,7 +284,7 @@ body{
   }
 }
 
-/* Temp header styling */
+
 .temp-header {
   position: fixed;
   left: 50%;
@@ -328,7 +292,7 @@ body{
   transform: translate(-50%, -50%);
   font-family: "Montserrat", sans-serif;
   font-size: 3.5em;
-  color: white;
+  color: #212529; /* Dark text */
   text-align: center;
   animation: moveUpAndFade 1s ease-out forwards;
   z-index: 999;
@@ -337,10 +301,10 @@ body{
 }
 
 .temp-header span {
-  color: #00FFCC;
+  color: #007AFF; /* Blue accent */
 }
 
-/* Content area with delay */
+
 .content {
   display: flex;
   position: relative;
@@ -348,18 +312,18 @@ body{
   align-items: center;
   width: 100vw;
   height: 100vh;
-  color: white;
+  color: #212529; /* Dark text color */
   flex-direction: column;
   z-index: 1;
   opacity: 0;
   animation: fadeIn 0.3s ease-out 1s forwards;
 }
 
-/* Logo fades in */
+
 .logologin {
   position: absolute;
   font-family: "Audiowide", sans-serif;
-  color: white;
+  color: #007AFF; /* Blue logo text */
   font-size: 1.3em;
   top: 60px;
   left: 80px;
@@ -368,11 +332,11 @@ body{
   animation: fadeIn 0.3s ease-out 1s forwards;
 }
 
-/* Rights text fades in */
+
 .rights {
 
   font-family: 'lato', sans-serif;
-  color: white;
+  color: #6c757d; /* Grey text */
   font-size: 0.8em;
   bottom: 20px;
   position: absolute;
@@ -381,8 +345,81 @@ body{
   animation: fadeIn 0.3s ease-out 1s forwards;
 }
 
-/* Description text fades in */
+
 #logindescription {
+  color: #6c757d; /* Grey text */
+  font-family: "lato", sans-serif;
+  font-weight: 400; /* Regular weight */
   opacity: 0;
   animation: fadeIn 0.3s ease-out 1s forwards;
+}
+
+/* Utility classes */
+.error-message {
+  color: red;
+  text-align: center;
+  margin-top: 10px;
+  font-family: 'lato', sans-serif;
+  font-size: 0.9em;
+}
+
+.success-message {
+  color: green;
+  text-align: center;
+  margin-top: 10px;
+  font-family: 'lato', sans-serif;
+  font-size: 0.9em;
+  font-weight: bold;
+}
+
+.password-input-container {
+  position: relative;
+  width: 100%;
+}
+
+.password-toggle-btn {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  color: #6c757d; /* Grey text */
+  cursor: pointer;
+  font-size: 0.8em;
+  padding: 5px;
+}
+
+.password-hint {
+  color: #6c757d; /* Grey text */
+  font-family: 'lato', sans-serif;
+  font-size: 0.8em;
+  margin: 5px 0 0 0; /* Adjust margin */
+  align-self: flex-start;
+}
+
+.reset-info-title {
+  margin-bottom: 15px;
+  color: #007AFF; /* Blue title */
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 600;
+}
+
+.reset-info-text {
+  font-size: 0.9em;
+  line-height: 1.5;
+  font-family: 'lato', sans-serif;
+  margin-bottom: 15px; /* Add margin between paragraphs */
+}
+
+.reset-info-text:last-child {
+  margin-bottom: 0;
+}
+
+.login-hint {
+  color: #6c757d; /* Grey text */
+  font-family: 'lato', sans-serif;
+  font-size: 0.8em;
+  margin: -20px 0 10px 0; /* Adjust margins: negative top to pull up, bottom for spacing */
+  align-self: flex-start;
 }

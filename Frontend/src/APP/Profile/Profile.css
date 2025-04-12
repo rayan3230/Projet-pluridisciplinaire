@@ -4,14 +4,7 @@
     box-sizing: border-box;
 }
 
-body{
-    width: 100%;
-    height: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-top: 150px;
-}
+
 
 .containerprofile{
     width: 100%;
@@ -20,9 +13,11 @@ body{
     justify-content: center;
     align-items: center;
     gap: 115px;
+    margin-top: 150px;
+    font-family: 'Lato', sans-serif;
 }
 
-.left{
+.leftprofile{
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -31,15 +26,16 @@ body{
     width: 490px;
     border-radius: 10px;
     background-color: white;
-    gap: 30px;
+    gap: 20px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    padding-bottom: 40px;
 }
 
-.right{
+.rightprofile{
     display: flex;
     flex-direction: column;
     padding: 30px;
-    height: 490px;
+    height: 500px;
     width: 620px;
     border-radius: 10px;
     background-color: white;
@@ -52,29 +48,32 @@ body{
     border-radius: 50%;
     margin-top: 20px;
     border: 2px solid #0083FF;
-}
-
-h1,h2,h3,h4,h5,h6{
-    font-family: 'montserrat', sans-serif;
-}
-
-p{
     font-family: 'lato', sans-serif;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    
 }
+
+
 
 #update-image-button{
     width: 170px;
     height: 48px;
-    background-color: #0083FF;
-    color: white;
-    border: none;
+    background-color: #EBF5FF;
+    color: #0056b3;
+    border: 1px solid #B3D7FF;
     font-family: 'lato', sans-serif;
     font-weight: 600;
     transition: all 0.3s ease;
+    border-radius: 5px;
+
 }
 
 #update-image-button:hover {
     transform: scale(1.05);
+    background-color: #0072e0;
+    color: white;
+    border: 1px solid #0072e0;
 }
 
 #remove-image-button{
@@ -86,10 +85,13 @@ p{
     font-family: 'lato', sans-serif;
     font-weight: 600;
     transition: all 0.3s ease;
+    border-radius: 5px;
+
 }
 
 #remove-image-button:hover {
     transform: scale(1.05);
+    background-color: #eee;
 }
 
 #edit-profile-button{
@@ -101,40 +103,52 @@ p{
     font-family: 'lato', sans-serif;
     font-weight: 600;
     transition: all 0.3s ease;
+    border-radius: 5px;
+
 }
 
 #edit-profile-button:hover {
     transform: scale(1.05);
+    background-color: #eee;
 }
 
 #current-schedule-button{
     width: 170px;
     height: 48px;
-    background-color: #0083FF;
-    color: white;
-    border: none;
+    background-color: #EBF5FF;
+    color: #0056b3;
+    border: 1px solid #B3D7FF;
     font-family: 'lato', sans-serif;
     font-weight: 600;
     transition: all 0.3s ease;
+    border-radius: 5px;
+
 }
 
 #current-schedule-button:hover {
     transform: scale(1.05);
+    background-color: #0072e0;
+    color: white;
+    border: 1px solid #0072e0;
 }
 
 #delete-profile-button{
     width: 170px;
     height: 48px;
-    background-color: #FF0000;
-    color: white;
-    border: none;
+    background-color: #FFEDED;
+    color: #D8000C;
+    border: 1px solid #FFB8B8;
     font-family: 'lato', sans-serif;
     font-weight: 600;
     transition: all 0.3s ease;
+    border-radius: 5px;
 }
 
 #delete-profile-button:hover {
     transform: scale(1.05);
+    background-color: #f6515a;
+    color: white;
+    border: 1px solid #D8000C;
 }
 
 .buttons{
@@ -142,6 +156,8 @@ p{
     justify-content: center;
     align-items: center;
     gap: 40px;
+    margin-top: auto;
+    
 }
 
 button{
@@ -152,19 +168,38 @@ button{
     font-size: 18px;
     display: flex;
     flex-direction: column;
-    gap: 40px;
+    gap: 30px;
     margin-top: 20px;
-    margin-bottom: 40px;
+    margin-bottom: 30px;
+    font-family: 'Lato', sans-serif;
 }
 
 .name{
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 5px;
     align-items: center;
+    text-align: center;
+}
+
+.name h1 {
+    font-family: 'Montserrat', sans-serif;
+    color: #000;
 }
 
 .name p{
-    color: #222222;
-    font-weight: 100;
+    color: #555;
+    font-weight: 400;
+    font-family: 'Lato', sans-serif;
+}
+
+.rightprofile h1 {
+    font-family: 'Montserrat', sans-serif;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+.information p {
+    color: #444;
+    line-height: 1.5;
 }

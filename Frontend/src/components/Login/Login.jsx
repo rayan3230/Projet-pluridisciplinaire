@@ -8,52 +8,44 @@ import topright from '../../assets/topright.png';
 import bottomleft from '../../assets/bottomleft.png';
 import bottomright from '../../assets/bottomright.png';
 import google from '../../assets/google.png';
-//import bottomright2 from './assets/Vector 2.png';
 
 const Login = () => {
     const navigate = useNavigate();
     const { login } = useAuth();
 
-    // State for login form (using formData now)
     const [formData, setFormData] = useState({
         email: '',
         password: ''
     });
 
-    // Component Mode: 'login' or 'forceChangePassword'
     const [mode, setMode] = useState('login');
 
-    // State for force change password form (re-added from LoginOld)
     const [tempPassword, setTempPassword] = useState('');
     const [newPassword, setNewPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
 
-    // General UI state
     const [message, setMessage] = useState('');
-    const [error, setError] = useState(''); // Specific error state
+    const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
 
-    // State to store user data after initial successful login
     const [initialUserData, setInitialUserData] = useState(null);
 
-    // State for password visibility (only for new/confirm password)
     const [showNewPassword, setShowNewPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
     const [showWelcome, setShowWelcome] = useState(true);
     const [showTempHeader, setShowTempHeader] = useState(true);
 
-    // --- LOGIN FORM HANDLER ---
     const handleLoginSubmit = async (event) => {
       event.preventDefault();
       setIsLoading(true);
       setMessage('');
       setError('');
-      setInitialUserData(null); // Clear previous user data
+      setInitialUserData(null);
       
       const loginPayload = {
-          scope_email: formData.email, // Use formData.email
-          password: formData.password    // Use formData.password
+          scope_email: formData.email,
+          password: formData.password    
       };
 
       try {
@@ -63,24 +55,22 @@ const Login = () => {
           console.log('Login response:', response.data);
           const userData = response.data.user;
 
+          login(userData);
+          
           if (userData?.needs_password_change) {
               setMessage('Login successful! Please set your new password.');
               setTempPassword(formData.password);
-              setInitialUserData(userData); // Store user data for later use
+              setInitialUserData(userData);
               setMode('forceChangePassword');
           } else {
-              login(userData); 
-              setMessage('Login successful! Redirecting...');
-              
-              setTimeout(() => {
-                  if (userData?.is_admin) {
-                      navigate('/admin/dashboard', { replace: true });
-                  } else if (userData?.is_teacher) {
-                      navigate('/teacher/dashboard', { replace: true });
-                  } else {
-                      navigate('/', { replace: true });
-                  }
-              }, 100); // Small delay (e.g., 100ms) to allow context update
+              setMessage('Login successful!');
+              if (userData?.is_admin) {
+                  navigate('/admin/dashboard', { replace: true });
+              } else if (userData?.is_teacher) {
+                  navigate('/teacher/dashboard', { replace: true });
+              } else {
+                  navigate('/', { replace: true }); 
+              }
           }
           
       } catch (err) {
@@ -90,14 +80,13 @@ const Login = () => {
               status: err.response?.status
           });
           const errorDetail = err.response?.data?.detail || err.response?.data?.message || 'Failed to sign in. Please check your credentials.';
-          setError(errorDetail); // Use setError state
-          setMessage(''); // Clear general message
+          setError(errorDetail);
+          setMessage('');
       } finally {
           setIsLoading(false);
       }
     };
   
-    // --- CHANGE PASSWORD FORM HANDLER ---
     const handleChangePasswordSubmit = async (event) => {
         event.preventDefault();
         setIsLoading(true);
@@ -116,10 +105,9 @@ const Login = () => {
             return;
         }
 
-        // Check if we have the initial user data needed
         if (!initialUserData) {
             setError('User data lost. Please try logging in again.');
-            setMode('login'); // Go back to login mode
+            setMode('login');
             setIsLoading(false);
             return;
         }
@@ -139,13 +127,9 @@ const Login = () => {
                 ...initialUserData, 
                 needsPasswordChange: false 
             };
-            
-            // Call context login HERE, AFTER password change is confirmed
             login(updatedUser); 
 
-            // Redirect after delay
             setTimeout(() => {
-                // Use updatedUser data directly for navigation check
                 if (updatedUser?.is_admin) {
                     navigate('/admin/dashboard', { replace: true });
                 } else if (updatedUser?.is_teacher) {
@@ -162,13 +146,11 @@ const Login = () => {
             } else {
                  setError(err.response?.data?.detail || 'Password change failed. Please try again.');
             }
-            // Keep user in password change mode on failure
         } finally {
             setIsLoading(false);
         }
     };
 
-    // --- Input Change Handlers ---
     const handleChange = (e) => {
       setFormData({
           ...formData,
@@ -176,24 +158,61 @@ const Login = () => {
       });
     };
 
-    // New handleSubmit to call the original login logic
     const handleSubmit = (event) => {
-        handleLoginSubmit(event); // Call the existing login submission logic
+        handleLoginSubmit(event);
     };
 
-    // Remove the typed.js effect temporarily to isolate the issue
     useEffect(() => {
         const timer = setTimeout(() => {
             setShowTempHeader(false);
-        }, 1000); // Speed up to match the 1s animation
+        }, 1000);
 
         return () => clearTimeout(timer);
     }, []);
 
+    useEffect(() => {
+      const script = document.createElement('script');
+      script.src = "https://unpkg.com/typed.js@2.1.0/dist/typed.umd.js";
+      script.async = true;
+      
+      script.onload = () => {
+        const Typed = window.Typed;
+        if (Typed && !window.typedInstance) {
+          const staticText = "Welcome to ";
+          document.getElementById('loginheader').innerHTML = 
+            `${staticText}<span id="scope"></span>`;
+          
+          window.typedInstance = new Typed('#scope', {
+            strings: ['Scope', 'The Future', 'Ease'],
+            typeSpeed: 100,
+            backSpeed: 50,
+            loop: true,
+            showCursor: true,
+            cursorChar: '|',
+            smartBackspace: true,
+            startDelay: 300,
+            backDelay: 1500
+          });
+        }
+      };
+    
+      document.body.appendChild(script);
+    
+      return () => {
+        if (window.typedInstance) {
+          window.typedInstance.destroy();
+          delete window.typedInstance;
+        }
+        document.body.removeChild(script);
+      };
+    }, []);
+    
+
+
     return <>
       <div className="containerlogin">
-       <img src={logo} alt="" id="circle1" className='circle' />
-       <img src={logo} alt="" id="circle2" className='circle'/>
+       <div id="circle1" className='circle'></div>
+       <div id="circle2" className='circle'></div>
        
        {showTempHeader && (
            <h1 className="temp-header">Student Driven <span>Solution</span></h1>
@@ -206,16 +225,16 @@ const Login = () => {
          <p id="logindescription">SCOPE allows professors to securely swap class slots with mutual approval, ensuring transparency, minimizing conflicts, and providing real-time updates.</p>
          
          <div className="bottom">
-           {/* Mode-dependent UI starts here */}
            {mode === 'login' && (
              <div className="bottom">
                <div className='left'>
                  <form className='left' onSubmit={handleSubmit}>
                    <input type="text" name="email" placeholder="Scope box email" value={formData.email} onChange={handleChange} className='textfield' required />
                    <input type="password" name="password" placeholder="Password" value={formData.password} onChange={handleChange} className='textfield' required />
-                   <a href="" id='forgot'>Forgot Password ?</a>
-                   {error && <p style={{ color: 'red', textAlign: 'center', marginTop: '10px' }}>{error}</p>}
-                   {message && <p style={{ color: 'green', textAlign: 'center', marginTop: '10px' }}>{message}</p>}
+                   <p className="login-hint">Please use your assigned Scope email and password.</p>
+                   
+                   {error && <p className="error-message">{error}</p>}
+                   {message && <p className="success-message">{message}</p>}
                    <button type="submit" disabled={isLoading} id='login'>
                      {isLoading ? 'Logging in...' : 'Login'}
                    </button>
@@ -225,14 +244,12 @@ const Login = () => {
                <h1 id='devider'>/</h1>
 
                <div className="right">
-                 <button id='google'>Continue with Google</button>
                  <button id='contact'>Contact Us</button>
                  <button id='website'>Visit our website</button>
                </div>
              </div>
            )}
 
-           {/* Force Change Password Mode UI */} 
            {mode === 'forceChangePassword' && (
              <div className="bottom">
                <div className="left">
@@ -241,8 +258,7 @@ const Login = () => {
                      Set a new password for your account
                    </p>
                    
-                   {/* New Password Field - styled like regular textfields */}
-                   <div style={{ position: 'relative', width: '100%' }}>
+                   <div className="password-input-container">
                      <input
                        type={showNewPassword ? 'text' : 'password'}
                        id="newPassword"
@@ -254,26 +270,15 @@ const Login = () => {
                        disabled={isLoading}
                      />
                      <button 
-                       type="button" 
+                       type="button"
                        onClick={() => setShowNewPassword(!showNewPassword)}
-                       style={{
-                         position: 'absolute',
-                         right: '10px',
-                         top: '50%',
-                         transform: 'translateY(-50%)',
-                         background: 'transparent',
-                         border: 'none',
-                         color: 'white',
-                         cursor: 'pointer',
-                         fontSize: '0.8em'
-                       }}
+                       className="password-toggle-btn"
                      >
                        {showNewPassword ? 'Hide' : 'Show'}
                      </button>
                    </div>
                    
-                   {/* Confirm New Password Field */}
-                   <div style={{ position: 'relative', width: '100%' }}>
+                   <div className="password-input-container">
                      <input
                        type={showConfirmPassword ? 'text' : 'password'}
                        id="confirmPassword"
@@ -285,34 +290,21 @@ const Login = () => {
                        disabled={isLoading}
                      />
                      <button 
-                       type="button" 
+                       type="button"
                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                       style={{
-                         position: 'absolute',
-                         right: '10px',
-                         top: '50%',
-                         transform: 'translateY(-50%)',
-                         background: 'transparent',
-                         border: 'none',
-                         color: 'white',
-                         cursor: 'pointer',
-                         fontSize: '0.8em'
-                       }}
+                       className="password-toggle-btn"
                      >
                        {showConfirmPassword ? 'Hide' : 'Show'}
                      </button>
                    </div>
                    
-                   {/* Password requirements hint */}
-                   <p style={{ color: '#aaa', fontFamily: 'lato, sans-serif', fontSize: '0.8em', margin: '0' }}>
+                   <p className="password-hint">
                      Password must be at least 8 characters long
                    </p>
 
-                   {/* Error and message display */}
-                   {error && <p style={{ color: 'red', textAlign: 'center', marginTop: '10px' }}>{error}</p>}
-                   {message && <p id="message">{message}</p>}
+                   {error && <p className="error-message">{error}</p>}
+                   {message && <p className="success-message">{message}</p>}
                    
-                   {/* Submit button - same style as login button */}
                    <button type="submit" id='login' disabled={isLoading}> 
                      {isLoading ? 'Saving...' : 'Set New Password'}
                    </button>
@@ -323,12 +315,12 @@ const Login = () => {
                
                <div className="rightreset">
                  <div>
-                   <h3 style={{ marginBottom: '15px', color: '#00FFCC' }}>Why Change Your Password?</h3>
-                   <p style={{ fontSize: '0.9em', lineHeight: '1.5' }}>
+                   <h3 className="reset-info-title">Why Change Your Password?</h3>
+                   <p className="reset-info-text">
                      For security reasons, you need to set a new password on your first login. 
                      Choose a strong password that you haven't used on other sites.
                    </p>
-                   <p style={{ fontSize: '0.9em', marginTop: '15px', lineHeight: '1.5' }}>
+                   <p className="reset-info-text">
                      If you need any assistance, please contact the system administrator.
                    </p>
                  </div>
