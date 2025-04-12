@@ -47,8 +47,20 @@ class PromoViewSet(viewsets.ModelViewSet):
     serializer_class = PromoSerializer
 
 class SectionViewSet(viewsets.ModelViewSet):
-    queryset = Section.objects.all()
+    queryset = Section.objects.select_related('promo', 'promo__speciality').all() # Optimize query
     serializer_class = SectionSerializer
+
+    def get_queryset(self):
+        """Optionally filter sections by promo_id."""
+        queryset = super().get_queryset() # Start with the base queryset
+        promo_id = self.request.query_params.get('promo_id')
+        
+        if promo_id:
+            try:
+                queryset = queryset.filter(promo_id=int(promo_id))
+            except (ValueError, TypeError):
+                return queryset.none() # Or raise an appropriate DRF exception
+        return queryset.order_by('name') # Ensure consistent ordering
 
 class ClassroomViewSet(viewsets.ModelViewSet):
     queryset = Classroom.objects.all()
@@ -414,28 +426,62 @@ def generate_class_schedule_view(request):
                             end_time = slot_info['end_time']
                             slot_key = slot_info['key']
 
-                            # --- Check Conflicts --- 
-                            busy_teachers = booked_slots.get(slot_key, {}).get('teachers', set())
-                            busy_sections = booked_slots.get(slot_key, {}).get('sections', set())
-                            busy_classrooms = booked_slots.get(slot_key, {}).get('classrooms', set())
+                            # --- Check Conflicts ---
+                            busy_teachers_local = booked_slots.get(slot_key, {}).get('teachers', set()) # Renamed for clarity
+                            busy_sections_local = booked_slots.get(slot_key, {}).get('sections', set()) # Renamed for clarity
+                            busy_classrooms_local = booked_slots.get(slot_key, {}).get('classrooms', set()) # Renamed for clarity
 
-                            if teacher.id in busy_teachers: continue 
-                            if section.id in busy_sections: continue
-                            
-                            # --- Find ALL available classrooms and choose randomly --- 
-                            free_classrooms = []
+                            # --- Check Teacher Availability (Local + DB) ---
+                            if teacher.id in busy_teachers_local:
+                                # print(f"      Local Conflict: Teacher {teacher.id} busy at {day} {start_time}") # Debugging
+                                continue # Teacher busy in this run
+
+                            # Check if teacher is busy according to the database
+                            if ScheduleEntry.objects.filter(
+                                teacher=teacher,
+                                day_of_week=day,
+                                start_time=start_time,
+                                semester=semester
+                            ).exists():
+                                # print(f"      DB Conflict: Teacher {teacher.id} busy at {day} {start_time}") # Debugging
+                                continue # Teacher already has a class scheduled then
+
+                            # --- Check Section Availability (Local only - sections are specific to this promo) ---
+                            if section.id in busy_sections_local:
+                                # print(f"      Local Conflict: Section {section.id} busy at {day} {start_time}") # Debugging
+                                continue # Section already has a class in this run
+
+                            # --- Find AVAILABLE Classrooms (considering Local + DB) ---
+                            truly_free_classrooms = []
                             for classroom in possible_classroom_pool:
-                                if classroom.id not in busy_classrooms:
-                                    free_classrooms.append(classroom)
-                            
-                            if not free_classrooms: continue # No free rooms this slot
-                                
-                            # Randomly choose one from the free list
-                            assigned_classroom = random.choice(free_classrooms) 
-                            
-                            # --- Slot Found! Create Entry & Update Tracker --- 
-                            print(f"    Placing {session_type} slot {slots_placed + 1}/{count} on Day {day} at {start_time} in {assigned_classroom.name}")
-                            entry = ScheduleEntry( 
+                                # Check local conflicts first (faster)
+                                if classroom.id in busy_classrooms_local:
+                                    # print(f"      Local Conflict: Classroom {classroom.id} busy at {day} {start_time}") # Debugging
+                                    continue # Classroom busy in this run
+
+                                # Check DB conflicts
+                                if ScheduleEntry.objects.filter(
+                                    classroom=classroom,
+                                    day_of_week=day,
+                                    start_time=start_time,
+                                    semester=semester
+                                ).exists():
+                                    # print(f"      DB Conflict: Classroom {classroom.id} busy at {day} {start_time}") # Debugging
+                                    continue # Classroom already booked in DB
+
+                                # If free both locally and in DB, add to list
+                                truly_free_classrooms.append(classroom)
+
+                            if not truly_free_classrooms:
+                                # print(f"      Conflict: No truly free classrooms of type {session_type} found for slot {day} {start_time}") # Debugging
+                                continue # No available rooms this slot
+
+                            # Randomly choose one from the TRULY free list
+                            assigned_classroom = random.choice(truly_free_classrooms)
+
+                            # --- Slot Found! Create Entry & Update Tracker ---
+                            # print(f"    Placing {session_type} slot {slots_placed + 1}/{count} on Day {day} at {start_time} in {assigned_classroom.name}") # Debugging
+                            entry = ScheduleEntry(
                                 section=section, semester=semester, module=module,
                                 teacher=teacher, classroom=assigned_classroom,
                                 day_of_week=day, start_time=start_time, end_time=end_time,

@@ -82,10 +82,9 @@ export const deletePromo = async (id) => {
 };
 
 // --- Sections ---
-export const getSections = async (promoId = null) => {
+export const getSections = async (filters = {}) => {
   try {
-    const params = promoId ? { promo_id: promoId } : {};
-    const response = await apiClient.get('/sections/', { params });
+    const response = await apiClient.get('/sections/', { params: filters });
     return response.data;
   } catch (error) {
     console.error('Get Sections API error:', error.response || error.message);

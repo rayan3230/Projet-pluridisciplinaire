@@ -50,8 +50,7 @@ const ScheduleGenerationPage = () => {
         return;
       }
       try {
-        // Assuming getSections takes promo_id
-        const sections = await getSections({ promo_id: selectedPromo }); 
+        const sections = await getSections({ promo_id: selectedPromo });
         setSectionsForPromo(sections || []);
       } catch (error) {
         console.error("Failed to fetch sections:", error);
