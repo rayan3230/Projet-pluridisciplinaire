@@ -1,23 +1,32 @@
 import React, { useState, useEffect, useRef } from "react";
+import { Link } from "react-router-dom";
 import "./appnavbar.css";
 import logo from '../../assets/navlogo.png';
 import profile from '../../assets/profile.png';
 import Quickprofile from '../Quickprofile/Quickprofile.jsx';
 import Quickhelp from '../Quickhelp/Quickhelp.jsx';
+import Notification from '../Notification/Notification.jsx'; // Import Notification component
 
 import icon1 from '../../assets/navicons/icon1.svg';
 import icon2 from '../../assets/navicons/icon2.svg';
 import icon3 from '../../assets/navicons/icon3.svg';
 import icon4 from '../../assets/navicons/icon4.svg';
 
-// Define the links rendered in the nav
-const navLinks = ["Home", "Pending Requests", "Incoming Requests", "Time Swap"];
+// Define the links and their corresponding paths
+const navLinks = [
+    { text: "Home", path: "/home" }, 
+    { text: "Pending Requests", path: "/pending-requests" },
+    { text: "Incoming Requests", path: "/incoming-requests" },
+    { text: "Time Swap", path: "/time-swap" }
+];
 
 function Appnavbar(){
-    // Set initial active link to Home
-    const [activeLink, setActiveLink] = useState(navLinks[0]);
+    // Set initial active link to Home's text
+    const [activeLink, setActiveLink] = useState(navLinks[0].text);
     const [showProfilePopup, setShowProfilePopup] = useState(false);
     const [showHelpPopup, setShowHelpPopup] = useState(false);
+    const [showNotificationPopup, setShowNotificationPopup] = useState(false); // State for notification popup
+
 
     const navRef = useRef(null);
     const indicatorRef = useRef(null);
@@ -26,9 +35,9 @@ function Appnavbar(){
     const profileButtonRef = useRef(null);
     const helpButtonRef = useRef(null);
 
-    const handleLinkClick = (link, index) => {
-      setActiveLink(link);
-      // No need to call updateIndicatorPosition here, useEffect [activeLink] handles it
+    const handleLinkClick = (linkText) => {
+      setActiveLink(linkText);
+      // The actual navigation is handled by the Link component
     };
 
     const updateIndicatorPosition = (index) => {
@@ -61,6 +70,10 @@ function Appnavbar(){
         setShowProfilePopup(false); // Close other popup
     };
 
+    const toggleNotificationPopup = () => {
+        setShowNotificationPopup(prev => !prev);
+    };
+
     // Click outside handler (remains the same)
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -85,7 +98,8 @@ function Appnavbar(){
     // Effect to update indicator when activeLink changes or on resize
     useEffect(() => {
         const updatePosition = () => {
-            const currentIndex = navLinks.indexOf(activeLink);
+            // Find the index based on the activeLink text
+            const currentIndex = navLinks.findIndex(link => link.text === activeLink);
             updateIndicatorPosition(currentIndex);
         }
         
@@ -109,11 +123,15 @@ function Appnavbar(){
                          <ul id="navlist">
                              {navLinks.map((link, index) => (
                                <li
-                                 key={link}
-                                 className={activeLink === link ? "active" : ""}
-                                 onClick={() => handleLinkClick(link, index)}
+                                 key={link.text}
+                                 className={activeLink === link.text ? "active" : ""}
                                >
-                                 <a href={`#${link.replace(/\s+/g, '')}`}>{link}</a>
+                                 <Link 
+                                     to={link.path} 
+                                     onClick={() => handleLinkClick(link.text)}
+                                 >
+                                     {link.text} 
+                                 </Link>
                                </li>
                              ))}
                          </ul>
@@ -128,10 +146,19 @@ function Appnavbar(){
                 <div className="nav-right">
                     <div className="iconed">
                         {/* 1. Notifications */}
-                        <button>
+                        <div className="Notification-wrapper">
+                        <button onClick={toggleNotificationPopup}>
                             <img src={icon1} alt="Notifications" />
                         </button>
-                        
+                        {/*{showNotificationPopup && (
+                            <div className="Notification-popup">
+                                <Notification isVisible={showNotificationPopup} onClose={toggleNotificationPopup} />
+                            </div>
+                        )}*/}
+                        </div>
+
+
+                    
                         {/* 2. Messages/History */}
                         <button>
                             <img src={icon4} alt="Messages" />

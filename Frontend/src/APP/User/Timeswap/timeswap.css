@@ -1,0 +1,179 @@
+/* timeswap.css - Copied from pendingrequests.css */
+
+.page-container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    background-color: #f8f9fa; 
+}
+
+/* Grid layout for content below navbar */
+.content-grid {
+    display: grid;
+    grid-template-columns: 280px 1fr; /* Fixed width for filter, rest for main */
+    gap: 30px;
+    padding: 25px 40px; /* Adjust padding */
+    margin-top: 70px; /* Account for fixed navbar */
+    flex-grow: 1;
+}
+
+.filter-column {
+    /* Styling for the filter column container */
+}
+
+.main-column {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Header now contains title and actions group */
+.main-column-header {
+    display: flex;
+    justify-content: space-between; /* Push title left, actions right */
+    align-items: center;
+    margin-bottom: 25px; /* Add margin below header */
+    gap: 20px; /* Gap if items wrap */
+    padding-bottom: 15px; /* Add padding below for separation */
+    border-bottom: 1px solid #eee; /* Add visual separator */
+}
+
+/* Group for sort and search */
+.header-actions-group {
+    display: flex;
+    align-items: center;
+    gap: 20px; /* Gap between sort and search */
+}
+
+/* Title styling - now part of header */
+.page-title {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1.8em;
+    font-weight: 600;
+    color: #212529;
+    margin: 0; /* Remove default margins */
+    padding: 0; /* Remove default padding */
+    border: none; /* Remove previous border if any */
+}
+
+/* Sort Dropdown Styles */
+.sort-dropdown-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.sort-label {
+    font-family: 'Lato', sans-serif;
+    font-size: 0.9em;
+    color: #6c757d; /* Grey label */
+    font-weight: 600;
+}
+
+.sort-select {
+    padding: 8px 12px;
+    border: 1px solid #ced4da;
+    border-radius: 6px;
+    background-color: white;
+    font-family: 'Lato', sans-serif;
+    font-size: 0.9em;
+    color: #495057;
+    cursor: pointer;
+    min-width: 150px; /* Give dropdown some width */
+}
+
+.sort-select:focus {
+    outline: none;
+    border-color: #86b7fe; /* Blue highlight on focus */
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25); 
+}
+
+/* Search Bar Styles */
+.search-bar-container {
+    position: relative; 
+    width: 300px; 
+}
+
+.search-input {
+    width: 100%;
+    padding: 10px 40px 10px 15px; /* Right padding for icon space */
+    border: 1px solid #ced4da;
+    border-radius: 6px;
+    font-family: 'Lato', sans-serif;
+    font-size: 0.9em;
+    color: #495057;
+}
+
+.search-input::placeholder {
+  color: #adb5bd; 
+}
+
+.search-icon {
+    position: absolute; 
+    right: 12px; 
+    top: 50%; 
+    transform: translateY(-50%); 
+    color: #adb5bd;
+    pointer-events: none; 
+}
+
+/* List Container */
+.requests-list-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    flex-grow: 1; 
+}
+
+.no-requests-message {
+    text-align: center;
+    color: #6c757d;
+    margin-top: 40px;
+    font-size: 1.1em;
+}
+
+/* --- Responsive Adjustments --- */
+@media (max-width: 992px) { 
+    .content-grid {
+        grid-template-columns: 240px 1fr; 
+        gap: 20px;
+        padding: 20px;
+    }
+}
+
+@media (max-width: 768px) { 
+    .content-grid {
+        grid-template-columns: 1fr; 
+        padding: 15px;
+    }
+
+    .filter-column {
+        margin-bottom: 20px; 
+    }
+
+    .main-column-header {
+        flex-direction: column; 
+        align-items: flex-start; /* Align items left when stacked */
+        gap: 15px;
+        border-bottom: none; /* Remove border on mobile? */
+        padding-bottom: 0;
+    }
+
+    /* Stack title and actions group */
+    .page-title {
+        margin-bottom: 10px; /* Add space below title when stacked */
+        padding-bottom: 5px;
+        border-bottom: 1px solid #eee; /* Add separator below title on mobile */
+        width: 100%; /* Make title full width */
+    }
+
+    .header-actions-group {
+        flex-direction: column; /* Stack sort and search */
+        align-items: stretch; /* Stretch items */
+        width: 100%;
+        gap: 15px;
+    }
+
+    .search-bar-container {
+        width: 100%; 
+    }
+}

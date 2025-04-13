@@ -5,8 +5,8 @@
     border-radius: 12px;
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
     padding: 20px;
-    width: 250px; /* Same width as Quick Profile */
-    font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+    width: 250px; /* Width might need adjustment based on grid layout */
+    font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif; /* Original Font */
     color: #333;
     border: 1px solid #eee;
 }
@@ -14,7 +14,7 @@
 .help-title {
     font-size: 16px;
     font-weight: 600;
-    margin-bottom: 15px; /* Space below title */
+    margin-bottom: 15px;
     color: #212529;
     padding-left: 5px; /* Align with list items */
 }

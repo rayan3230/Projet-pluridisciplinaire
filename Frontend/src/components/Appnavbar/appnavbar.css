@@ -223,13 +223,15 @@ a{
 
 /* Wrapper for positioning popups */
 .profile-wrapper,
-.help-wrapper {
+.help-wrapper,
+.Notification-wrapper {
     position: relative;
 }
 
 /* Popup common styles */
 .profile-popup,
-.help-popup {
+.help-popup,
+.Notification-popup {
     position: absolute;
     top: calc(100% + 10px);
     right: 0;
