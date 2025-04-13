@@ -5,6 +5,7 @@ import logo from '../../assets/navlogo.png';
 import profile from '../../assets/profile.png';
 import Quickprofile from '../Quickprofile/Quickprofile.jsx';
 import Quickhelp from '../Quickhelp/Quickhelp.jsx';
+import Notification from '../Notification/Notification.jsx'; // Import Notification component
 
 import icon1 from '../../assets/navicons/icon1.svg';
 import icon2 from '../../assets/navicons/icon2.svg';
@@ -24,6 +25,8 @@ function Appnavbar(){
     const [activeLink, setActiveLink] = useState(navLinks[0].text);
     const [showProfilePopup, setShowProfilePopup] = useState(false);
     const [showHelpPopup, setShowHelpPopup] = useState(false);
+    const [showNotificationPopup, setShowNotificationPopup] = useState(false); // State for notification popup
+
 
     const navRef = useRef(null);
     const indicatorRef = useRef(null);
@@ -65,6 +68,10 @@ function Appnavbar(){
     const toggleHelpPopup = () => {
         setShowHelpPopup(prev => !prev);
         setShowProfilePopup(false); // Close other popup
+    };
+
+    const toggleNotificationPopup = () => {
+        setShowNotificationPopup(prev => !prev);
     };
 
     // Click outside handler (remains the same)
@@ -139,10 +146,19 @@ function Appnavbar(){
                 <div className="nav-right">
                     <div className="iconed">
                         {/* 1. Notifications */}
-                        <button>
+                        <div className="Notification-wrapper">
+                        <button onClick={toggleNotificationPopup}>
                             <img src={icon1} alt="Notifications" />
                         </button>
-                        
+                        {/*{showNotificationPopup && (
+                            <div className="Notification-popup">
+                                <Notification isVisible={showNotificationPopup} onClose={toggleNotificationPopup} />
+                            </div>
+                        )}*/}
+                        </div>
+
+
+                    
                         {/* 2. Messages/History */}
                         <button>
                             <img src={icon4} alt="Messages" />

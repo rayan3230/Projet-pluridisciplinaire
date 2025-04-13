@@ -1,21 +1,18 @@
 /* notification.css */
 
+/* Frontend/src/components/Notification/notification.css */
 .notification-popup {
     width: 380px; /* Adjust width as needed */
+    height: 600px; /* Set a fixed height */
+    overflow-y: auto; /* Allow scrolling if content exceeds height */
     background-color: #fff;
     border-radius: 8px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
     border: 1px solid #eee;
     font-family: 'Lato', sans-serif;
     color: #333;
-    overflow: hidden; /* Hide overflowing content */
     display: flex;
     flex-direction: column;
-    /* Position fixed/absolute if it's a dropdown */
-    /* position: absolute; 
-       top: 60px; /* Example positioning below navbar */
-       /* right: 20px; */
-       /* z-index: 1000; */
 }
 
 .notification-header {
@@ -64,7 +61,7 @@
     list-style: none;
     padding: 0;
     margin: 0;
-    max-height: 400px; /* Limit height and allow scrolling */
+    max-height: 600px; /* Limit height and allow scrolling */
     overflow-y: auto;
 }
 
