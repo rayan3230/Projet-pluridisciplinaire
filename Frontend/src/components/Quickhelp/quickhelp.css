@@ -49,3 +49,29 @@
 .help-actions span {
     flex-grow: 1;
 }
+
+/* Style for the anchor tag inside list item */
+.help-link {
+    display: flex; /* Make the link take up the li space */
+    align-items: center;
+    text-decoration: none; /* Remove underline */
+    color: inherit; /* Inherit text color from parent li */
+    width: 100%; /* Ensure link fills the li */
+    padding: 0; /* Reset padding if needed, li has padding */
+}
+
+.help-link svg {
+     margin-right: 12px;
+     color: #6c757d;
+     flex-shrink: 0;
+}
+
+.help-link span {
+     flex-grow: 1;
+}
+
+/* Optional: Ensure hover state applies correctly via the link */
+.help-actions li:hover .help-link {
+    /* If you want hover effects specifically on the link, add them here */
+    /* background-color: inherit; /* If li:hover has background */ */
+}

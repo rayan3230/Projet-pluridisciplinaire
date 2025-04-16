@@ -405,3 +405,34 @@ a{
     right: 0;
     z-index: 1000;
 }
+
+.help-popup {
+    /* Existing help popup styles */
+    width: 280px; /* Adjust width as needed */
+}
+
+/* Notification Wrapper and Popup */
+.notification-wrapper {
+    position: relative;
+}
+
+.notification-popup {
+    position: absolute;
+    top: calc(100% + 10px);
+    right: 0;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+    z-index: 1010;
+    width: 350px; /* Width of the popup shell */
+    overflow-y: auto; /* Allow scrolling for the inner container */
+    border: 1px solid #eee;
+    max-height: 520px; /* Optional: Limit overall popup height */
+}
+
+/* Remove the rule targeting the inner container explicitly */
+/*
+.notification-popup .notification-container {
+    padding: 0;
+}
+*/

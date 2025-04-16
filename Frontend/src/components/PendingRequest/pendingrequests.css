@@ -1,0 +1,99 @@
+/* Basic styling for PendingRequests */
+.pending-requests-card {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    /* position: relative; */ /* Remove if not needed for absolute positioning inside */
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px; /* More space below header */
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
+}
+
+.card-title {
+    display: flex;
+    align-items: center;
+    gap: 8px; /* Space between icon and text */
+    margin: 0;
+    font-weight: 500;
+    font-size: 1.1em;
+}
+
+.pending-indicator {
+    width: 12px;
+    height: 12px;
+    background-color: #007bff; /* Blue indicator */
+    border-radius: 50%;
+}
+
+.see-all-link {
+    text-decoration: none;
+    color: #007bff;
+    font-size: 0.9em;
+}
+
+.requests-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.request-item {
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    margin-bottom: 15px;
+    padding: 15px;
+}
+
+.request-details p {
+    margin: 5px 0;
+    font-size: 0.9em;
+    color: #555;
+    display: flex;
+    align-items: center;
+    gap: 6px; /* Space between icon and text */
+}
+
+.request-details p strong {
+    color: #333;
+}
+
+.request-actions {
+    margin-top: 15px;
+    display: flex;
+    gap: 10px; /* Space between buttons */
+}
+
+.request-actions button {
+    padding: 8px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.9em;
+    font-weight: 500;
+    transition: background-color 0.2s ease;
+}
+
+.edit-button {
+    background-color: #007bff;
+    color: white;
+}
+
+.edit-button:hover {
+    background-color: #0056b3;
+}
+
+.delete-button {
+    background-color: #dc3545;
+    color: white;
+}
+
+.delete-button:hover {
+    background-color: #c82333;
+} 

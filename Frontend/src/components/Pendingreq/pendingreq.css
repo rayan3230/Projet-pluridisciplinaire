@@ -1,147 +1,142 @@
-/* pendingreq.css - Matching Incomingrequ.css */
+/* pendingreq.css - Styles for the Pending Requests component */
 
-/* Incoming Request Card Styles */
-.request-card {
-    display: flex;
-    align-items: center; /* Align items vertically center */
-    background-color: white;
+/* Main container for the whole section */
+.pending-requests-container {
+    background-color: #ffffff;
     border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-    padding: 16px 20px; /* Slightly more padding */
-    font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
-    width: 100%; 
-    height: 80px; /* Added height to match placeholder */
-    max-width: 1100px; /* Increased max-width */
-    margin-bottom: 15px; 
-    gap: 20px; /* Adjust gap */
-    border-left: 4px solid #007AFF; /* Blue accent border like Incoming */
-}
-
-/* Requester Info */
-.requester-info {
-    display: flex;
-    align-items: flex-start; /* Align requester info to top */
-    min-width: 100px; /* Adjust width */
-}
-
-.requester-info.expanded-requester {
-    /* Specific styles if needed when expanded and no image */
-}
-
-.profile-image {
-    width: 50px;
-    height: 50px;
-    border-radius: 6px; /* Rounded corners */
-    object-fit: cover;
-    border: 1px solid #eee;
-}
-
-.requester-details {
+    padding: 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    font-family: 'Lato', sans-serif;
+    height: 100%; /* Allow container to fill grid area */
     display: flex;
     flex-direction: column;
 }
 
-.teacher-name {
-    font-size: 15px;
-    font-weight: 600;
-    color: #007AFF; /* Blue name */
-}
-
-.teacher-id {
-    font-size: 13px;
-    color: #6c757d; /* Grey ID */
-}
-
-/* New Wrapper for Content Alignment */
-.request-content-wrapper {
+/* Header section with title and See All link */
+.pending-requests-header {
     display: flex;
-    align-items: center; /* Vertically center slots and icon */
-    flex-grow: 1; /* Take available space */
-    gap: 20px; /* Keep the gap consistent */
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 18px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #e9ecef; /* Subtle separator */
 }
 
-/* Expanded Slot Info Container */
-.slot-info-expanded {
-    display: flex;
-    flex-direction: column;
-    gap: 6px; /* Space between main slot and extra details */
-    flex-basis: 0; /* Allow equal shrinking/growing */
-    flex-grow: 1;  /* Allow equal growing */
-}
-
-/* Slot Label */
-.slot-label {
-    font-size: 11px; /* Smaller label */
-    font-weight: 600;
-    color: #adb5bd; /* Lighter grey */
-    text-transform: uppercase;
-}
-
-/* Slot Details */
-.slot-details {
-    font-size: 14px;
-    color: #333;
-    text-align: left; /* Align left */
-}
-
-/* Extra Details Section */
-.extra-details {
-    display: flex;
-    gap: 15px; /* Space between detail items */
-    font-size: 12px;
-    color: #6c757d;
-}
-
-.detail-item {
-    /* Specific styles per item if needed */
-}
-
-/* Swap Icon */
-.swap-icon {
+.title {
     display: flex;
     align-items: center;
-    justify-content: center;
-    padding: 0 15px; /* Adjust padding */
+    font-size: 1.1rem; /* Slightly larger title */
+    font-weight: 700;
+    color: #343a40;
+    margin: 0;
 }
 
-/* Action Buttons */
-.action-buttons {
+.title-icon {
+    width: 10px;
+    height: 10px;
+    background-color: #007bff; /* Blue dot */
+    border-radius: 50%;
+    margin-right: 10px;
+}
+
+.see-all-link {
+    font-size: 0.85rem;
+    color: #007bff;
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.2s ease;
+}
+
+.see-all-link:hover {
+    color: #0056b3;
+    text-decoration: underline;
+}
+
+/* List container */
+.pending-requests-list {
+    flex-grow: 1; /* Allows list to take remaining space */
+    overflow-y: auto; /* Add scroll if content exceeds height */
+    padding-right: 5px; /* Prevent scrollbar overlap */
+    margin-right: -5px;
+}
+
+/* Individual request item */
+.pending-request-item {
+    background-color: #f8f9fa; /* Light background for items */
+    border-radius: 6px;
+    padding: 15px;
+    margin-bottom: 15px;
+    border: 1px solid #dee2e6;
+}
+
+.request-details {
+    margin-bottom: 15px;
+}
+
+.request-detail {
     display: flex;
     align-items: center;
-    gap: 8px;
-    margin-left: auto; /* Push buttons to the right */
+    margin-bottom: 8px; /* Spacing between details */
+    font-size: 0.9rem;
+    color: #495057;
+}
+
+.icon-detail {
+    margin-right: 8px;
+    color: #6c757d; /* Icon color */
+    flex-shrink: 0; /* Prevent icons from shrinking */
+}
+
+.detail-label {
+    font-weight: 600;
+    margin-right: 5px;
+    min-width: 130px; /* Align values */
+}
+
+.detail-label.indented {
+    padding-left: 24px; /* Indent lines without icons */
+     min-width: calc(130px - 24px); /* Adjust min-width for indent */
+}
+
+.detail-value {
+    color: #212529;
+}
+
+/* Action buttons area */
+.request-actions {
+    display: flex;
+    justify-content: flex-end; /* Align buttons to the right */
+    gap: 10px;
 }
 
 .action-button {
-    background: none;
+    padding: 6px 14px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    border-radius: 5px;
     border: none;
-    padding: 6px;
     cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 4px;
-    transition: background-color 0.2s ease, color 0.2s ease;
-    color: #555; /* Default icon color */
+    transition: background-color 0.2s ease, box-shadow 0.2s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
-.action-button:hover {
-    background-color: #f0f0f0;
-    color: #000;
-}
-
-/* Specific Hovers for PendingReq Actions */
-.message-button:hover {
-    color: #0d6efd; /* Blue */
-    background-color: #cfe2ff;
+.edit-button {
+    background-color: #007bff; /* Blue */
+    color: white;
 }
 
 .edit-button:hover {
-    color: #ffc107; /* Amber/Yellow */
-    background-color: #fff3cd;
+    background-color: #0056b3;
+    box-shadow: 0 2px 4px rgba(0, 123, 255, 0.3);
+}
+
+.delete-button {
+    background-color: #dc3545; /* Red */
+    color: white;
 }
 
 .delete-button:hover {
-    color: #dc3545; /* Red */
-    background-color: #f8d7da;
+    background-color: #c82333;
+    box-shadow: 0 2px 4px rgba(220, 53, 69, 0.3);
 }

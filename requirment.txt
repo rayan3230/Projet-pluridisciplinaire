@@ -17,6 +17,8 @@ pip install python-dotenv // for environment variables
 pip install python-dotenv psycopg2
 pip install django-extentions //we dont need it anymore
 pip install reportlab openpyxl
+pip install reportlab
+pip install google-generativeai
 //-----------------------------------------------------frontend----------------------------------------------------//
 // use npm start   or  npm run dev // to start server frontend
 npx create-react-app Frontend // to install react

@@ -1,0 +1,48 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@100..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Lato:wght@400;700&display=swap');
+
+/* History.css */
+
+/* Overall page container to handle navbar spacing */
+.page-container {
+    padding-top: 70px; /* Match navbar height */
+    background-color: #f8f9fa; /* Background for the whole viewport below navbar */
+    min-height: 100vh; /* Ensure background covers viewport */
+    box-sizing: border-box;
+}
+
+/* Main content area for the history page */
+.history-page-content {
+    padding: 25px 30px; /* Consistent padding */
+    max-width: 1200px; /* Optional: constrain max width */
+    margin: 0 auto; /* Center content */
+    font-family: 'Lato', sans-serif;
+    color: #212529;
+}
+
+.history-page-content h1 {
+    font-family: 'Montserrat', sans-serif;
+    color: #343a40;
+    margin-top: 0; /* Remove default margin */
+    margin-bottom: 25px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #dee2e6;
+    font-size: 1.8rem;
+}
+
+/* Styling for the list of history cards */
+.history-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px; /* Consistent gap from history-card margin */
+}
+
+/* Placeholder styles if needed */
+.history-list p {
+    text-align: center;
+    color: #6c757d;
+    font-size: 1rem;
+    padding: 30px;
+}
+
+/* Add more specific styles for history content later */ 

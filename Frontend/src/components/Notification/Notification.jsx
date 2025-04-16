@@ -119,7 +119,7 @@ function Notification() {
     };
 
     return (
-        <div className="notification-popup">
+        <div className="notification-container">
             <div className="notification-header">
                 <h2>Notifications</h2>
             </div>

@@ -19,6 +19,7 @@
 .teacher-schedule-area {
     grid-column: 1 / 2; /* Span first column */
     grid-row: 1 / 2;    /* Span first row */
+    min-height: 400px; /* Added min-height to make it larger */
 }
 
 .browse-requests-area {

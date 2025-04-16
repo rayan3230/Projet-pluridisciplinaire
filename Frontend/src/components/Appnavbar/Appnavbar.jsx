@@ -25,6 +25,7 @@ function Appnavbar() {
     const [showProfilePopup, setShowProfilePopup] = useState(false);
     const [showHelpPopup, setShowHelpPopup] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const [showNotifications, setShowNotifications] = useState(false); // State for notification popup
 
     const navRef = useRef(null);
     const indicatorRef = useRef(null);
@@ -33,6 +34,8 @@ function Appnavbar() {
     const profileButtonRef = useRef(null);
     const helpButtonRef = useRef(null);
     const mobileMenuRef = useRef(null);
+    const notificationPopupRef = useRef(null); // Ref for notification popup
+    const notificationButtonRef = useRef(null); // Ref for notification button
 
     const handleLinkClick = (link, index) => {
         setActiveLink(link);
@@ -60,15 +63,27 @@ function Appnavbar() {
     const toggleProfilePopup = () => {
         setShowProfilePopup(prev => !prev);
         setShowHelpPopup(false);
+        setShowNotifications(false); // Close other popups
     };
 
     const toggleHelpPopup = () => {
         setShowHelpPopup(prev => !prev);
         setShowProfilePopup(false);
+        setShowNotifications(false); // Close other popups
     };
 
     const toggleMobileMenu = () => {
         setIsMobileMenuOpen(prev => !prev);
+        setShowProfilePopup(false);
+        setShowHelpPopup(false);
+        setShowNotifications(false); // Close other popups
+    };
+
+    // Function to toggle notification popup
+    const toggleNotifications = () => {
+        setShowNotifications(prev => !prev);
+        setShowProfilePopup(false);
+        setShowHelpPopup(false);
     };
 
     useEffect(() => {
@@ -80,6 +95,10 @@ function Appnavbar() {
             if (helpPopupRef.current && !helpPopupRef.current.contains(event.target) && 
                 helpButtonRef.current && !helpButtonRef.current.contains(event.target)) {
                 setShowHelpPopup(false);
+            }
+            if (notificationPopupRef.current && !notificationPopupRef.current.contains(event.target) && 
+                notificationButtonRef.current && !notificationButtonRef.current.contains(event.target)) {
+                setShowNotifications(false);
             }
             if (mobileMenuRef.current && !mobileMenuRef.current.contains(event.target) && 
                 !event.target.closest('.menu-button')) {
@@ -96,7 +115,7 @@ function Appnavbar() {
     useEffect(() => {
         const updatePosition = () => {
             // Find the index based on the activeLink text
-            const currentIndex = navLinks.findIndex(link => link.text === activeLink);
+            const currentIndex = navLinks.findIndex(link => link.text === activeLink.text);
             updateIndicatorPosition(currentIndex);
         }
         
@@ -121,11 +140,11 @@ function Appnavbar() {
                         <ul id="navlist">
                             {navLinks.map((link, index) => (
                                 <li
-                                    key={link}
-                                    className={activeLink === link ? "active" : ""}
+                                    key={link.text}
+                                    className={activeLink.text === link.text ? "active" : ""}
                                     onClick={() => handleLinkClick(link, index)}
                                 >
-                                    <a href={`#${link.replace(/\s+/g, '')}`}>{link}</a>
+                                    <Link to={link.path}>{link.text}</Link>
                                 </li>
                             ))}
                         </ul>
@@ -145,9 +164,18 @@ function Appnavbar() {
                 {/* Nav Right */}
                 <div className="nav-right">
                     <div className="iconed">
-                        <button>
-                            <img src={icon1} alt="Notifications" />
-                        </button>
+                        {/* Notification Button and Popup */}
+                        <div className="notification-wrapper" ref={notificationButtonRef}>
+                             <button onClick={toggleNotifications} className={`notification-button ${showNotifications ? 'active' : ''}`}>
+                                <img src={icon1} alt="Notifications" />
+                                {/* Optional: Add a badge for unread count */} 
+                            </button>
+                             {showNotifications && (
+                                <div className="notification-popup" ref={notificationPopupRef}>
+                                    <Notification />
+                                </div>
+                            )}
+                        </div>
                         <button>
                             <img src={icon4} alt="Messages" />
                         </button>
@@ -183,11 +211,11 @@ function Appnavbar() {
                 <ul id="navlist">
                     {navLinks.map((link, index) => (
                         <li
-                            key={link}
-                            className={activeLink === link ? "active" : ""}
+                            key={link.text}
+                            className={activeLink.text === link.text ? "active" : ""}
                             onClick={() => handleLinkClick(link, index)}
                         >
-                            <a href={`#${link.replace(/\s+/g, '')}`}>{link}</a>
+                            <Link to={link.path}>{link.text}</Link>
                         </li>
                     ))}
                 </ul>

@@ -39,9 +39,16 @@ function Quickhelp() {
                     <QuestionIcon />
                     <span>FAQs</span>
                 </li>
-                <li onClick={handleImprove}>
-                    <CheckSquareIcon />
-                    <span>Help Us Improve</span>
+                <li>
+                    <a 
+                        href="https://docs.google.com/forms/d/e/1FAIpQLSfBabnG-J0QJqZ9FUjMIeoC-dHR0owLhAMmNR2o6Vf8s2RYSw/viewform?usp=sharing"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="help-link"
+                    >
+                        <CheckSquareIcon />
+                        <span>Help Us Improve</span>
+                    </a>
                 </li>
             </ul>
         </div>
