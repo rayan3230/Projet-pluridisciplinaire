@@ -1,5 +1,5 @@
 //--------------------------------------------------BackEnd----------------------------------------------------//
-//use python manage.py runserver //to run server
+//use python manage.py runserver 0.0.0.0:8000 //to run server
 // use djangoenv\Scripts\activate  \\ to run the env of django
 //use python manage.py migrate  //to make changes in the database
 //use python manage.py makemigrations //to check if we have changes in the scripts

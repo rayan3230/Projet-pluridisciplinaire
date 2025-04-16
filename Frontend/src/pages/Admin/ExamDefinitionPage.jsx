@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { getSemesters } from '../../services/semesterService';
 import { getExams, createExam, updateExam, deleteExam, getExamPeriods, createExamPeriod, generateExamSchedule, generateAllPromosExamSchedule } from '../../services/examService';
-import { getPromos } from '../../services/academicService';
+import { getPromos, getAcademicYears } from '../../services/academicService';
 import { getModulesForPromo } from '../../services/moduleService';
 import { getSections } from '../../services/academicService';
 import './ExamDefinitionPage.css';
@@ -11,6 +11,8 @@ const ExamDefinitionPage = () => {
   const [selectedSemester, setSelectedSemester] = useState('');
   const [promos, setPromos] = useState([]);
   const [selectedPromo, setSelectedPromo] = useState('');
+  const [academicYears, setAcademicYears] = useState([]);
+  const [selectedAcademicYear, setSelectedAcademicYear] = useState('');
   const [sectionsForPromo, setSectionsForPromo] = useState([]);
   const [modules, setModules] = useState([]);
   const [exams, setExams] = useState([]);
@@ -24,18 +26,29 @@ const ExamDefinitionPage = () => {
     exam_date: '',
     duration_minutes: 120
   });
+  const [selectedPeriod, setSelectedPeriod] = useState(null);
+  const [examDefinitionForm, setExamDefinitionForm] = useState({
+    name: '',
+    module: '',
+    duration: '',
+    startDate: '',
+    endDate: ''
+  });
+  const [success, setSuccess] = useState(null);
 
   useEffect(() => {
     const fetchInitialData = async () => {
       setLoading(true);
       setError(null);
       try {
-        const [semesterData, promoData] = await Promise.all([
+        const [semesterData, promoData, academicYearsData] = await Promise.all([
           getSemesters(),
-          getPromos()
+          getPromos(),
+          getAcademicYears()
         ]);
         setSemesters(semesterData);
         setPromos(promoData);
+        setAcademicYears(academicYearsData);
       } catch (err) {
         setError('Failed to load initial data');
       } finally {
@@ -44,6 +57,11 @@ const ExamDefinitionPage = () => {
     };
     fetchInitialData();
   }, []);
+
+  // Filter semesters based on selected academic year
+  const filteredSemesters = semesters.filter(semester => 
+    !selectedAcademicYear || semester.academic_year?.id === parseInt(selectedAcademicYear)
+  );
 
   useEffect(() => {
     const fetchData = async () => {
@@ -70,8 +88,13 @@ const ExamDefinitionPage = () => {
           ]);
           console.log("Fetched Sections:", sectionsData);
           console.log("Fetched Exams:", examsData);
-          setSectionsForPromo(sectionsData || []);
-          setExams(examsData || []);
+          
+          // Filter sections and exams to only include those from the selected promo
+          const filteredSections = sectionsData?.filter(section => section.promo?.id === parseInt(selectedPromo)) || [];
+          const filteredExams = examsData?.filter(exam => exam.section?.promo?.id === parseInt(selectedPromo)) || [];
+          
+          setSectionsForPromo(filteredSections);
+          setExams(filteredExams);
           setModules(modulesData || []);
         } else {
           setExams([]);
@@ -87,10 +110,48 @@ const ExamDefinitionPage = () => {
     fetchData();
   }, [selectedSemester, selectedPromo]);
 
-  const handleSemesterChange = (e) => {
-    setSelectedSemester(e.target.value);
+  const handleAcademicYearChange = (e) => {
+    setSelectedAcademicYear(e.target.value);
+    setSelectedSemester('');
     setSelectedPromo('');
     setModules([]);
+  };
+
+  const handleSemesterChange = async (e) => {
+    const semesterId = e.target.value;
+    setSelectedSemester(semesterId);
+    
+    if (semesterId) {
+      try {
+        // Fetch exam periods for the selected semester
+        const periods = await getExamPeriods(semesterId);
+        if (periods.length > 0) {
+          setExamPeriods(periods);
+          setSelectedPeriod(periods[0].id);
+          // Set the exam period dates in the form
+          setExamDefinitionForm(prev => ({
+            ...prev,
+            startDate: periods[0].start_date,
+            endDate: periods[0].end_date
+          }));
+        } else {
+          setExamPeriods([]);
+          setSelectedPeriod(null);
+          setExamDefinitionForm(prev => ({
+            ...prev,
+            startDate: '',
+            endDate: ''
+          }));
+        }
+      } catch (error) {
+        console.error('Error fetching exam periods:', error);
+        setExamPeriods([]);
+        setSelectedPeriod(null);
+      }
+    } else {
+      setExamPeriods([]);
+      setSelectedPeriod(null);
+    }
   };
 
   const handlePromoChange = (e) => {
@@ -214,7 +275,8 @@ const ExamDefinitionPage = () => {
     if (!examList) return {};
     return examList.reduce((acc, exam) => {
       const sectionId = exam.section?.id;
-      if (!sectionId) return acc;
+      // Only include exams for sections that belong to the selected promo
+      if (!sectionId || exam.section?.promo?.id !== parseInt(selectedPromo)) return acc;
       if (!acc[sectionId]) {
         acc[sectionId] = [];
       }
@@ -225,25 +287,90 @@ const ExamDefinitionPage = () => {
 
   const examsGroupedBySection = groupExamsBySection(exams);
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      if (!selectedSemester) {
+        setError('Please select a semester');
+        return;
+      }
+
+      if (!selectedPeriod) {
+        setError('Please select an exam period');
+        return;
+      }
+
+      const examPeriod = examPeriods.find(p => p.id === selectedPeriod);
+      if (!examPeriod) {
+        setError('Invalid exam period selected');
+        return;
+      }
+
+      const examData = {
+        ...examDefinitionForm,
+        semester: selectedSemester,
+        exam_period: selectedPeriod,
+        start_date: examPeriod.start_date,
+        end_date: examPeriod.end_date
+      };
+
+      await createExam(examData);
+      setSuccess('Exam created successfully');
+      setExamDefinitionForm({
+        name: '',
+        module: '',
+        duration: '',
+        startDate: examPeriod.start_date,
+        endDate: examPeriod.end_date
+      });
+      setSelectedSemester('');
+      setSelectedPeriod(null);
+      setExamPeriods([]);
+    } catch (error) {
+      setError(error.response?.data?.message || 'Failed to create exam');
+    }
+  };
+
   return (
     <div className="admin-page-container exam-definition-page">
       <h1>Exam Definition & Scheduling</h1>
       {error && <p className="admin-error">{error}</p>}
+      {success && <p className="admin-success">{success}</p>}
 
       <div className="selection-controls" style={{ display: 'flex', gap: '20px', marginBottom: '20px' }}>
+        <div className="form-group">
+          <label htmlFor="academicYear">Select Academic Year:</label>
+          <select
+            id="academicYear"
+            value={selectedAcademicYear}
+            onChange={handleAcademicYearChange}
+            disabled={loading}
+            className="admin-select"
+          >
+            <option value="">Select an academic year</option>
+            {academicYears.map(year => (
+              <option key={year.id} value={year.id}>
+                {year.year_start}-{year.year_end}
+              </option>
+            ))}
+          </select>
+        </div>
+
         <div className="form-group">
           <label htmlFor="semester">Select Semester:</label>
           <select
             id="semester"
             value={selectedSemester}
             onChange={handleSemesterChange}
-            disabled={loading}
+            disabled={loading || !selectedAcademicYear}
             className="admin-select"
           >
             <option value="">Select a semester</option>
-            {semesters.map(semester => (
+            {filteredSemesters
+              .filter(sem => sem.start_date && sem.end_date)
+              .map(semester => (
               <option key={semester.id} value={semester.id}>
-                {semester.name}
+                {semester.semester_number === 1 ? 'First Semester' : 'Second Semester'}
               </option>
             ))}
           </select>
@@ -269,8 +396,8 @@ const ExamDefinitionPage = () => {
       </div>
 
       <div className="action-buttons" style={{ marginTop: '20px' }}>
-        {/* Case 1: ONLY Semester selected */}
-        {selectedSemester && !selectedPromo && (
+        {/* Only show generate button when academic year and semester are selected */}
+        {selectedAcademicYear && selectedSemester && !selectedPromo && (
           <button
             onClick={handleGenerateAllPromosSchedule}
             className="admin-button generate-all-button"
@@ -279,29 +406,6 @@ const ExamDefinitionPage = () => {
           >
             {loading ? 'Generating...' : 'Generate for All in Semester'}
           </button>
-        )}
-
-        {/* Case 2: BOTH Semester and Promo selected */}
-        {selectedSemester && selectedPromo && (
-          <>
-            <button
-              onClick={() => setShowForm(true)}
-              className="admin-button add-button"
-              disabled={loading || showForm}
-              title="Manually add a single exam entry"
-            >
-              Add Single Exam Manually
-            </button>
-            <button
-              onClick={handleGenerateSinglePromoSchedule}
-              className="admin-button generate-button"
-              disabled={loading}
-              title={`Generate schedule only for ${promos.find(p => p.id === parseInt(selectedPromo))?.name || 'selected promo'}`}
-              style={{ marginLeft: '10px' }}
-            >
-              {loading ? 'Generating...' : 'Generate for Selected Promo'}
-            </button>
-          </>
         )}
       </div>
 
@@ -408,11 +512,10 @@ const ExamDefinitionPage = () => {
             </table>
           </div>
 
-          <div className="admin-table-container">
-            <h2>Existing Exams</h2>
-            {/* Render tables only if promo is selected */}
-            {selectedPromo ? (
-              sectionsForPromo.length > 0 ? (
+          {selectedPromo && (
+            <div className="admin-table-container">
+              <h2>Existing Exams</h2>
+              {sectionsForPromo.length > 0 ? (
                 sectionsForPromo.map(section => {
                   const examsForThisSection = examsGroupedBySection[section.id] || [];
                   return (
@@ -421,22 +524,22 @@ const ExamDefinitionPage = () => {
                       {examsForThisSection.length > 0 ? (
                         <table className="admin-table">
                           <thead>
-                            <tr><th>Exam Name</th><th>Module</th><th>Date & Time</th><th>Duration</th><th>Classroom</th><th>Actions</th></tr>
+                            <tr>
+                              <th>Exam Name</th>
+                              <th>Module</th>
+                              <th>Date & Time</th>
+                              <th>Duration</th>
+                              <th>Classroom</th>
+                            </tr>
                           </thead>
                           <tbody>
                             {examsForThisSection.map(exam => (
                               <tr key={exam.id}>
                                 <td>{exam.name}</td>
-                                {/* Adjust module display if needed based on your data structure */}
-                                <td>{exam.module?.base_module?.name || exam.module?.name || 'N/A'}</td> 
+                                <td>{exam.module?.base_module?.name || exam.module?.name || 'N/A'}</td>
                                 <td>{new Date(exam.exam_date).toLocaleString()}</td>
                                 <td>{exam.duration_minutes} mins</td>
                                 <td>{exam.classroom?.name || 'N/A'}</td>
-                                <td>
-                                  {/* Add Edit/Delete buttons if needed */}
-                                  {/* <button onClick={() => handleEdit(exam)} className="admin-button edit-button">Edit</button> */}
-                                  {/* <button onClick={() => handleDelete(exam.id)} className="admin-button delete-button">Delete</button> */}
-                                </td>
                               </tr>
                             ))}
                           </tbody>
@@ -449,12 +552,97 @@ const ExamDefinitionPage = () => {
                 })
               ) : (
                 <p>No sections found for this promo.</p>
-              )
-            ) : (
-              <p style={{ marginTop: '10px' }}>Select a promo to view its exam schedule.</p>
-            )}
-          </div>
+              )}
+            </div>
+          )}
         </>
+      )}
+
+      {selectedSemester && selectedPromo && showForm && (
+        <div className="admin-form">
+          <h2>Add New Exam</h2>
+          <form onSubmit={handleSubmit}>
+            <div className="form-group">
+              <label htmlFor="examName">Exam Name:</label>
+              <input
+                type="text"
+                id="examName"
+                value={examDefinitionForm.name}
+                onChange={(e) => setExamDefinitionForm({...examDefinitionForm, name: e.target.value})}
+                required
+                className="admin-input"
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="examModule">Module:</label>
+              <select
+                id="examModule"
+                value={examDefinitionForm.module}
+                onChange={(e) => setExamDefinitionForm({...examDefinitionForm, module: e.target.value})}
+                required
+                className="admin-select"
+              >
+                <option value="">Select a module</option>
+                {modules.map(module => (
+                  <option key={module.id} value={module.id}>
+                    {module.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="examDuration">Duration (minutes):</label>
+              <input
+                type="number"
+                id="examDuration"
+                value={examDefinitionForm.duration}
+                onChange={(e) => setExamDefinitionForm({...examDefinitionForm, duration: e.target.value})}
+                min="30"
+                step="30"
+                required
+                className="admin-input"
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="examPeriod">Select Exam Period:</label>
+              <select
+                id="examPeriod"
+                value={selectedPeriod}
+                onChange={(e) => setSelectedPeriod(e.target.value)}
+                required
+                className="admin-select"
+              >
+                <option value="">Select an exam period</option>
+                {examPeriods.map(period => (
+                  <option key={period.id} value={period.id}>
+                    {new Date(period.start_date).toLocaleDateString()} - {new Date(period.end_date).toLocaleDateString()}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="form-actions">
+              <button
+                type="button"
+                onClick={() => setShowForm(false)}
+                className="admin-button cancel-button"
+                disabled={loading}
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="admin-button submit-button"
+                disabled={loading}
+              >
+                {loading ? 'Adding...' : 'Add Exam'}
+              </button>
+            </div>
+          </form>
+        </div>
       )}
     </div>
   );

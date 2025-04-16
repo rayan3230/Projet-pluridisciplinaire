@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { createSemester, updateSemester } from '../../services/semesterService';
+import { updateSemester } from '../../services/semesterService';
 
 function SemesterForm({ semester, onSubmitSuccess, onCancel }) {
-  const [name, setName] = useState('');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [error, setError] = useState('');
@@ -10,41 +9,42 @@ function SemesterForm({ semester, onSubmitSuccess, onCancel }) {
 
   useEffect(() => {
     if (semester) {
-      setName(semester.name);
-      setStartDate(semester.start_date);
-      setEndDate(semester.end_date);
+      setStartDate(semester.start_date || '');
+      setEndDate(semester.end_date || '');
     }
   }, [semester]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
-
-    if (!name || !startDate || !endDate) {
-      setError('Please fill in all fields.');
-      return;
-    }
-    if (new Date(startDate) >= new Date(endDate)) {
-      setError('End date must be after start date.');
-      return;
-    }
-
+    setError(null);
     setIsLoading(true);
+
+    const updatedData = { 
+      start_date: startDate, 
+      end_date: endDate 
+    };
+
     try {
-      const payload = { name, start_date: startDate, end_date: endDate };
-      if (semester) {
-        await updateSemester(semester.id, payload);
-      } else {
-        await createSemester(payload);
-      }
-      setName('');
-      setStartDate('');
-      setEndDate('');
-      if (onSubmitSuccess) onSubmitSuccess();
+      await updateSemester(semester.id, updatedData);
+      onSubmitSuccess();
     } catch (err) {
-      console.error('Semester operation failed:', err);
-      const errorMsg = err.response?.data?.detail || `Failed to ${semester ? 'update' : 'create'} semester.`;
-      setError(errorMsg);
+        let errorMessage = 'Failed to update semester.';
+        if (err.response && err.response.data) {
+            const errorData = err.response.data;
+            if (errorData.start_date && Array.isArray(errorData.start_date)) {
+                errorMessage = `Start Date: ${errorData.start_date.join(' ')}`;
+            } else if (errorData.end_date && Array.isArray(errorData.end_date)) {
+                errorMessage = `End Date: ${errorData.end_date.join(' ')}`;
+            } else if (errorData.non_field_errors && Array.isArray(errorData.non_field_errors)) {
+                errorMessage = errorData.non_field_errors.join(' ');
+            } else if (typeof errorData === 'object' && errorData !== null) {
+                errorMessage = JSON.stringify(errorData);
+            } else if (typeof errorData === 'string') {
+                errorMessage = errorData;
+            }
+        }
+      setError(errorMessage);
+      console.error('Semester update failed:', err);
     } finally {
       setIsLoading(false);
     }
@@ -53,22 +53,18 @@ function SemesterForm({ semester, onSubmitSuccess, onCancel }) {
   return (
     <form onSubmit={handleSubmit} style={{ border: '1px solid #ccc', padding: '1rem', marginTop: '1rem', borderRadius: '5px', backgroundColor: '#f9f9f9' }}>
       <h2 style={{ marginBottom: '1rem', fontSize: '1.2em' }}>
-        {semester ? 'Edit Semester' : 'Create New Semester'}
+        Edit {semester?.semester_number === 1 ? 'First' : 'Second'} Semester
       </h2>
       
-      <div style={{ marginBottom: '1rem' }}>
-        <label htmlFor="semesterName" style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>Semester Name:</label>
-        <input
-          type="text"
-          id="semesterName"
-          placeholder="e.g., Semester 1, Autumn 2024"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          required
-          disabled={isLoading}
-          style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '3px' }}
-        />
+      <div style={{ marginBottom: '1rem', padding: '0.75rem', backgroundColor: '#e9f7fe', borderRadius: '5px' }}>
+        <p style={{ margin: '0 0 0.5rem 0', fontWeight: 'bold' }}>
+          Academic Year: {semester?.academic_year?.year_start ?? 'N/A'}-{semester?.academic_year?.year_end ?? 'N/A'}
+        </p>
       </div>
+      
+      <p style={{ marginBottom: '1rem', color: '#666' }}>
+        Set the start and end dates for this semester.
+      </p>
 
       <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem' }}>
         <div style={{ flex: 1 }}>
@@ -113,7 +109,7 @@ function SemesterForm({ semester, onSubmitSuccess, onCancel }) {
             flex: 1
           }}
         >
-          {isLoading ? 'Saving...' : (semester ? 'Update Semester' : 'Create Semester')}
+          {isLoading ? 'Saving...' : 'Update Semester'}
         </button>
         {onCancel && (
           <button

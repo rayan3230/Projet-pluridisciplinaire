@@ -5,32 +5,12 @@ import {
   getPromos
 } from '../../services/academicService';
 
-function SectionForm({ onSubmitSuccess, initialData, onCancel }) {
+function SectionForm({ onSubmit, onCancel, initialData, promos }) {
   const [name, setName] = useState('');
   const [promoId, setPromoId] = useState('');
-  const [promos, setPromos] = useState([]);
   const [error, setError] = useState('');
-  const [isLoadingPromos, setIsLoadingPromos] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const isEditing = Boolean(initialData);
-
-  // Fetch promos for the dropdown
-  useEffect(() => {
-    const fetchPromosData = async () => {
-      setIsLoadingPromos(true);
-      setError('');
-      try {
-        const data = await getPromos();
-        setPromos(data);
-      } catch (err) {
-        console.error('Failed to fetch promos:', err);
-        setError('Could not load promos. Please refresh.');
-      } finally {
-        setIsLoadingPromos(false);
-      }
-    };
-    fetchPromosData();
-  }, []);
 
   // Populate form fields when editing
   useEffect(() => {
@@ -51,16 +31,13 @@ function SectionForm({ onSubmitSuccess, initialData, onCancel }) {
       return;
     }
     setIsSubmitting(true);
-    const sectionData = { name, promo_id: promoId };
+    const sectionData = { 
+      name, 
+      promo_id: promoId
+    };
 
     try {
-      if (isEditing) {
-        await updateSection(initialData.id, sectionData);
-      } else {
-        await createSection(sectionData);
-      }
-      // Reset form is handled by useEffect
-      if (onSubmitSuccess) onSubmitSuccess();
+      await onSubmit(sectionData);
     } catch (err) {
       console.error(`Section ${isEditing ? 'update' : 'creation'} failed:`, err);
       const errorMsg = err.response?.data?.name?.[0] || err.response?.data?.detail || `Failed to ${isEditing ? 'update' : 'create'} section.`;
@@ -93,14 +70,15 @@ function SectionForm({ onSubmitSuccess, initialData, onCancel }) {
           value={promoId} 
           onChange={(e) => setPromoId(e.target.value)} 
           required
-          disabled={isLoadingPromos || isSubmitting}
+          disabled={isSubmitting}
         >
           <option value="">-- Select Promo --</option>
           {promos.map(promo => (
-            <option key={promo.id} value={promo.id}>{promo.name} ({promo.speciality?.name || 'N/A'})</option> 
+            <option key={promo.id} value={promo.id}>
+              {promo.name} ({promo.speciality?.name || 'No Speciality'})
+            </option>
           ))}
         </select>
-        {isLoadingPromos && <p className="admin-loading">Loading promos...</p>} 
       </div>
 
       {error && <p className="admin-error">{error}</p>}
@@ -108,7 +86,7 @@ function SectionForm({ onSubmitSuccess, initialData, onCancel }) {
       <div className="form-actions">
         <button 
           type="submit" 
-          disabled={isLoadingPromos || isSubmitting}
+          disabled={isSubmitting}
           className="admin-button"
         >
           {isSubmitting ? (isEditing ? 'Updating...' : 'Creating...') : (isEditing ? 'Update Section' : 'Create Section')}

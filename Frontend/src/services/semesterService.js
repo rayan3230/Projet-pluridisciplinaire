@@ -6,37 +6,22 @@ export const getSemesters = async () => {
     const response = await apiClient.get('/semesters/');
     return response.data;
   } catch (error) {
-    console.error('Get Semesters API error:', error.response || error.message);
-    throw error;
-  }
-};
-
-export const createSemester = async (semesterData) => {
-  // semesterData = { name, start_date, end_date }
-  try {
-    const response = await apiClient.post('/semesters/', semesterData);
-    return response.data;
-  } catch (error) {
-    console.error('Create Semester API error:', error.response || error.message);
     throw error;
   }
 };
 
 export const updateSemester = async (id, semesterData) => {
   try {
-    const response = await apiClient.put(`/semesters/${id}/`, semesterData);
+    // Use PATCH for partial updates (like changing only dates)
+    const response = await apiClient.patch(`/semesters/${id}/`, semesterData);
     return response.data;
   } catch (error) {
-    console.error('Update Semester API error:', error.response || error.message);
-    throw error;
-  }
-};
-
-export const deleteSemester = async (id) => {
-  try {
-    await apiClient.delete(`/semesters/${id}/`);
-  } catch (error) {
-    console.error('Delete Semester API error:', error.response || error.message);
+    // Log the detailed error response from the backend if available
+    if (error.response && error.response.data) {
+        console.error('Update Semester API error data:', error.response.data);
+    } else {
+        console.error('Update Semester API error:', error.response || error.message);
+    }
     throw error;
   }
 };
@@ -47,7 +32,7 @@ export const getExams = async (semesterId = null, moduleId = null) => {
     const params = {};
     if (semesterId) params.semester_id = semesterId;
     if (moduleId) params.module_id = moduleId;
-    const response = await apiClient.get('/api/exams/', { params });
+    const response = await apiClient.get('/exams/', { params });
     return response.data;
   } catch (error) {
     console.error('Get Exams API error:', error.response || error.message);
@@ -58,7 +43,7 @@ export const getExams = async (semesterId = null, moduleId = null) => {
 export const createExam = async (examData) => {
   // examData = { name, semester_id, module_id, exam_date, duration_minutes }
   try {
-    const response = await apiClient.post('/api/exams/', examData);
+    const response = await apiClient.post('/exams/', examData);
     return response.data;
   } catch (error) {
     console.error('Create Exam API error:', error.response || error.message);

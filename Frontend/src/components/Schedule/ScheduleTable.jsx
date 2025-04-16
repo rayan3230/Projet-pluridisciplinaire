@@ -39,7 +39,8 @@ const ScheduleTable = ({ promoId, semesterId, sectionId, teacherId }) => {
       setError(null);
       try {
         const filters = { semester_id: semesterId };
-        if (promoId) filters.promo_id = promoId;
+        // Only apply promo_id filter if we're not showing a specific section
+        if (promoId && !sectionId) filters.promo_id = promoId;
         if (sectionId) filters.section_id = sectionId;
         if (teacherId) filters.teacher_id = teacherId;
 
@@ -108,7 +109,7 @@ const ScheduleTable = ({ promoId, semesterId, sectionId, teacherId }) => {
                         <span className="entry-module">
                            {entry.module?.base_module?.name || 'Module?'} ({entry.entry_type})
                         </span>
-                        {!teacherId && <span className="entry-teacher">{entry.teacher?.full_name || 'Teacher?'}</span>}
+                        {!teacherId && <span className="entry-teacher">{entry.teacher_details?.full_name || 'Teacher?'}</span>}
                         <span className="entry-classroom">{entry.classroom?.name || 'Room?'}</span>
                         {!sectionId && <span className="entry-section">Sec: {entry.section?.name || '?'}</span>} 
                       </div>

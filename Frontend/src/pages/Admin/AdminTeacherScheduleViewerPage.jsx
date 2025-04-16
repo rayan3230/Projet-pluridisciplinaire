@@ -107,9 +107,12 @@ const AdminTeacherScheduleViewerPage = () => {
                 className="admin-select"
               >
                 <option value="">-- Select Semester --</option>
-                {semesters.map(semester => (
+                {semesters
+                  .filter(sem => sem.start_date && sem.end_date) // <-- Filter semesters with dates
+                  .map(semester => (
                   <option key={semester.id} value={semester.id}>
-                    {semester.name}
+                    {semester.semester_number === 1 ? 'First Semester' : 'Second Semester'} 
+                    ({semester.academic_year?.year_start ?? '?'}-{semester.academic_year?.year_end ?? '?'})
                   </option>
                 ))}
               </select>

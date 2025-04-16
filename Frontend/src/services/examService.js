@@ -10,7 +10,6 @@ export const getExams = async (semesterId = null, promoId = null, moduleId = nul
     const response = await apiClient.get('/exams/', { params });
     return response.data;
   } catch (error) {
-    console.error('Get Exams API error:', error.response || error.message);
     throw error;
   }
 };
@@ -21,7 +20,6 @@ export const createExam = async (examData) => {
     const response = await apiClient.post('/exams/', examData);
     return response.data;
   } catch (error) {
-    console.error('Create Exam API error:', error.response || error.message);
     throw error;
   }
 };
@@ -31,7 +29,6 @@ export const updateExam = async (id, examData) => {
     const response = await apiClient.put(`/exams/${id}/`, examData);
     return response.data;
   } catch (error) {
-    console.error('Update Exam API error:', error.response || error.message);
     throw error;
   }
 };
@@ -40,7 +37,6 @@ export const deleteExam = async (id) => {
   try {
     await apiClient.delete(`/exams/${id}/`);
   } catch (error) {
-    console.error('Delete Exam API error:', error.response || error.message);
     throw error;
   }
 };
@@ -51,7 +47,6 @@ export const getExamPeriods = async (semesterId) => {
     const response = await apiClient.get('/exam-periods/', { params: { semester_id: semesterId } });
     return response.data;
   } catch (error) {
-    console.error('Get Exam Periods API error:', error.response || error.message);
     throw error;
   }
 };
@@ -62,10 +57,9 @@ export const createExamPeriod = async (periodData) => {
     const response = await apiClient.post('/exam-periods/', periodData);
     return response.data;
   } catch (error) {
-    console.error('Create Exam Period API error:', error.response || error.message);
     throw error;
   }
-}; 
+};
 
 // --- Exam Schedule Generation ---
 export const generateExamSchedule = async (promoId, semesterId) => {
@@ -73,7 +67,6 @@ export const generateExamSchedule = async (promoId, semesterId) => {
     const response = await apiClient.post('/generate-exam-schedule/', { promo_id: promoId, semester_id: semesterId });
     return response.data;
   } catch (error) {
-    console.error('Generate Exam Schedule API error:', error.response || error.message);
     throw error;
   }
 };
@@ -83,7 +76,6 @@ export const generateAllPromosExamSchedule = async (semesterId) => {
     const response = await apiClient.post('/generate-all-promos-exam-schedule/', { semester_id: semesterId });
     return response.data;
   } catch (error) {
-    console.error('Generate All Promos Exam Schedule API error:', error.response || error.message);
     throw error;
   }
 }; 

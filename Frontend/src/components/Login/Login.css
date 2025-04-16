@@ -468,3 +468,151 @@ body{
     transform: scale(1);
   }
 }
+
+/* --- Responsive Design --- */
+
+/* Medium Screens (Tablets, smaller laptops) */
+@media (max-width: 1024px) {
+  .bottom {
+    gap: 40px; /* Reduce gap */
+  }
+  
+  .textfield, #login, #contact, #website {
+    width: 380px; /* Slightly reduce width */
+  }
+
+  #loginheader {
+    font-size: 3em; /* Reduce header size */
+  }
+
+  #logindescription {
+    width: 90%; /* Allow description to take more width */
+    max-width: 600px;
+    margin-bottom: 40px;
+  }
+
+  .logologin {
+    left: 40px;
+    top: 40px;
+    font-size: 1.1em;
+  }
+
+  .rights {
+    right: 20px;
+    bottom: 15px;
+    font-size: 0.75em;
+  }
+}
+
+
+/* Small Screens (Tablets portrait, large phones) */
+@media (max-width: 768px) {
+  .content {
+    top: 60px; /* Adjust top position */
+    padding: 0 20px; /* Add horizontal padding */
+  }
+
+  .bottom {
+    flex-direction: column; /* Stack elements vertically */
+    gap: 30px; /* Adjust gap for vertical layout */
+    align-items: center; /* Center items vertically */
+    width: 100%;
+  }
+
+  .left, .right {
+    width: 100%; /* Allow sections to take full width */
+    max-width: 450px; /* Limit max width */
+    align-items: center; /* Center content within sections */
+    transform: none; /* Reset animation transforms for simplicity or adjust */
+    animation: none; /* Optionally disable entry animations on small screens */
+    opacity: 1; /* Ensure visible */
+  }
+
+  #devider {
+    display: none; /* Hide the divider */
+  }
+
+  .textfield, #login, #contact, #website {
+    width: 100%; /* Make inputs/buttons full width */
+    max-width: 400px; /* Set a max-width */
+  }
+
+  #loginheader {
+    font-size: 2.5em; /* Further reduce header size */
+    text-align: center;
+  }
+
+  #logindescription {
+    font-size: 0.85em;
+    width: 100%;
+    max-width: 450px; /* Adjust max width */
+    margin-bottom: 30px;
+  }
+
+  #resetpass {
+    margin-top: 40px; /* Adjust margin */
+  }
+
+  .logologin {
+    left: 20px;
+    top: 20px;
+    font-size: 1em;
+  }
+
+  .rights {
+    position: static; /* Make rights position static */
+    text-align: center;
+    margin-top: 40px; /* Add margin top */
+    margin-bottom: 20px;
+    opacity: 1; /* Ensure visible */
+    animation: none; /* Disable animation */
+  }
+
+  .circle {
+    /* Optionally hide or adjust decorative circles */
+    display: none; 
+  }
+}
+
+/* Extra Small Screens (Phones) */
+@media (max-width: 480px) {
+  .content {
+    top: 40px;
+    padding: 0 15px;
+  }
+
+  #loginheader {
+    font-size: 2em; /* Even smaller header */
+  }
+
+  #logindescription {
+    font-size: 0.8em;
+    margin-bottom: 25px;
+  }
+
+  .left, .right {
+    gap: 20px; /* Reduce gap within sections */
+  }
+
+  .textfield, #login, #contact, #website {
+    height: 45px; /* Slightly reduce height */
+    font-size: 0.9em;
+  }
+  
+  #login {
+    font-size: 0.95em;
+  }
+
+  #resetpass {
+    font-size: 0.9em;
+  }
+
+  .rights {
+    font-size: 0.7em;
+  }
+
+  .logologin {
+    left: 15px;
+    top: 15px;
+  }
+}

@@ -110,6 +110,7 @@ body.admin-body {
 .admin-main-content {
   /* flex-grow: 1; */ /* REMOVE */
   padding: 2rem;
+  padding-top: 5rem; /* Add padding to account for fixed navbar */
   width: 100%;
   max-width: 1200px; /* Or desired max width */
   margin: 0 auto; /* Center content */

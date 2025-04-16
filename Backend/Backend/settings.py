@@ -31,11 +31,7 @@ DEBUG = os.getenv('DEBUG', 'True') == 'True'
 
 # Print which database is being used
 print("\n" + "="*50)
-if DEBUG:
-    print("Local MySQL Database")
-else:
-    print("Supabase PostgreSQL Database")
-
+print("Local MySQL Database" if DEBUG else "Supabase PostgreSQL Database")
 print("="*50 + "\n")
 
 ALLOWED_HOSTS = ['*']  # Configure this appropriately for production
@@ -74,8 +70,8 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:5174",
     "http://127.0.0.1:5173",
     "http://127.0.0.1:5174",
+    "http://192.168.100.227:5173",  # Add your mobile device's IP
 ]
-
 
 CORS_ALLOW_METHODS = [
     'DELETE',
@@ -220,15 +216,11 @@ EMAIL_HOST_PASSWORD = 'jqra juwo ferc xftg'  # Your email password or app passwo
 DEFAULT_FROM_EMAIL = 'SCOPE Admin <SCOPEADMIN@SCOPE.com>'
 
 # Django REST Framework settings
-# Remove or comment out the entire REST_FRAMEWORK setting to use DRF defaults
-# REST_FRAMEWORK = {
-#     'DEFAULT_AUTHENTICATION_CLASSES': [
-#         # 'users.authentication.APIKeyAuthentication',
-#     ],
-#     'DEFAULT_PERMISSION_CLASSES': [
-#         # 'rest_framework.permissions.IsAuthenticatedOrReadOnly',
-#     ],
-#     'DEFAULT_RENDERER_CLASSES': (
-#         'rest_framework.renderers.JSONRenderer',
-#     )
-# }
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [],
+    'DEFAULT_PERMISSION_CLASSES': [],
+    'DEFAULT_RENDERER_CLASSES': (
+        'rest_framework.renderers.JSONRenderer',
+        'rest_framework.renderers.BrowsableAPIRenderer',
+    )
+}

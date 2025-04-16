@@ -114,8 +114,13 @@ function ScheduleGeneratorForm({ onScheduleGenerated }) {
           style={styles.select}
         >
           <option value="">-- Select Semester --</option>
-          {semesters.map(s => (
-            <option key={s.id} value={s.id}>{s.name}</option>
+          {semesters
+            .filter(sem => sem.start_date && sem.end_date)
+            .map(s => (
+            <option key={s.id} value={s.id}>
+              {s.semester_number === 1 ? 'First Semester' : 'Second Semester'} 
+              ({s.academic_year?.year_start ?? '?'}-{s.academic_year?.year_end ?? '?'})
+            </option>
           ))}
         </select>
       </div>

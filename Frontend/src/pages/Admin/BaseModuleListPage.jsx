@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import {
   getBaseModules,
   deleteBaseModule,
-  // updateBaseModule handled by form
 } from '../../services/moduleService';
 import BaseModuleForm from '../../components/Admin/BaseModuleForm';
 
@@ -11,7 +10,7 @@ function BaseModuleListPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [showForm, setShowForm] = useState(false);
-  const [editingModule, setEditingModule] = useState(null); // State for editing
+  const [editingModule, setEditingModule] = useState(null); 
 
   const fetchData = async () => {
     setIsLoading(true);
@@ -69,6 +68,19 @@ function BaseModuleListPage() {
     setEditingModule(null);
   };
 
+  const getStatusBadgeClass = (status) => {
+    switch (status.code) {
+      case 'ready':
+        return 'status-badge ready';
+      case 'no_versions':
+        return 'status-badge warning';
+      case 'no_teachers':
+        return 'status-badge warning';
+      default:
+        return 'status-badge error';
+    }
+  };
+
   return (
     <div className="admin-page-container">
       <h1>Manage Base Modules</h1>
@@ -102,8 +114,10 @@ function BaseModuleListPage() {
             <thead>
               <tr>
                 <th>Name</th>
-                <th>Code</th>
-                <th>Coefficient</th>
+                <th>Status</th>
+                <th>Versions</th>
+                <th>Latest Version</th>
+                <th>Teachers</th>
                 <th>Actions</th>
               </tr>
             </thead>
@@ -111,8 +125,25 @@ function BaseModuleListPage() {
               {modules.map(mod => (
                 <tr key={mod.id}>
                   <td>{mod.name}</td>
-                  <td>{mod.code}</td>
-                  <td>{mod.coef}</td>
+                  <td>
+                    <span className={getStatusBadgeClass(mod.status)}>
+                      {mod.status.label}
+                    </span>
+                  </td>
+                  <td>{mod.versions_count}</td>
+                  <td>
+                    {mod.latest_version ? (
+                      <div className="version-info">
+                        <span className="version-name">{mod.latest_version.version_name}</span>
+                        <span className="version-hours">
+                          {mod.latest_version.hours.total}h total
+                        </span>
+                      </div>
+                    ) : (
+                      <span className="no-version">No versions</span>
+                    )}
+                  </td>
+                  <td>{mod.assigned_teachers_count}</td>
                   <td className="actions-cell">
                     <div className="action-buttons">
                       <button 

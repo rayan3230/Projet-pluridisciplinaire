@@ -11,15 +11,12 @@
     background-color: #FFFFFF;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
     width: 100%;
-    height: 70px;
-    padding-left: 5%;
-    padding-right: 5%;
+    height: 60px;
     position: fixed;
     top: 0;
     left: 0;
-    z-index: 100;
+    z-index: 1000;
 }
-
 
 .container{
     display: flex;
@@ -28,13 +25,272 @@
     justify-content: space-between;
 }
 
+.nav-left {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
 
 .logo{
-    width: 110px !important;
-    height: 35px !important;
+    width: 90px !important;
+    height: 28px !important;
+    object-fit: contain;
+}
+
+/* Mobile Menu Button */
+.menu-button {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 36px;
+    height: 36px;
+    background: none;
+    border: none;
+    cursor: pointer;
     padding: 0;
-    gap: 40px;
+    z-index: 1001;
+}
+
+.menu-icon {
+    position: relative;
+    width: 20px;
+    height: 2px;
+    background-color: #333;
+    transition: all 0.3s ease;
+}
+
+.menu-icon::before,
+.menu-icon::after {
+    content: '';
+    position: absolute;
+    width: 20px;
+    height: 2px;
+    background-color: #333;
+    transition: all 0.3s ease;
+}
+
+.menu-icon::before {
+    top: -6px;
+}
+
+.menu-icon::after {
+    bottom: -6px;
+}
+
+.menu-button.active .menu-icon {
+    background-color: transparent;
+}
+
+.menu-button.active .menu-icon::before {
+    transform: rotate(45deg);
+    top: 0;
+}
+
+.menu-button.active .menu-icon::after {
+    transform: rotate(-45deg);
+    bottom: 0;
+}
+
+/* Navigation */
+.nav {
+    position: relative;
+}
+
+#navlist{
+    display: flex;
+    align-items: center;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    gap: 20px;
     font-size: 0.9em;
+}
+
+#navlist a {
+    color: #000000;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+#navlist li.active a {
+    color: #007AFF;
+    font-weight: 600;
+}
+
+#navlist li a:hover {
+    color: #007AFF;
+}
+
+.indicator {
+    position: absolute;
+    bottom: -2px;
+    height: 2px;
+    background-color: #007AFF;
+    transition: left 0.3s ease, width 0.3s ease;
+    left: var(--indicator-left, 0);
+    width: var(--indicator-width, 0);
+}
+
+/* Icons */
+.nav-right {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.iconed {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.iconed button {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.iconed button:hover {
+    background-color: #f0f0f0;
+    transform: scale(1.1);
+}
+
+.iconed img {
+    width: 20px;
+    height: 20px;
+}
+
+#profile-icon {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    border: 1px solid #ddd;
+}
+
+/* Mobile Navigation */
+.mobile-nav {
+    position: fixed;
+    top: 60px;
+    left: 0;
+    width: 100%;
+    height: calc(100vh - 60px);
+    background-color: #FFFFFF;
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+    padding: 1.5rem 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.mobile-nav.active {
+    transform: translateX(0);
+}
+
+.mobile-nav #navlist {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+}
+
+.mobile-nav #navlist a {
+    font-size: 1.1rem;
+    padding: 0.5rem 0;
+    display: block;
+    width: 100%;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .navbar {
+        padding: 10px 15px;
+    }
+
+    .menu-button {
+        display: flex;
+    }
+
+    .nav {
+        display: none;
+    }
+
+    .mobile-nav {
+        display: block;
+    }
+
+    .iconed {
+        gap: 10px;
+    }
+
+    .iconed button {
+        width: 32px;
+        height: 32px;
+    }
+
+    .iconed img {
+        width: 18px;
+        height: 18px;
+    }
+
+    #profile-icon {
+        width: 32px;
+        height: 32px;
+    }
+}
+
+@media (min-width: 769px) {
+    .navbar {
+        height: 70px;
+        padding: 10px 20px;
+    }
+
+    .logo {
+        width: 110px !important;
+        height: 35px !important;
+    }
+
+    .nav {
+        display: block;
+    }
+
+    .mobile-nav {
+        display: none;
+    }
+
+    .nav-left {
+        gap: 40px;
+    }
+
+    #navlist {
+        gap: 40px;
+    }
+
+    .iconed {
+        gap: 25px;
+    }
+
+    .iconed button {
+        width: 40px;
+        height: 40px;
+    }
+
+    .iconed img {
+        width: 20px;
+        height: 20px;
+    }
+
+    #profile-icon {
+        width: 35px;
+        height: 35px;
+    }
 }
 
 #login{
@@ -70,78 +326,10 @@
     font-size: 0.9em;
 }
 
-
-
 a{
     color: #000000;
     text-decoration: none;
     transition: left 0.3s ease;
-}
-
-.indicator {
-    position: absolute;
-    bottom: -2px;
-    height: 2px;
-    background-color: #007AFF;
-    transition: left 0.3s ease, width 0.3s ease;
-    left: var(--indicator-left, 0);
-    width: var(--indicator-width, 0);
-}
-
-#profile{
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-}
-
-.iconed button{
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    transition: all 0.3s ease;
-    background-color: transparent;
-}
-
-.iconed button:hover{
-    background-color: #f0f0f0;
-    cursor: pointer;
-    transform: scale(1.1);
-}
-
-.iconed{
-    display: flex;
-    align-items: center;
-    gap: 25px;
-}
-
-.iconed img {
-    width: 20px;
-    height: 20px;
-}
-
-/* Styles for the left group (logo + nav) */
-.nav-left {
-    display: flex;
-    align-items: center;
-    gap: 40px;
-}
-
-/* Styles for the right group (icons + profile) */
-.nav-right {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-}
-
-/* Specific styles for the profile button/icon */
-#profile-icon {
-    width: 35px;
-    height: 35px;
-    border-radius: 50%;
-    border: 1px solid #ddd;
 }
 
 .profile-button {
@@ -168,46 +356,26 @@ a{
     cursor: pointer;
 }
 
-/* Styles for the nav container itself */
-.nav {
-    position: relative;
-}
-
-#navlist{
-    text-decoration: none;
-}
-
-.nav li a:hover {
-    color: #007AFF;
-}
-
-.nav li.active a {
-    color: #007AFF;
-    font-weight: 600;
-}
-
-/* Generic icon button styles */
-.iconed button {
-    background: none;
-    border: none;
-    padding: 0;
+/* Styles for the left group (logo + nav) */
+.nav-left {
     display: flex;
     align-items: center;
-    justify-content: center;
+    gap: 40px;
+}
+
+/* Styles for the right group (icons + profile) */
+.nav-right {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+/* Specific styles for the profile button/icon */
+#profile-icon {
+    width: 35px;
+    height: 35px;
     border-radius: 50%;
-    width: 40px;
-    height: 40px;
-    transition: background-color 0.3s ease, box-shadow 0.3s ease;
-}
-
-.iconed button:hover {
-    background-color: #f0f0f0;
-    cursor: pointer;
-}
-
-.iconed button img {
-    width: 20px;
-    height: 20px;
+    border: 1px solid #ddd;
 }
 
 .profile-button img#profile-icon {

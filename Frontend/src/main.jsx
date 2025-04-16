@@ -1,18 +1,13 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
-import App from './App.jsx' // Add missing import
+import App from './App.jsx'
 import './index.css'
 import { AuthProvider } from './context/AuthContext'
-// Remove unused imports
-//import Filter from './components/Filter/Filter.jsx'; 
-// import { BrowserRouter, Routes, Route } from 'react-router-dom';
-//import IncomingRequest from './APP/User/IncomingRequests/IncomingRequest.jsx';
-//import AppNavbar from './components/AppNavbar/AppNavbar.jsx';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <AuthProvider>
-      <App /> 
+      <App />
     </AuthProvider>
   </React.StrictMode>,
 )

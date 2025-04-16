@@ -1,6 +1,7 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.conf import settings # Import settings to reference the custom User model
+from django.core.exceptions import ValidationError
 
 # <<< NEW MODEL >>>
 class Location(models.Model):
@@ -55,16 +56,55 @@ class Speciality(models.Model):
 class Promo(models.Model):
     name = models.CharField(max_length=100)
     speciality = models.ForeignKey(Speciality, on_delete=models.CASCADE, related_name='promos')
-    year_start = models.PositiveIntegerField()
-    year_end = models.PositiveIntegerField()
-    modules = models.ManyToManyField('VersionModule', related_name='promos', blank=True)
-    semester = models.ForeignKey('Semester', on_delete=models.SET_NULL, related_name='promos', null=True, blank=True)
+    academic_year = models.ForeignKey(
+        'AcademicYear',
+        on_delete=models.CASCADE,
+        related_name='promos'
+    )
+    # REMOVED: modules = models.ManyToManyField(Module, related_name='promos_assigned')
+
+    # Add a relationship to the new linking model
+    assigned_modules = models.ManyToManyField(
+        'VersionModule',
+        through='PromoModuleSemester',
+        related_name='assigned_promos'
+    )
 
     class Meta:
-        unique_together = ('name', 'speciality') # Ensure promo name is unique within a speciality
+        ordering = ['name']
+        unique_together = ('name', 'speciality', 'academic_year')
 
     def __str__(self):
-        return f"{self.name} ({self.speciality.name})"
+        # Keep existing or update as needed
+        return f"{self.name} - {self.speciality.name} ({self.academic_year})"
+
+# NEW MODEL
+class PromoModuleSemester(models.Model):
+    promo = models.ForeignKey(Promo, on_delete=models.CASCADE)
+    semester = models.ForeignKey('Semester', on_delete=models.CASCADE) # Use forward reference
+    module = models.ForeignKey('VersionModule', on_delete=models.CASCADE) # Use forward reference
+
+    class Meta:
+        unique_together = ('promo', 'semester', 'module')
+        verbose_name = "Promo Module Assignment (Semester)"
+        verbose_name_plural = "Promo Module Assignments (Semester)"
+
+    def __str__(self):
+        return f"{self.promo} - {self.module} ({self.semester})"
+
+    def clean(self):
+        """
+        Validate that the semester belongs to the same academic year as the promo.
+        """
+        if self.semester.academic_year != self.promo.academic_year:
+            raise ValidationError(
+                f"Semester's academic year ({self.semester.academic_year}) does not match promo's academic year ({self.promo.academic_year})"
+            )
+        super().clean()
+
+    def save(self, *args, **kwargs):
+        self.clean()
+        super().save(*args, **kwargs)
 
 class Section(models.Model):
     name = models.CharField(max_length=50) # e.g., 'A', 'B', 'Group 1'
@@ -99,13 +139,66 @@ class VersionModule(models.Model):
         return f"{self.base_module.name} ({self.version_name})"
 
 # --- Semesters & Exams ---
-class Semester(models.Model):
-    name = models.CharField(max_length=50) # e.g., "Semester 1", "Autumn 2024"
-    start_date = models.DateField()
-    end_date = models.DateField()
+# --- MODIFIED: Semester now belongs to a Promo ---
+class AcademicYear(models.Model):
+    year_start = models.IntegerField()
+    year_end = models.IntegerField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ('year_start', 'year_end')
+        ordering = ['-year_start']
 
     def __str__(self):
-        return self.name
+        return f"{self.year_start}-{self.year_end}"
+
+    def clean(self):
+        if self.year_end != self.year_start + 1:
+            raise ValidationError("Academic year must span exactly one year")
+        super().clean()
+
+    def save(self, *args, **kwargs):
+        self.clean()
+        super().save(*args, **kwargs)
+        # Create two semesters if they don't exist
+        if not self.semester_set.exists():
+            Semester.objects.create(
+                academic_year=self,
+                semester_number=1,
+                start_date=None,
+                end_date=None
+            )
+            Semester.objects.create(
+                academic_year=self,
+                semester_number=2,
+                start_date=None,
+                end_date=None
+            )
+
+class Semester(models.Model):
+    academic_year = models.ForeignKey(AcademicYear, on_delete=models.CASCADE)
+    semester_number = models.IntegerField(choices=[(1, 'First'), (2, 'Second')])
+    start_date = models.DateField(null=True, blank=True)
+    end_date = models.DateField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ('academic_year', 'semester_number')
+        ordering = ['academic_year', 'semester_number']
+
+    def __str__(self):
+        return f"Semester {self.semester_number} - {self.academic_year}"
+
+    def clean(self):
+        if self.start_date and self.end_date and self.start_date >= self.end_date:
+            raise ValidationError("End date must be after start date")
+        super().clean()
+
+    def save(self, *args, **kwargs):
+        self.clean()
+        super().save(*args, **kwargs)
 
 class Exam(models.Model):
     name = models.CharField(max_length=100) # e.g., "Midterm", "Final Exam"
@@ -133,16 +226,38 @@ class ExamPeriod(models.Model):
 
 
 # --- Teachers & Assignments ---
-class TeacherModuleAssignment(models.Model):
-    teacher = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='module_assignments', limit_choices_to={'is_teacher': True})
-    module = models.ForeignKey(VersionModule, on_delete=models.CASCADE, related_name='assignments')
-    promo = models.ForeignKey(Promo, on_delete=models.CASCADE, related_name='teacher_assignments') # Assign teacher to module FOR a specific promo
+# --- MODIFIED: Assignment is per Teacher, Module, and SEMESTER (not promo directly) ---
+class TeacherBaseModuleAssignment(models.Model):
+    teacher = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='base_module_assignments', limit_choices_to={'is_teacher': True})
+    base_module = models.ForeignKey(BaseModule, on_delete=models.CASCADE, related_name='teacher_assignments')
 
     class Meta:
-        unique_together = ('teacher', 'module', 'promo') # Ensure a teacher is assigned only once to a module per promo
+        unique_together = ('teacher', 'base_module')
+        ordering = ['teacher', 'base_module']
 
     def __str__(self):
-        return f"{self.teacher.full_name} -> {self.module} ({self.promo})"
+        return f"{self.teacher.full_name} -> {self.base_module.name}"
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        # Create assignments for all version modules of this base module
+        version_modules = VersionModule.objects.filter(base_module=self.base_module)
+        for version_module in version_modules:
+            TeacherModuleAssignment.objects.get_or_create(
+                teacher=self.teacher,
+                module=version_module
+            )
+
+class TeacherModuleAssignment(models.Model):
+    teacher = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='module_assignments', limit_choices_to={'is_teacher': True})
+    module = models.ForeignKey(VersionModule, on_delete=models.CASCADE, related_name='teacher_assignments')
+
+    class Meta:
+        unique_together = ('teacher', 'module')
+        ordering = ['teacher', 'module']
+
+    def __str__(self):
+        return f"{self.teacher.full_name} -> {self.module}"
 
 
 # --- Schedule Generation ---
@@ -202,6 +317,12 @@ class ExamSurveillance(models.Model):
     def __str__(self):
         teacher_name = self.teacher.get_full_name() if self.teacher else "Unassigned"
         return f"Surveillance for {self.exam} by {teacher_name}"
+
+    def save(self, *args, **kwargs):
+        # Ensure the teacher is marked as a teacher
+        if self.teacher and not self.teacher.is_teacher:
+            raise ValidationError("Only teachers can be assigned to exam surveillance.")
+        super().save(*args, **kwargs)
 
 
 

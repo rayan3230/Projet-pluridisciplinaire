@@ -6,7 +6,7 @@ from django.contrib.auth import authenticate
 from .models import User
 from .serializers import UserSerializer, ChangePasswordSerializer
 from rest_framework.views import APIView
-from rest_framework import serializers as rest_serializers # Alias to avoid naming conflict
+from rest_framework import serializers as rest_serializers
 import random
 import string
 from django.core.mail import send_mail
@@ -15,53 +15,42 @@ from django.conf import settings
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    # Add permission classes if needed, e.g., IsAdminUser
-    # permission_classes = [permissions.IsAdminUser]
 
     def get_queryset(self):
-        """Optionally filter users, e.g., by is_teacher."""
         queryset = User.objects.all()
         is_teacher_param = self.request.query_params.get('is_teacher')
 
         if is_teacher_param is not None:
-            # More robust check for truthiness
             if isinstance(is_teacher_param, bool):
                 is_teacher = is_teacher_param
-            else: # Assume string otherwise
+            else:
                 is_teacher = is_teacher_param.lower() in ['true', '1']
                 
             queryset = queryset.filter(is_teacher=is_teacher)
             
-        return queryset.order_by('full_name') # Order teachers by name
+        return queryset.order_by('full_name')
 
     def create(self, request, *args, **kwargs):
-        # Extract data from request
         full_name = request.data.get('full_name')
         personnel_email = request.data.get('personnel_email')
-        # username = request.data.get('username') # Get username if needed
-        is_teacher_request = request.data.get('is_teacher', False) # Check if frontend sends this flag
-        is_admin_request = request.data.get('is_admin', False) # Allow creating admins too?
+        is_teacher_request = request.data.get('is_teacher', False)
+        is_admin_request = request.data.get('is_admin', False)
 
         if not full_name or not personnel_email:
             return Response({'detail': 'Full name and personnel email are required.'}, status=status.HTTP_400_BAD_REQUEST)
 
-        # --- Generate Scope Email ---
-        # Simple generation: replace spaces, convert to lowercase. Add uniqueness check/handling.
         base_email_part = full_name.lower().replace(' ', '')
         scope_email = f"{base_email_part}@scope.com"
-        # TODO: Add logic to ensure scope_email uniqueness (e.g., append number if exists)
         counter = 1
         while User.objects.filter(scope_email=scope_email).exists():
             scope_email = f"{base_email_part}{counter}@scope.com"
             counter += 1
 
-        # --- Generate Temporary Password ---
         password_length = 10
         characters = string.ascii_letters + string.digits
         temporary_password = ''.join(random.choice(characters) for i in range(password_length))
 
         try:
-            # --- Create User ---
             user = User.objects.create_user(
                 scope_email=scope_email,
                 password=temporary_password,
@@ -69,13 +58,11 @@ class UserViewSet(viewsets.ModelViewSet):
                 personnel_email=personnel_email,
                 is_teacher=bool(is_teacher_request),
                 is_admin=bool(is_admin_request),
-                is_staff=bool(is_admin_request), # Admins should probably be staff
-                needs_password_change=True, # Force change on first login
-                is_active=True # Activate account immediately
-                # username=username # Pass username if using it
+                is_staff=bool(is_admin_request),
+                needs_password_change=True,
+                is_active=True
             )
 
-            # --- Send Email --- 
             subject = 'Your Scope Account Credentials'
             message = (
                 f'Hello {user.full_name},\n\n'
@@ -93,17 +80,13 @@ class UserViewSet(viewsets.ModelViewSet):
                 print(f"Credentials email sent successfully to {user.personnel_email}")
             except Exception as mail_error:
                 print(f"ERROR sending credentials email to {user.personnel_email}: {mail_error}")
-                # Decide how to handle email failure - maybe log it, but don't fail the user creation?
-                # Optionally: Could delete the user here if email is critical, or flag for manual intervention.
 
-            # --- Return Response --- 
             serializer = self.get_serializer(user)
             headers = self.get_success_headers(serializer.data)
             return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
         except Exception as e:
-            print(f"User Creation Error: {e}") # Log the specific error
-            # Check for specific errors e.g., IntegrityError for duplicate personnel_email if it were unique
+            print(f"User Creation Error: {e}")
             return Response({'detail': f'An error occurred during user creation: {e}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 @api_view(['POST'])
@@ -138,7 +121,6 @@ def Login_User(request):
             'detail': 'An unexpected error occurred during login.'
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-# Serializer for Change Password endpoint
 class ChangePasswordSerializer(rest_serializers.Serializer):
     scope_email = rest_serializers.EmailField(required=True)
     current_password = rest_serializers.CharField(required=True)
@@ -149,10 +131,8 @@ class ChangePasswordSerializer(rest_serializers.Serializer):
              raise rest_serializers.ValidationError("Password must be at least 8 characters long.")
         return value
 
-# View for Changing Password
 class ChangePasswordView(APIView):
-    # Explicitly define allowed method, although POST should be default via post()
-    http_method_names = ['post', 'head', 'options'] 
+    http_method_names = ['post', 'head', 'options']
 
     def post(self, request, *args, **kwargs):
         serializer = ChangePasswordSerializer(data=request.data)

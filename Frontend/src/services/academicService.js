@@ -1,4 +1,5 @@
 import apiClient from '../config/axiosConfig';
+import axios from 'axios';
 
 // --- Specialities ---
 export const getSpecialities = async () => {
@@ -6,7 +7,6 @@ export const getSpecialities = async () => {
     const response = await apiClient.get('/specialities/');
     return response.data;
   } catch (error) {
-    console.error('Get Specialities API error:', error.response || error.message);
     throw error;
   }
 };
@@ -16,7 +16,6 @@ export const createSpeciality = async (specialityData) => {
     const response = await apiClient.post('/specialities/', specialityData);
     return response.data;
   } catch (error) {
-    console.error('Create Speciality API error:', error.response || error.message);
     throw error;
   }
 };
@@ -26,7 +25,6 @@ export const updateSpeciality = async (id, specialityData) => {
     const response = await apiClient.put(`/specialities/${id}/`, specialityData);
     return response.data;
   } catch (error) {
-    console.error(`Update Speciality ${id} API error:`, error.response || error.message);
     throw error;
   }
 };
@@ -35,7 +33,6 @@ export const deleteSpeciality = async (id) => {
   try {
     await apiClient.delete(`/specialities/${id}/`);
   } catch (error) {
-    console.error(`Delete Speciality ${id} API error:`, error.response || error.message);
     throw error;
   }
 };
@@ -47,7 +44,6 @@ export const getPromos = async (specialityId = null) => {
     const response = await apiClient.get('/promos/', { params });
     return response.data;
   } catch (error) {
-    console.error('Get Promos API error:', error.response || error.message);
     throw error;
   }
 };
@@ -57,8 +53,8 @@ export const createPromo = async (promoData) => {
     const response = await apiClient.post('/promos/', promoData);
     return response.data;
   } catch (error) {
-    console.error('Create Promo API error:', error.response || error.message);
-    throw error;
+    const errorMessage = error.response?.data?.detail || error.response?.data || error.message;
+    throw new Error(errorMessage);
   }
 };
 
@@ -67,7 +63,6 @@ export const updatePromo = async (id, promoData) => {
     const response = await apiClient.put(`/promos/${id}/`, promoData);
     return response.data;
   } catch (error) {
-    console.error(`Update Promo ${id} API error:`, error.response || error.message);
     throw error;
   }
 };
@@ -76,7 +71,15 @@ export const deletePromo = async (id) => {
   try {
     await apiClient.delete(`/promos/${id}/`);
   } catch (error) {
-    console.error(`Delete Promo ${id} API error:`, error.response || error.message);
+    throw error;
+  }
+};
+
+export const getPromoById = async (id) => {
+  try {
+    const response = await apiClient.get(`/promos/${id}/`);
+    return response.data;
+  } catch (error) {
     throw error;
   }
 };
@@ -87,7 +90,6 @@ export const getSections = async (filters = {}) => {
     const response = await apiClient.get('/sections/', { params: filters });
     return response.data;
   } catch (error) {
-    console.error('Get Sections API error:', error.response || error.message);
     throw error;
   }
 };
@@ -97,7 +99,6 @@ export const createSection = async (sectionData) => {
     const response = await apiClient.post('/sections/', sectionData);
     return response.data;
   } catch (error) {
-    console.error('Create Section API error:', error.response || error.message);
     throw error;
   }
 };
@@ -107,7 +108,6 @@ export const updateSection = async (id, sectionData) => {
     const response = await apiClient.put(`/sections/${id}/`, sectionData);
     return response.data;
   } catch (error) {
-    console.error(`Update Section ${id} API error:`, error.response || error.message);
     throw error;
   }
 };
@@ -116,7 +116,6 @@ export const deleteSection = async (id) => {
   try {
     await apiClient.delete(`/sections/${id}/`);
   } catch (error) {
-    console.error(`Delete Section ${id} API error:`, error.response || error.message);
     throw error;
   }
 };
@@ -127,7 +126,6 @@ export const getClassrooms = async () => {
     const response = await apiClient.get('/classrooms/');
     return response.data;
   } catch (error) {
-    console.error('Get Classrooms API error:', error.response || error.message);
     throw error;
   }
 };
@@ -137,7 +135,6 @@ export const createClassroom = async (classroomData) => {
     const response = await apiClient.post('/classrooms/', classroomData);
     return response.data;
   } catch (error) {
-    console.error('Create Classroom API error:', error.response || error.message);
     throw error;
   }
 };
@@ -147,7 +144,6 @@ export const updateClassroom = async (id, classroomData) => {
     const response = await apiClient.put(`/classrooms/${id}/`, classroomData);
     return response.data;
   } catch (error) {
-    console.error(`Update Classroom ${id} API error:`, error.response || error.message);
     throw error;
   }
 };
@@ -156,11 +152,72 @@ export const deleteClassroom = async (id) => {
   try {
     await apiClient.delete(`/classrooms/${id}/`);
   } catch (error) {
-    console.error(`Delete Classroom ${id} API error:`, error.response || error.message);
     throw error;
   }
 };
 
 // Renaming classes to classrooms for clarity
 // export const getClasses = getClassrooms;
-// export const createClass = createClassroom; 
+// export const createClass = createClassroom;
+
+export const getAcademicYears = async () => {
+  try {
+    const response = await apiClient.get('/academic-years/');
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const createAcademicYear = async (academicYearData) => {
+  try {
+    const response = await apiClient.post('/academic-years/', academicYearData);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const getSemestersByAcademicYear = async (academicYearId) => {
+  try {
+    const response = await apiClient.get(`/academic-years/${academicYearId}/semesters/`);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const updateSemester = async (semesterId, semesterData) => {
+  try {
+    const response = await apiClient.patch(`/semesters/${semesterId}/`, semesterData);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+// --- PromoModuleSemester Assignments ---
+export const createPromoModuleAssignment = async (assignmentData) => {
+  try {
+    const response = await apiClient.post('/promo-module-assignments/', assignmentData);
+    return response.data;
+  } catch (error) {
+    const errorMessage = error.response?.data?.detail || error.response?.data || error.message;
+    throw new Error(errorMessage);
+  }
+};
+
+// Add functions for getting and deleting assignments as needed later
+// export const getPromoModuleAssignments = async (filters = {}) => { ... };
+// export const deletePromoModuleAssignment = async (assignmentId) => { ... };
+
+// --- Modules (Version Modules) ---
+export const getModules = async () => {
+  try {
+    const response = await apiClient.get('/modules/');
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+// Add create/update/delete for VersionModules if needed later

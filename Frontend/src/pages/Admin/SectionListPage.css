@@ -1,0 +1,147 @@
+.admin-page-container {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.sections-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 20px 0;
+  padding: 15px;
+  background-color: #f5f5f5;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.sections-header h2 {
+  margin: 0;
+  color: #333;
+}
+
+.filter-control {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.filter-control label {
+  font-weight: 500;
+  color: #555;
+}
+
+.admin-select {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: white;
+  font-size: 14px;
+  min-width: 200px;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.admin-select:hover {
+  border-color: #999;
+}
+
+.admin-select:focus {
+  outline: none;
+  border-color: #4a90e2;
+  box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
+}
+
+.admin-table-container {
+  margin-top: 20px;
+  overflow-x: auto;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.admin-table th,
+.admin-table td {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+}
+
+.admin-table th {
+  background-color: #f8f9fa;
+  font-weight: 600;
+  color: #333;
+}
+
+.admin-table tr:hover {
+  background-color: #f8f9fa;
+}
+
+.actions-cell {
+  width: 150px;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.admin-button {
+  padding: 8px 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.2s;
+}
+
+.add-button {
+  background-color: #4a90e2;
+  color: white;
+}
+
+.add-button:hover {
+  background-color: #357abd;
+}
+
+.edit-button {
+  background-color: #f0ad4e;
+  color: white;
+}
+
+.edit-button:hover {
+  background-color: #ec971f;
+}
+
+.delete-button {
+  background-color: #d9534f;
+  color: white;
+}
+
+.delete-button:hover {
+  background-color: #c9302c;
+}
+
+.admin-button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.admin-error {
+  color: #d9534f;
+  padding: 10px;
+  background-color: #fdf7f7;
+  border-radius: 4px;
+  margin-bottom: 15px;
+}
+
+.admin-loading {
+  color: #666;
+  text-align: center;
+  padding: 20px;
+} 

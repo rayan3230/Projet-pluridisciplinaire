@@ -54,9 +54,9 @@ export const deleteUser = async (userId) => {
 
 // --- Teacher Module Assignment ---
 export const getAssignments = async (filters = {}) => {
-    // filters could be { teacher_id, promo_id, module_id }
+    // filters could be { teacher_id, module_id }
     try {
-        const response = await apiClient.get('/assignments/', { params: filters }); // Path relative to /api/
+        const response = await apiClient.get('/teacher-base-module-assignments/', { params: filters });
         return response.data;
     } catch (error) {
         console.error('Get Assignments API error:', error.response?.data || error.message);
@@ -65,17 +65,51 @@ export const getAssignments = async (filters = {}) => {
 };
 
 export const createAssignment = async (assignmentData) => {
-  // Expecting { teacher_id, module_id, promo_id }
+  console.log('Sending assignment data:', assignmentData); // Keep for debugging temporarily
   try {
-    const response = await apiClient.post('/assignments/', assignmentData); // Path relative to /api/
-    return response.data;
+    const response = await apiClient.post('/teacher-base-module-assignments/', assignmentData);
+    // --- Updated Success Check --- 
+    // Backend now returns 200 OK on successful create/update via delete-then-create
+    // It returns the *final* list of assignments for the teacher.
+    if (response.status === 200 || response.status === 201) { 
+        console.log('Create/Update Assignment API success:', response.data);
+        return response.data; // Return the final assignment list
+    } else {
+        // This case should ideally not be reached if backend follows convention,
+        // but handle unexpected success codes gracefully.
+        console.warn('Create Assignment API returned unexpected success status:', response.status);
+        // Decide how to handle - return data or throw error? Let's return data for now.
+        return response.data; 
+    }
   } catch (error) {
-    console.error('Create Assignment API error:', error.response?.data || error.message);
-    throw error;
+    // Log the detailed error from the backend if available
+    console.error(
+        'Create Assignment API error details:', 
+        { 
+            status: error.response?.status, 
+            data: error.response?.data, 
+            message: error.message 
+        }
+    );
+    // Rethrow a more informative error, including backend message if possible
+    const backendError = error.response?.data?.error || error.response?.data?.detail;
+    throw new Error(backendError || 'Failed to create/update assignment. Please check details and try again.');
   }
 };
 
-// TODO: Implement deleteAssignment if needed
+export const deleteAssignment = async (assignmentId) => {
+  try {
+    const response = await apiClient.delete(`/teacher-base-module-assignments/${assignmentId}/`, {
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      }
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Delete Assignment API error:', error.response?.data || error);
+    throw error;
+  }
+};
 
 // Function to fetch locations
 export const getLocations = async () => {
@@ -180,3 +214,23 @@ export const deleteLocation = async (id) => {
 //     throw error;
 //   }
 // }; 
+
+export const getBaseModules = async () => {
+  try {
+    const response = await apiClient.get('/base-modules/');
+    return response.data;
+  } catch (error) {
+    console.error('Get Base Modules API error:', error.response?.data || error.message);
+    throw error;
+  }
+};
+
+export const getVersionModules = async (baseModuleId) => {
+  try {
+    const response = await apiClient.get(`/version-modules/?base_module=${baseModuleId}`);
+    return response.data;
+  } catch (error) {
+    console.error('Get Version Modules API error:', error.response?.data || error.message);
+    throw error;
+  }
+}; 

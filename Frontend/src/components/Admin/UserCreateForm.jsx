@@ -10,7 +10,7 @@ function UserCreateForm({ onSubmitSuccess, initialData, onCancel }) {
   const [fullName, setFullName] = useState('');       
   const [personnelEmail, setPersonnelEmail] = useState('');
   const [isTeacher, setIsTeacher] = useState(false);
-  const [isAdminRole, setIsAdminRole] = useState(false);
+  const [isStaff, setIsStaff] = useState(false);
   // const [isSuperuser, setIsSuperuser] = useState(false); // Not managing superuser role via this form
   
   const [error, setError] = useState('');
@@ -24,7 +24,7 @@ function UserCreateForm({ onSubmitSuccess, initialData, onCancel }) {
       setFullName(initialData.full_name || '');     
       setPersonnelEmail(initialData.personnel_email || '');
       setIsTeacher(initialData.is_teacher || false);
-      setIsAdminRole(initialData.is_staff || false);
+      setIsStaff(initialData.is_staff || false);
       // setIsSuperuser(initialData.is_superuser || false);
       setSuccess(''); // Clear success message when editing
     } else {
@@ -32,7 +32,7 @@ function UserCreateForm({ onSubmitSuccess, initialData, onCancel }) {
       setFullName('');                              
       setPersonnelEmail('');
       setIsTeacher(false);
-      setIsAdminRole(false);
+      setIsStaff(false);
       // setIsSuperuser(false);
       setSuccess('');
     }
@@ -51,7 +51,7 @@ function UserCreateForm({ onSubmitSuccess, initialData, onCancel }) {
            full_name: fullName, 
            personnel_email: personnelEmail,
            is_teacher: isTeacher,
-           is_staff: isAdminRole,
+           is_staff: isStaff,
            // scope_email is read-only
         };
         response = await updateUser(initialData.id, updatePayload);
@@ -61,7 +61,7 @@ function UserCreateForm({ onSubmitSuccess, initialData, onCancel }) {
             full_name: fullName, 
             personnel_email: personnelEmail,
             is_teacher: isTeacher,
-            is_staff: isAdminRole,
+            is_staff: isStaff,
         }; 
         response = await createUser(createPayload); 
         setSuccess(`User ${response.scope_email} created successfully! Check personnel email for credentials if applicable.`);
@@ -148,8 +148,8 @@ function UserCreateForm({ onSubmitSuccess, initialData, onCancel }) {
               <input 
                 type="checkbox" 
                 id="isAdminCheck"
-                checked={isAdminRole} 
-                onChange={(e) => setIsAdminRole(e.target.checked)}
+                checked={isStaff} 
+                onChange={(e) => setIsStaff(e.target.checked)}
                 disabled={isSubmitting}
               />
               <label htmlFor="isAdminCheck">Admin Role? (Staff Access)</label>

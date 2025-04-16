@@ -121,9 +121,12 @@ const ScheduleManagementPage = () => {
               disabled={loading}
             >
               <option value="">Select a semester</option>
-              {semesters.map(semester => (
+              {semesters
+                .filter(sem => sem.start_date && sem.end_date)
+                .map(semester => (
                 <option key={semester.id} value={semester.id}>
-                  {semester.name}
+                  {semester.semester_number === 1 ? 'First Semester' : 'Second Semester'} 
+                  ({semester.academic_year?.year_start ?? '?'}-{semester.academic_year?.year_end ?? '?'})
                 </option>
               ))}
             </select>

@@ -3,8 +3,8 @@ import React, { createContext, useState, useContext, useEffect } from 'react';
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null); 
-  const [isLoading, setIsLoading] = useState(true); 
+  const [user, setUser] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     setIsLoading(false);
@@ -15,7 +15,7 @@ export const AuthProvider = ({ children }) => {
       id: userData.id,
       name: userData.full_name,
       email: userData.scope_email,
-      isAdmin: userData.is_admin || false,
+      isAdmin: userData.is_staff || false,
       isTeacher: userData.is_teacher || false,
       needsPasswordChange: userData.needs_password_change || false,
     };
@@ -32,11 +32,11 @@ export const AuthProvider = ({ children }) => {
     user,
     isAdmin: user?.isAdmin ?? false,
     isTeacher: user?.isTeacher ?? false,
-    isAuthenticated: !!user, 
+    isAuthenticated: !!user,
     needsPasswordChange: user?.needsPasswordChange ?? false,
-    isLoading, 
-    login, 
-    logout, 
+    isLoading,
+    login,
+    logout,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

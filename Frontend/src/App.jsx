@@ -1,11 +1,9 @@
 import React from 'react';
 import AppRouter from './routes/AppRouter';
-import './App.css'; // Keep or remove global styles as needed
+import './App.css';
 
 function App() {
-    return (
-      <AppRouter />
-  );
+  return <AppRouter />;
 }
 
 export default App;

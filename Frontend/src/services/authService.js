@@ -7,8 +7,7 @@ export const loginUser = async (credentials) => {
     // TODO: Handle response - check for temporary password flag?
     return response.data;
   } catch (error) {
-    console.error('Login API error:', error.response || error.message);
-    throw error; // Re-throw for component to handle
+    throw error;
   }
 };
 
@@ -18,7 +17,6 @@ export const changePassword = async (passwordData) => {
     const response = await apiClient.post('/auth/change-password/', passwordData);
     return response.data;
   } catch (error) {
-    console.error('Change Password API error:', error.response || error.message);
     throw error;
   }
 };

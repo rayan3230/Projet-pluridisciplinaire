@@ -1,12 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { getSemesters } from '../../services/semesterService';
-// Import functions to get promos and sections data
 import { getPromos, getSections } from '../../services/academicService';
 import { exportScheduleToPDF, exportScheduleToExcel } from '../../services/scheduleService';
-// Import the reusable schedule table component
 import ScheduleTable from '../../components/Schedule/ScheduleTable';
-// Add specific styling if needed
-// import './AdminPromoScheduleViewerPage.css';
+
 
 const AdminPromoScheduleViewerPage = () => {
   const [promos, setPromos] = useState([]);
@@ -14,7 +11,6 @@ const AdminPromoScheduleViewerPage = () => {
   const [sectionsForPromo, setSectionsForPromo] = useState([]);
   const [selectedPromo, setSelectedPromo] = useState('');
   const [selectedSemester, setSelectedSemester] = useState('');
-  const [loading, setLoading] = useState(true); // Combined loading state
   const [error, setError] = useState(null);
   const [exporting, setExporting] = useState(false);
 
@@ -50,7 +46,7 @@ const AdminPromoScheduleViewerPage = () => {
       }
       
       try {
-        const sections = await getSections({ promo_id: selectedPromo });
+        const sections = await getSections({ promo: selectedPromo });
         setSectionsForPromo(sections || []);
       } catch (error) {
         console.error("Failed to fetch sections:", error);
@@ -133,9 +129,12 @@ const AdminPromoScheduleViewerPage = () => {
                 className="admin-select"
               >
                 <option value="">-- Select Semester --</option>
-                {semesters.map(semester => (
+                {semesters
+                  .filter(sem => sem.start_date && sem.end_date)
+                  .map(semester => (
                   <option key={semester.id} value={semester.id}>
-                    {semester.name}
+                    {semester.semester_number === 1 ? 'First Semester' : 'Second Semester'} 
+                    ({semester.academic_year?.year_start ?? '?'}-{semester.academic_year?.year_end ?? '?'})
                   </option>
                 ))}
               </select>

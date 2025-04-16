@@ -24,7 +24,7 @@ import ExamDefinitionPage from '../pages/Admin/ExamDefinitionPage';
 import ScheduleGenerationPage from '../pages/Admin/ScheduleGenerationPage';
 import AdminTeacherScheduleViewerPage from '../pages/Admin/AdminTeacherScheduleViewerPage';
 import AdminPromoScheduleViewerPage from '../pages/Admin/AdminPromoScheduleViewerPage';
-import ExamSurveillanceSchedule from '../components/ExamSurveillanceSchedule';
+import ExamSurveillanceSchedule from '../pages/Admin/ExamSurveillanceSchedule.jsx';
 
 // Teacher Pages
 import TeacherDashboardPage from '../pages/Teacher/TeacherDashboardPage';
