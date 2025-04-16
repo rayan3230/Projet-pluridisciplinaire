@@ -1,0 +1,73 @@
+/* QuickStats.css - Adjusted Height */
+
+.quick-stats-card {
+    background-color: #fff;
+    border-radius: 8px;
+    padding: 18px 15px; /* Increased top/bottom padding slightly */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e0e0e0;
+    font-family: 'Lato', sans-serif;
+}
+
+.quick-stats-card .stats-title {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1.1em; /* Kept title size */
+    font-weight: 600;
+    color: #212529;
+    margin: 0 0 12px 0; /* Slightly more bottom margin */
+    padding-bottom: 8px;
+    border-bottom: 1px solid #eee;
+}
+
+.quick-stats-card .stats-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px; /* Increased gap */
+}
+
+.quick-stats-card .stat-item {
+    display: flex;
+    align-items: center;
+    gap: 10px; /* Slightly increased gap */
+    padding: 8px 0px; /* Increased top/bottom padding */
+    border-bottom: 1px dashed #eee;
+}
+
+.quick-stats-card .stat-item:last-child {
+    border-bottom: none;
+}
+
+.quick-stats-card .stat-icon {
+    color: #007AFF;
+    font-size: 1.1em;
+    flex-shrink: 0;
+    width: 20px;
+    text-align: center;
+}
+
+/* Adjust SVG size directly if needed */
+.quick-stats-card .stat-icon svg {
+    width: 20px; 
+    height: 20px;
+}
+
+.quick-stats-card .stat-info {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+
+.quick-stats-card .stat-value {
+    font-size: 1.3em; /* Increased value size slightly */
+    font-weight: 600;
+    color: #212529;
+    line-height: 1.1;
+}
+
+.quick-stats-card .stat-label {
+    font-size: 0.8em; /* Kept label size small */
+    color: #6c757d;
+} 

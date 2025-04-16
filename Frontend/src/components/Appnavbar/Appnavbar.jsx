@@ -1,17 +1,24 @@
 import React, { useState, useEffect, useRef } from "react";
+import { Link } from "react-router-dom";
 import "./appnavbar.css";
 import logo from '../../assets/navlogo.png';
 import profile from '../../assets/profile.png';
 import Quickprofile from '../Quickprofile/Quickprofile.jsx';
 import Quickhelp from '../Quickhelp/Quickhelp.jsx';
+import Notification from '../Notification/Notification.jsx'; // Import Notification component
 
 import icon1 from '../../assets/navicons/icon1.svg';
 import icon2 from '../../assets/navicons/icon2.svg';
 import icon3 from '../../assets/navicons/icon3.svg';
 import icon4 from '../../assets/navicons/icon4.svg';
 
-// Define the links rendered in the nav
-const navLinks = ["Home", "Pending Requests", "Incoming Requests", "Time Swap"];
+// Define the links and their corresponding paths
+const navLinks = [
+    { text: "Home", path: "/home" }, 
+    { text: "Pending Requests", path: "/pending-requests" },
+    { text: "Incoming Requests", path: "/incoming-requests" },
+    { text: "Time Swap", path: "/time-swap" }
+];
 
 function Appnavbar() {
     const [activeLink, setActiveLink] = useState(navLinks[0]);
@@ -88,7 +95,8 @@ function Appnavbar() {
 
     useEffect(() => {
         const updatePosition = () => {
-            const currentIndex = navLinks.indexOf(activeLink);
+            // Find the index based on the activeLink text
+            const currentIndex = navLinks.findIndex(link => link.text === activeLink);
             updateIndicatorPosition(currentIndex);
         }
         

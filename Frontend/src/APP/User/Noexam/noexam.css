@@ -1,0 +1,68 @@
+/* noexam.css */
+
+.noexam-page-container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    background-color: #f8f9fa; /* Light background */
+    font-family: 'Lato', sans-serif;
+}
+
+/* Area containing the card */
+.noexam-content-area {
+    flex-grow: 1;
+    display: flex;
+    /* Remove centering, let card handle alignment */
+    padding: 40px; /* Add padding around the card */
+    margin-top: 70px; /* Account for fixed AppNavbar height */
+}
+
+/* The white card */
+.noexam-card {
+    background-color: #fff;
+    border-radius: 8px;
+    padding: 25px; /* Padding inside the card */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+    border: 1px solid #e0e0e0;
+    width: 100%; /* Card takes full width of content area */
+    display: flex;
+    flex-direction: column;
+    min-height: 300px; /* Example min-height, adjust as needed */
+}
+
+/* Title styling - top left */
+.noexam-title {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1.5em; /* Adjust size as needed */
+    font-weight: 600;
+    color: #212529;
+    margin: 0 0 30px 0; /* Margin below title */
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee; /* Optional separator */
+    text-align: left; /* Align title left */
+}
+
+/* Wrapper for the message content */
+.noexam-message-content {
+    flex-grow: 1; /* Take remaining vertical space */
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* Center text vertically */
+    align-items: center; /* Center text horizontally */
+    text-align: center;
+}
+
+/* Message text styling */
+.noexam-message {
+    font-size: 1.1em;
+    line-height: 1.6;
+    max-width: 550px; /* Adjust width */
+    margin-bottom: 15px;
+    color: #495057;
+}
+
+.noexam-thanks {
+    font-size: 1em;
+    color: #6c757d;
+}
+
