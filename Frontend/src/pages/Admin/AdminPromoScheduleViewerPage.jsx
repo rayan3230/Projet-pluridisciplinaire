@@ -13,6 +13,7 @@ const AdminPromoScheduleViewerPage = () => {
   const [selectedSemester, setSelectedSemester] = useState('');
   const [error, setError] = useState(null);
   const [exporting, setExporting] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   // Fetch available promos and semesters
   useEffect(() => {

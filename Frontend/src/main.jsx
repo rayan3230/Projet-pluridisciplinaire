@@ -26,7 +26,6 @@ ReactDOM.createRoot(document.getElementById('root')).render(
     <AuthProvider>
       <App />
     <AuthProvider/> {/* AuthProvider needed for AppNavbar */}
-    
     </AuthProvider>
   </React.StrictMode>,
 )
