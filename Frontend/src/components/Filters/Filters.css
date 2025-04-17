@@ -1,0 +1,111 @@
+.filters-panel {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    width: 280px;
+    padding: 20px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  }
+  
+  .filters-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+  
+  .filters-header h2 {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0;
+    color: #333;
+  }
+  
+  .reset-btn {
+    background: none;
+    border: none;
+    color: #1a73e8;
+    font-size: 14px;
+    cursor: pointer;
+    padding: 4px 8px;
+  }
+  
+  .reset-btn:hover {
+    text-decoration: underline;
+  }
+  
+  .filter-group {
+    margin-bottom: 24px;
+  }
+  
+  .filter-title {
+    font-size: 15px;
+    font-weight: 500;
+    margin: 0 0 12px 0;
+    color: #444;
+  }
+  
+  .radio-option,
+  .checkbox-option {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+    font-size: 14px;
+    color: #333;
+    cursor: pointer;
+    position: relative;
+    padding-left: 28px;
+  }
+  
+  .radio-option input,
+  .checkbox-option input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+  }
+  
+  .checkmark {
+    position: absolute;
+    left: 0;
+    height: 18px;
+    width: 18px;
+    border: 1px solid #ccc;
+    border-radius: 2px;
+  }
+  
+  .radio-option .checkmark {
+    border-radius: 50%;
+  }
+  
+  .radio-option input:checked ~ .checkmark,
+  .checkbox-option input:checked ~ .checkmark {
+    background-color: #1a73e8;
+    border-color: #1a73e8;
+  }
+  
+  .checkmark:after {
+    content: "";
+    position: absolute;
+    display: none;
+  }
+  
+  .radio-option input:checked ~ .checkmark:after {
+    display: block;
+    top: 4px;
+    left: 4px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: white;
+  }
+  
+  .checkbox-option input:checked ~ .checkmark:after {
+    display: block;
+    left: 6px;
+    top: 2px;
+    width: 5px;
+    height: 10px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+  }
