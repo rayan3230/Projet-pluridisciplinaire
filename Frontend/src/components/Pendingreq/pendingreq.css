@@ -1,0 +1,142 @@
+/* pendingreq.css - Styles for the Pending Requests component */
+
+/* Main container for the whole section */
+.pending-requests-container {
+    background-color: #ffffff;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    font-family: 'Lato', sans-serif;
+    height: 100%; /* Allow container to fill grid area */
+    display: flex;
+    flex-direction: column;
+}
+
+/* Header section with title and See All link */
+.pending-requests-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 18px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #e9ecef; /* Subtle separator */
+}
+
+.title {
+    display: flex;
+    align-items: center;
+    font-size: 1.1rem; /* Slightly larger title */
+    font-weight: 700;
+    color: #343a40;
+    margin: 0;
+}
+
+.title-icon {
+    width: 10px;
+    height: 10px;
+    background-color: #007bff; /* Blue dot */
+    border-radius: 50%;
+    margin-right: 10px;
+}
+
+.see-all-link {
+    font-size: 0.85rem;
+    color: #007bff;
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.2s ease;
+}
+
+.see-all-link:hover {
+    color: #0056b3;
+    text-decoration: underline;
+}
+
+/* List container */
+.pending-requests-list {
+    flex-grow: 1; /* Allows list to take remaining space */
+    overflow-y: auto; /* Add scroll if content exceeds height */
+    padding-right: 5px; /* Prevent scrollbar overlap */
+    margin-right: -5px;
+}
+
+/* Individual request item */
+.pending-request-item {
+    background-color: #f8f9fa; /* Light background for items */
+    border-radius: 6px;
+    padding: 15px;
+    margin-bottom: 15px;
+    border: 1px solid #dee2e6;
+}
+
+.request-details {
+    margin-bottom: 15px;
+}
+
+.request-detail {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px; /* Spacing between details */
+    font-size: 0.9rem;
+    color: #495057;
+}
+
+.icon-detail {
+    margin-right: 8px;
+    color: #6c757d; /* Icon color */
+    flex-shrink: 0; /* Prevent icons from shrinking */
+}
+
+.detail-label {
+    font-weight: 600;
+    margin-right: 5px;
+    min-width: 130px; /* Align values */
+}
+
+.detail-label.indented {
+    padding-left: 24px; /* Indent lines without icons */
+     min-width: calc(130px - 24px); /* Adjust min-width for indent */
+}
+
+.detail-value {
+    color: #212529;
+}
+
+/* Action buttons area */
+.request-actions {
+    display: flex;
+    justify-content: flex-end; /* Align buttons to the right */
+    gap: 10px;
+}
+
+.action-button {
+    padding: 6px 14px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.2s ease, box-shadow 0.2s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.edit-button {
+    background-color: #007bff; /* Blue */
+    color: white;
+}
+
+.edit-button:hover {
+    background-color: #0056b3;
+    box-shadow: 0 2px 4px rgba(0, 123, 255, 0.3);
+}
+
+.delete-button {
+    background-color: #dc3545; /* Red */
+    color: white;
+}
+
+.delete-button:hover {
+    background-color: #c82333;
+    box-shadow: 0 2px 4px rgba(220, 53, 69, 0.3);
+}

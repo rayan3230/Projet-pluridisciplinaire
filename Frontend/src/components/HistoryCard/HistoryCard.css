@@ -1,0 +1,143 @@
+/* HistoryCard.css - Styles based on incomingrequ.css */
+
+/* Base card styles */
+.history-card {
+    display: flex;
+    align-items: center;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+    padding: 16px 20px;
+    font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+    width: 100%;
+    max-width: 1100px;
+    margin-bottom: 15px;
+    gap: 20px;
+    border-left: 4px solid #6c757d; /* Default border color (grey) */
+    transition: border-left-color 0.3s ease;
+}
+
+/* Status-specific border colors */
+.history-card.status-accepted {
+    border-left-color: #198754; /* Green */
+}
+.history-card.status-rejected {
+    border-left-color: #dc3545; /* Red */
+}
+.history-card.status-canceled,
+.history-card.status-expired {
+    border-left-color: #ffc107; /* Yellow/Orange */
+}
+
+/* Requester Info */
+.requester-info {
+    display: flex;
+    align-items: flex-start;
+    min-width: 100px;
+}
+
+.requester-details {
+    display: flex;
+    flex-direction: column;
+}
+
+.teacher-name {
+    font-size: 15px;
+    font-weight: 600;
+    color: #343a40; /* Darker name for history */
+}
+
+.teacher-id {
+    font-size: 13px;
+    color: #6c757d;
+}
+
+/* Content Wrapper */
+.request-content-wrapper {
+    display: flex;
+    align-items: center;
+    flex-grow: 1;
+    gap: 20px;
+}
+
+/* Slot Info */
+.slot-info {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex-basis: 0;
+    flex-grow: 1;
+}
+
+.slot-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: #adb5bd;
+    text-transform: uppercase;
+}
+
+.slot-details {
+    font-size: 14px;
+    color: #333;
+    text-align: left;
+}
+
+.extra-details {
+    display: flex;
+    gap: 15px;
+    font-size: 12px;
+    color: #6c757d;
+}
+
+.detail-item {
+    /* No specific styles needed */
+}
+
+/* Swap Icon */
+.swap-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 15px;
+}
+
+/* Status Info */
+.status-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end; /* Align status to the right */
+    min-width: 120px; /* Ensure space for status and date */
+    text-align: right;
+    gap: 4px;
+}
+
+.status-badge {
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 12px; /* Pill shape */
+    color: white;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Status-specific badge colors */
+.status-badge.status-accepted {
+    background-color: #198754; /* Green */
+}
+.status-badge.status-rejected {
+    background-color: #dc3545; /* Red */
+}
+.status-badge.status-canceled,
+.status-badge.status-expired {
+    background-color: #ffc107; /* Yellow/Orange */
+    color: #333; /* Darker text for yellow badge */
+}
+.status-badge.status-unknown {
+    background-color: #6c757d; /* Grey */
+}
+
+.completed-date {
+    font-size: 0.8rem;
+    color: #6c757d;
+} 

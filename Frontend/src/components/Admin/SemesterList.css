@@ -1,0 +1,148 @@
+.semester-list-container {
+  background-color: var(--admin-bg-color, #fff);
+  border: 1px solid var(--admin-border-color, #ddd);
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  margin-top: 1rem;
+}
+
+.semester-list-container h2 {
+  margin-top: 0;
+  color: var(--admin-text-color, #333);
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.semester-note {
+  background-color: #e2f0ff;
+  color: #0c5460;
+  padding: 0.75rem;
+  border-radius: 5px;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+}
+
+.academic-years-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.academic-year-group {
+  background-color: var(--admin-bg-color, #fff);
+  border: 1px solid var(--admin-border-color, #e0e0e0);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.academic-year-title {
+  margin: 0;
+  padding: 1rem;
+  background-color: var(--admin-secondary-color, #f5f5f5);
+  color: var(--admin-text-color, #333);
+  font-size: 1.2rem;
+  font-weight: 500;
+  border-bottom: 1px solid var(--admin-border-color, #e0e0e0);
+}
+
+.semester-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.semester-item {
+  padding: 1rem;
+  border-bottom: 1px solid var(--admin-border-color, #e0e0e0);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: background-color 0.2s;
+  background-color: var(--admin-bg-color, #fff);
+}
+
+.semester-item:last-child {
+  border-bottom: none;
+}
+
+.semester-item:hover {
+  background-color: var(--admin-hover-color, #f8f9fa);
+}
+
+.semester-item.selected {
+  background-color: rgba(0, 122, 255, 0.1);
+  border-left: 3px solid var(--admin-primary-color);
+}
+
+.semester-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.semester-name {
+  font-weight: 500;
+  color: var(--admin-text-color, #333);
+  font-size: 1.1rem;
+}
+
+.semester-speciality {
+  color: var(--admin-text-color);
+  font-size: 0.9rem;
+  font-weight: 500;
+  background-color: #e9f7fe;
+  padding: 0.25rem 0.5rem;
+  border-radius: 3px;
+  display: inline-block;
+}
+
+.semester-dates {
+  color: var(--admin-text-muted, #666);
+  font-size: 0.9rem;
+}
+
+.no-data {
+  text-align: center;
+  color: var(--admin-text-muted, #666);
+  font-style: italic;
+  padding: 1rem 0;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.edit-button {
+  padding: 0.5rem 1rem;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.edit-button:hover {
+  background-color: #0069d9;
+}
+
+@media (max-width: 768px) {
+  .semester-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  
+  .action-buttons {
+    width: 100%;
+    justify-content: flex-end;
+  }
+}
+
+.semester-list-container .admin-form {
+  /* Styles specific to the form *within* this list container can go here */
+  /* ... existing code ... */
+} 

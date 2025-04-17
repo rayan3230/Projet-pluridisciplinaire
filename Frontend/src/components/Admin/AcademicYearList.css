@@ -1,0 +1,114 @@
+.academic-year-list-container {
+  background-color: #ffffff;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin: 20px 0;
+}
+
+.academic-year-list-container h2 {
+  color: #333;
+  margin-bottom: 15px;
+}
+
+.note {
+  color: #666;
+  font-size: 0.9em;
+  margin-bottom: 20px;
+  padding: 10px;
+  background-color: #f8f9fa;
+  border-radius: 4px;
+}
+
+.academic-years-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.academic-year-item {
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.academic-year-header {
+  background-color: #f8f9fa;
+  padding: 15px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.academic-year-header h3 {
+  margin: 0;
+  color: #2c3e50;
+  font-size: 1.2em;
+}
+
+.semesters-container {
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.semester-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px;
+  background-color: #ffffff;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+}
+
+.semester-item:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+.semester-info h4 {
+  margin: 0 0 10px 0;
+  color: #2c3e50;
+}
+
+.semester-dates {
+  display: flex;
+  gap: 20px;
+  color: #666;
+  font-size: 0.9em;
+}
+
+.semester-dates p {
+  margin: 0;
+}
+
+.edit-button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.edit-button:hover {
+  background-color: #0056b3;
+}
+
+@media (max-width: 768px) {
+  .semester-item {
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .semester-dates {
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .edit-button {
+    width: 100%;
+  }
+} 

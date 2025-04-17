@@ -1,0 +1,77 @@
+/* Quick Help Card Styles - Adapted from Quick Profile */
+
+.quick-help-card {
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    padding: 20px;
+    width: 250px; /* Width might need adjustment based on grid layout */
+    font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif; /* Original Font */
+    color: #333;
+    border: 1px solid #eee;
+}
+
+.help-title {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 15px;
+    color: #212529;
+    padding-left: 5px; /* Align with list items */
+}
+
+.help-actions {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.help-actions li {
+    display: flex;
+    align-items: center;
+    padding: 10px 5px;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: background-color 0.2s ease;
+    font-size: 14px;
+    color: #495057;
+}
+
+.help-actions li:hover {
+    background-color: #f8f9fa;
+}
+
+.help-actions svg {
+    margin-right: 12px;
+    color: #6c757d;
+    flex-shrink: 0;
+}
+
+.help-actions span {
+    flex-grow: 1;
+}
+
+/* Style for the anchor tag inside list item */
+.help-link {
+    display: flex; /* Make the link take up the li space */
+    align-items: center;
+    text-decoration: none; /* Remove underline */
+    color: inherit; /* Inherit text color from parent li */
+    width: 100%; /* Ensure link fills the li */
+    padding: 0; /* Reset padding if needed, li has padding */
+}
+
+.help-link svg {
+     margin-right: 12px;
+     color: #6c757d;
+     flex-shrink: 0;
+}
+
+.help-link span {
+     flex-grow: 1;
+}
+
+/* Optional: Ensure hover state applies correctly via the link */
+.help-actions li:hover .help-link {
+    /* If you want hover effects specifically on the link, add them here */
+    /* background-color: inherit; /* If li:hover has background */ */
+}

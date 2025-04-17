@@ -31,11 +31,7 @@ DEBUG = os.getenv('DEBUG', 'True') == 'True'
 
 # Print which database is being used
 print("\n" + "="*50)
-if DEBUG:
-    print("Local MySQL Database")
-else:
-    print("Supabase PostgreSQL Database")
-
+print("Local MySQL Database" if DEBUG else "Supabase PostgreSQL Database")
 print("="*50 + "\n")
 
 ALLOWED_HOSTS = ['*']  # Configure this appropriately for production
@@ -53,7 +49,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'rest_framework',
     'users',
-    'Acadimic'
+    'Acadimic',
 ]
 
 MIDDLEWARE = [
@@ -65,7 +61,6 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-
 ]
 
 CORS_ALLOW_ALL_ORIGINS = True  # For development only
@@ -75,8 +70,8 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:5174",
     "http://127.0.0.1:5173",
     "http://127.0.0.1:5174",
+    "http://192.168.100.227:5173",  # Add your mobile device's IP
 ]
-
 
 CORS_ALLOW_METHODS = [
     'DELETE',
@@ -188,9 +183,20 @@ USE_TZ = True
 
 
 # Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/5.1/howto/static-files/
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static'),
+    os.path.join(BASE_DIR, 'Acadimic', 'static'),
+]
 
-STATIC_URL = 'static/'
+# Ensure static files are served in development
+if DEBUG:
+    STATICFILES_DIRS = [
+        os.path.join(BASE_DIR, 'static'),
+        os.path.join(BASE_DIR, 'Acadimic', 'static'),
+    ]
+    STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
@@ -208,3 +214,13 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'Scope67890@gmail.com'  # Your email address
 EMAIL_HOST_PASSWORD = 'jqra juwo ferc xftg'  # Your email password or app password
 DEFAULT_FROM_EMAIL = 'SCOPE Admin <SCOPEADMIN@SCOPE.com>'
+
+# Django REST Framework settings
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [],
+    'DEFAULT_PERMISSION_CLASSES': [],
+    'DEFAULT_RENDERER_CLASSES': (
+        'rest_framework.renderers.JSONRenderer',
+        'rest_framework.renderers.BrowsableAPIRenderer',
+    )
+}

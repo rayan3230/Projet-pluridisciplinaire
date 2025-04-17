@@ -1,0 +1,85 @@
+/* Quick Profile Card Styles */
+
+.quick-profile-card {
+    background-color: white;
+    border-radius: 12px; /* More rounded corners */
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15); /* Softer, larger shadow */
+    padding: 20px;
+    width: 250px; /* Fixed width */
+    font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+    color: #333;
+    border: 1px solid #eee;
+}
+
+.profile-info {
+    margin-bottom: 15px;
+    padding-left: 5px; /* Slight indent */
+}
+
+.profile-name {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 4px;
+    color: #212529;
+}
+
+.profile-id {
+    font-size: 14px;
+    color: #6c757d; 
+}
+
+.profile-separator {
+    border: none;
+    height: 1px;
+    background-color: #e9ecef;
+    margin: 15px 0;
+}
+
+.profile-actions {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.profile-actions li {
+    display: flex;
+    align-items: center;
+    padding: 10px 5px; /* Padding for clickable area */
+    cursor: pointer;
+    border-radius: 6px;
+    transition: background-color 0.2s ease;
+    font-size: 14px;
+    color: #495057;
+}
+
+.profile-actions li:hover {
+    background-color: #f8f9fa;
+}
+
+.profile-actions svg {
+    margin-right: 12px;
+    color: #6c757d; /* Default icon color */
+    flex-shrink: 0; /* Prevent icon from shrinking */
+}
+
+.profile-actions span {
+    flex-grow: 1;
+}
+
+/* Logout specific styles */
+.logout-item {
+    color: #dc3545; /* Red color for logout text */
+}
+
+.logout-item svg {
+    color: #dc3545; /* Red color for logout icon */
+}
+
+.logout-item:hover {
+    background-color: #f8d7da; /* Light red background on hover */
+    color: #842029; /* Darker red text on hover */
+}
+
+.logout-item:hover svg {
+     color: #842029; /* Darker red icon on hover */
+}

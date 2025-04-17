@@ -8,62 +8,229 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 10px 20px;
+    padding: 0.8rem 1rem;
     background-color: #FFFFFF;
-    box-shadow: 0 4px 4px rgba(0, 0, 0, 0.1);
-    width: 100vw;
-    height: 70px;
-    padding-left: 94px;
-    padding-right: 94px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    height: 60px;
     position: fixed;
     top: 0;
     left: 0;
-    z-index: 100;
+    z-index: 1000;
+}
+
+.navbar-brand {
+    display: flex;
+    align-items: center;
 }
 
 .logo{
-    width: 110px !important;
-    height: 35px !important;
+    width: 90px !important;
+    height: 28px !important;
+    object-fit: contain;
 }
 
-button{
-    background-color: #000000;
-    color: #FFFFFF;
+/* Mobile Navigation (Default) */
+.desktop-nav {
+    display: none;
+}
+
+.menu-button {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 36px;
+    height: 36px;
+    background: none;
     border: none;
-    width: 127px;
-    height: 30px;
-    border-radius: 5px;
-    font-family: 'lato', sans-serif;
-    font-weight: 300;
-    transition: ease-in-out 0.3s;
-    transition: all 0.3s ease-in-out; /* More standard syntax */
+    cursor: pointer;
+    padding: 0;
+    z-index: 1001;
 }
 
-button:hover{
+.menu-icon {
+    position: relative;
+    width: 20px;
+    height: 2px;
+    background-color: #333;
+    transition: all 0.3s ease;
+}
+
+.menu-icon::before,
+.menu-icon::after {
+    content: '';
+    position: absolute;
+    width: 20px;
+    height: 2px;
+    background-color: #333;
+    transition: all 0.3s ease;
+}
+
+.menu-icon::before {
+    top: -6px;
+}
+
+.menu-icon::after {
+    bottom: -6px;
+}
+
+.menu-button.active .menu-icon {
+    background-color: transparent;
+}
+
+.menu-button.active .menu-icon::before {
+    transform: rotate(45deg);
+    top: 0;
+}
+
+.menu-button.active .menu-icon::after {
+    transform: rotate(-45deg);
+    bottom: 0;
+}
+
+.mobile-nav {
+    position: fixed;
+    top: 60px;
+    left: 0;
+    width: 100%;
+    height: calc(100vh - 60px);
+    background-color: #FFFFFF;
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+    padding: 1.5rem 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.mobile-nav.active {
+    transform: translateX(0);
+}
+
+.mobile-nav ul {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.mobile-nav a {
+    color: #333;
+    text-decoration: none;
+    font-size: 1rem;
+    font-weight: 500;
+    display: block;
+    padding: 0.5rem 0;
+    transition: color 0.3s ease;
+}
+
+.mobile-nav a:hover,
+.mobile-nav li.active a {
+    color: #007AFF;
+}
+
+.login-button {
     background-color: #007AFF;
     color: #FFFFFF;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-weight: 500;
     cursor: pointer;
+    transition: background-color 0.3s ease;
 }
 
-ul{
-    font-family:'lato', sans-serif;
-    font-weight: 400;
-    display: flex;
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    gap: 40px;
-    font-size: 0.9em;
-    margin-bottom: 2px;
+.login-button:hover {
+    background-color: #0056b3;
 }
 
-a{
-    color: #000000;
-    text-decoration: none;
+.desktop-login-button {
+    display: none;
 }
 
-.indicator {
-    position: absolute;
-    border:1px solid #007AFF ;
-    transition: left 0.3s ease;
+/* Tablet */
+@media (min-width: 500px) {
+    .navbar {
+        padding: 0.8rem 1.5rem;
+        height: 70px;
+    }
+
+    .logo {
+        width: 100px !important;
+        height: 32px !important;
+    }
+
+    .menu-button {
+        width: 40px;
+        height: 40px;
+    }
+
+    .menu-icon,
+    .menu-icon::before,
+    .menu-icon::after {
+        width: 24px;
+    }
+
+    .mobile-nav {
+        top: 70px;
+        height: calc(100vh - 70px);
+        padding: 2rem 1.5rem;
+    }
+
+    .mobile-nav a {
+        font-size: 1.1rem;
+    }
+
+    .login-button {
+        padding: 0.6rem 1.2rem;
+        font-size: 0.95rem;
+    }
+}
+
+/* Desktop */
+@media (min-width: 769px) {
+    .navbar {
+        padding: 0.8rem 2rem;
+    }
+
+    .desktop-nav {
+        display: block;
+    }
+
+    .menu-button {
+        display: none;
+    }
+
+    .mobile-nav {
+        display: none;
+    }
+
+    .desktop-login-button {
+        display: block;
+    }
+
+    .login-button {
+        display: none;
+    }
+
+    .desktop-nav ul {
+        display: flex;
+        list-style: none;
+        gap: 2rem;
+    }
+
+    .desktop-nav a {
+        color: #333;
+        text-decoration: none;
+        font-size: 0.95rem;
+        font-weight: 500;
+        transition: color 0.3s ease;
+    }
+
+    .desktop-nav a:hover,
+    .desktop-nav li.active a {
+        color: #007AFF;
+    }
 }
