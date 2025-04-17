@@ -25,19 +25,8 @@ ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <AuthProvider>
       <App />
-    <AuthProvider> {/* AuthProvider needed for AppNavbar */}
-      {/* <ScheduleProvider> */}
-      <BrowserRouter>
-        <NoExam /> 
-        {/* <Home /> */}
-      {/* </ScheduleProvider> */}
-      {/* <NoExam /> */}
-      {/* <PendingRequestsPage /> */}
-      {/* <div style={{ padding: '20px', marginTop: '20px' }}> {/* Add padding for visibility */} 
-        {/* <Swap /> */} 
-      {/* </div> */}
-      {/*<AppRouter /> {/* Render AppRouter, which contains BrowserRouter and all routes */}
-      </BrowserRouter>
+    <AuthProvider/> {/* AuthProvider needed for AppNavbar */}
+    
     </AuthProvider>
   </React.StrictMode>,
 )
