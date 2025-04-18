@@ -71,7 +71,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:5174",
     "http://127.0.0.1:5173",
     "http://127.0.0.1:5174",
-    "http://192.168.100.227:5173",  # Add your mobile device's IP
+    "http://localhost:3000",  # Add this if you're using React's default port
 ]
 
 CORS_ALLOW_METHODS = [
