@@ -57,12 +57,24 @@ function Pendingreq() {
     const [requests, setRequests] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [deleteStatus, setDeleteStatus] = useState({ loading: false, error: null });
+
+    // Create axios instance with default config
+    const api = axios.create({
+        baseURL: 'http://localhost:8000/api',
+        headers: {
+            'Content-Type': 'application/json',
+            // Add your authentication token here if you're using token auth
+            // 'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        },
+        withCredentials: true // If using session authentication
+    });
 
     useEffect(() => {
         const fetchRequests = async () => {
             try {
-                // Replace with your actual API endpoint
-                const response = await axios.get('http://localhost:8000/api/swap-requests/my-requests/');
+                setLoading(true);
+                const response = await api.get('/swap-requests/my-requests/');
                 
                 // Transform the data to match our component's structure
                 const transformedRequests = response.data.requests_with_ids.map(request => ({
@@ -75,17 +87,39 @@ function Pendingreq() {
                 }));
                 
                 setRequests(transformedRequests);
-                setLoading(false);
+                setError(null);
             } catch (err) {
-                setError('Failed to fetch requests');
-                setLoading(false);
+                console.error('Error fetching requests:', err);
+                setError('Failed to fetch requests. ' + (err.response?.data?.detail || err.message));
                 // For development, use example data if API fails
                 setRequests(exampleRequests);
+            } finally {
+                setLoading(false);
             }
         };
 
         fetchRequests();
     }, []);
+
+    const handleDelete = async (requestId) => {
+        try {
+            setDeleteStatus({ loading: true, error: null });
+            
+            // Send delete request to the API
+            await api.delete(`/swap-requests/${requestId}/`);
+            
+            // Remove the request from the local state
+            setRequests(prevRequests => prevRequests.filter(req => req.id !== requestId));
+            
+            setDeleteStatus({ loading: false, error: null });
+        } catch (err) {
+            console.error('Error deleting request:', err);
+            setDeleteStatus({ 
+                loading: false, 
+                error: 'Failed to delete request. ' + (err.response?.data?.detail || err.message)
+            });
+        }
+    };
 
     const handleEdit = async (requestId) => {
         try {
@@ -96,18 +130,8 @@ function Pendingreq() {
         }
     };
 
-    const handleDelete = async (requestId) => {
-        try {
-            // Add your delete logic here
-            await axios.delete(`http://localhost:8000/api/swap-requests/${requestId}/`);
-            setRequests(requests.filter(req => req.id !== requestId));
-        } catch (err) {
-            console.error("Error deleting request:", err);
-        }
-    };
-
-    if (loading) return <div>Loading requests...</div>;
-    if (error) return <div>{error}</div>;
+    if (loading) return <div className="loading-spinner">Loading requests...</div>;
+    if (error) return <div className="error-message">{error}</div>;
 
     return (
         <div className="pending-requests-container">
@@ -117,6 +141,12 @@ function Pendingreq() {
                 </h3>
                 <Link to="/pending-requests" className="see-all-link">See All</Link>
             </div>
+
+            {deleteStatus.error && (
+                <div className="error-message">
+                    {deleteStatus.error}
+                </div>
+            )}
 
             <div className="pending-requests-list">
                 {requests.length > 0 ? (
@@ -147,17 +177,29 @@ function Pendingreq() {
                                 </div>
                             </div>
                             <div className="request-actions">
-                                <button onClick={() => handleEdit(request.id)} className="action-button edit-button">
+                                <button 
+                                    onClick={() => handleEdit(request.id)} 
+                                    className="action-button edit-button"
+                                    disabled={deleteStatus.loading}
+                                >
                                     Edit Request
                                 </button>
-                                <button onClick={() => handleDelete(request.id)} className="action-button delete-button">
-                                    Delete Request
+                                <button 
+                                    onClick={() => handleDelete(request.id)} 
+                                    className="action-button delete-button"
+                                    disabled={deleteStatus.loading}
+                                >
+                                    {deleteStatus.loading ? 'Deleting...' : 'Delete Request'}
                                 </button>
                             </div>
                         </div>
                     ))
                 ) : (
-                    <p>No pending requests.</p>
+                    <div className="empty-requests-container">
+                        <p className="empty-requests-message">
+                            No requests from any teacher for the moment, your inbox is empty
+                        </p>
+                    </div>
                 )}
             </div>
         </div>
