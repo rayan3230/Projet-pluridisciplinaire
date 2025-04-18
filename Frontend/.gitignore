@@ -28,3 +28,4 @@ dist-ssr
 *_pycache_/
 *.pyc
 djangoenv/
+.env.development
