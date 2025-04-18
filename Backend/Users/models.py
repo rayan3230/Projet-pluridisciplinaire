@@ -67,6 +67,32 @@ class User(AbstractUser):
     def __str__(self):
         return self.scope_email
 
+    def get_received_swap_requests(self):
+        """Get all swap requests where this user is the receiving teacher."""
+        from swap_requests.models import SwapRequest
+        
+        # Get all requests
+        requests = SwapRequest.objects.filter(receiving_teacher=self)
+        
+        # Get just the IDs as a list
+        request_ids = list(requests.values_list('id', flat=True))
+        
+        # Get requests with specific fields
+        requests_with_ids = list(requests.values(
+            'id', 
+            'requested_class', 
+            'offered_class',
+            'accepted',
+            'created_at',
+            'requesting_teacher_id'
+        ))
+        
+        return {
+            'requests': requests,
+            'ids': request_ids,
+            'requests_with_ids': requests_with_ids
+        }
+
 
 
 
